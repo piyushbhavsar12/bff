@@ -1,46 +1,13 @@
-# dependencies
-node_modules/
-
-# IDE
-/.idea
-/.awcache
-/.vscode
-/.devcontainer
-*.code-workspace
-
-# Vim
-[._]*.s[a-v][a-z]
-[._]*.sw[a-p]
-[._]s[a-rt-v][a-z]
-[._]ss[a-gi-z]
-[._]sw[a-p]
-
-# bundle
-packages/**/*.d.ts
-packages/**/*.js
-
-# misc
-.DS_Store
-lerna-debug.log
-npm-debug.log
+node_modules
+# Keep environment variables out of version control
+.env
+dist
+documentation
+vault/*
+vault
+keys
+*.samples.json
+dist/*
 yarn-error.log
-/**/npm-debug.log
-/packages/**/.npmignore
-/packages/**/LICENSE
-*.tsbuildinfo
 
-# example
-/quick-start
-/example_dist
-/example
-
-# tests
-/coverage
-/.nyc_output
-/benchmarks/memory
-
-.npmrc
-pnpm-lock.yaml
-
-
-/dist
+prisma/generated/prisma-client-js
