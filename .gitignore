@@ -11,3 +11,6 @@ dist/*
 yarn-error.log
 
 prisma/generated/prisma-client-js
+
+data
+pgdata
