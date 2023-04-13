@@ -13,10 +13,16 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
+    - name: Free up disk space
+      run: |
+        curl -o free_disk_space.sh https://raw.githubusercontent.com/apache/flink/02d30ace69dc18555a5085eccf70ee884e73a16e/tools/azure-pipelines/free_disk_space.sh
+        chmod +x free_disk_space.sh
+        ./free_disk_space.sh
+
     - name: Cache Docker images
       uses: actions/cache@v2
       with:
-        path: /github/home/docker-images
+        path: /tmp/docker-images
         key: docker-images-${{ hashFiles('docker-compose.yaml') }}
 
     - name: Pull and save Docker images
@@ -25,13 +31,13 @@ jobs:
         docker pull samagragovernance/postgres:latest-pg15
         docker pull hasura/graphql-engine:latest
         docker pull ghcr.io/samagra-development/ai-tools:main
-        mkdir -p /github/home/docker-images
-        docker save -o /github/home/docker-images/images.tar samagragovernance/postgres:latest-pg15 hasura/graphql-engine:latest ghcr.io/samagra-development/ai-tools:main
+        mkdir -p /tmp/docker-images
+        docker save -o /tmp/docker-images/images.tar samagragovernance/postgres:latest-pg15 hasura/graphql-engine:latest ghcr.io/samagra-development/ai-tools:main
 
     - name: Load cached Docker images
       run: |
-        if [ -d /github/home/docker-images ]; then
-          docker load < /github/home/docker-images/images.tar
+        if [ -d /tmp/docker-images ]; then
+          docker load < /tmp/docker-images/images.tar
         fi
     
     - name: Run other services
