@@ -8,9 +8,15 @@ This allows for creation and mangement of flows of the building blocks I/O for A
 
 ### Setting up the server
 
-1. Setup the DB
+1. Setup
 
 ```sh
+# Setup DB and Hasura
 docker-compose up -d
-npx prisma migrate deploy
+
+# Migrate Database
+npx prisma migrate dev
+
+# Start dev server
+yarn start:dev
 ```

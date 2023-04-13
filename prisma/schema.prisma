@@ -13,12 +13,14 @@ datasource db {
 }
 
 model query {
-  createdAt    DateTime @default(now()) @db.Timestamptz(3)
-  updatedAt    DateTime @updatedAt
-  responseTime Int
-  query        String
-  response     String
-  userId       String   @db.Uuid
+  createdAt         DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt         DateTime @updatedAt
+  responseTime      Int
+  query             String
+  response          String
+  queryInEnglish    String
+  responseInEnglish String
+  userId            String   @db.Uuid
 
   @@unique([userId, createdAt])
 }
