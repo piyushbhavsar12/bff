@@ -19,6 +19,15 @@ jobs:
         path: /tmp/docker-images
         key: docker-images-${{ hashFiles('docker-compose.yaml') }}
 
+    - name: Pull and save Docker images
+      if: steps.cache.outputs.cache-hit != 'true'
+      run: |
+        docker pull samagragovernance/postgres:latest-pg15
+        docker pull hasura/graphql-engine:latest
+        docker pull ghcr.io/samagra-development/ai-tools:main
+        mkdir -p /tmp/docker-images
+        docker save -o /tmp/docker-images/images.tar image1 image2 image3
+
     - name: Load cached Docker images
       run: |
         if [ -d /tmp/docker-images ]; then
