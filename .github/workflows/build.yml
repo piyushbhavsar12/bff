@@ -17,7 +17,12 @@ jobs:
       run: docker build -t test-container-image .
     
     - name: Run other services
-      run: docker-compose up -d
+      run: |
+        docker-compose up -d
+        docker-compose ps
+      env:
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        AUTH_HEADER: ${{ secrets.AUTH_HEADER }}
     
     - name: Launch container
       run: docker run -dp 3000:3000 --name test-container test-container-image
