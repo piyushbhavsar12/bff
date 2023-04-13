@@ -13,34 +13,26 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     
-    - name: Build container image
-      run: docker build -t test-container-image .
-    
     - name: Run other services
       run: |
-        docker-compose up -d
+        docker-compose up -d --build
         docker-compose ps
       env:
         OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         AUTH_HEADER: ${{ secrets.AUTH_HEADER }}
+        DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        POSTHOG_API_KEY: ${{ secrets.POSTHOG_API_KEY }}
+        POSTHOG_BASE_URL: ${{ secrets.POSTHOG_BASE_URL }}
+        POSTHOG_BATCH_SIZE: ${{ secrets.POSTHOG_BATCH_SIZE }}
+        POSTHOG_FLUSH_INTERVAL: ${{ secrets.POSTHOG_FLUSH_INTERVAL }}
+        AI_TOOLS_BASE_URL: ${{ secrets.AI_TOOLS_BASE_URL }}
+        AI_TOOLS_AUTH_HEADER: ${{ secrets.AI_TOOLS_AUTH_HEADER }}
+        TRANSPORT_SOCKET_URL: ${{ secrets.TRANSPORT_SOCKET_URL }}
     
-    - name: Launch container
-      run: docker run -dp 3000:3000 --name test-container test-container-image
-      env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-          POSTHOG_API_KEY: ${{ secrets.POSTHOG_API_KEY }}
-          POSTHOG_BASE_URL: ${{ secrets.POSTHOG_BASE_URL }}
-          POSTHOG_BATCH_SIZE: ${{ secrets.POSTHOG_BATCH_SIZE }}
-          POSTHOG_FLUSH_INTERVAL: ${{ secrets.POSTHOG_FLUSH_INTERVAL }}
-          AI_TOOLS_BASE_URL: ${{ secrets.AI_TOOLS_BASE_URL }}
-          AI_TOOLS_AUTH_HEADER: ${{ secrets.AI_TOOLS_AUTH_HEADER }}
-          TRANSPORT_SOCKET_URL: ${{ secrets.TRANSPORT_SOCKET_URL }}
-      timeout-minutes: 5
-
     - name: Run Prisma commands
       run: |
-        docker exec test-container npx prisma generate
-        docker exec test-container npx prisma migrate deploy
+        docker exec service npx prisma generate
+        docker exec service npx prisma migrate deploy
       timeout-minutes: 5
 
     - run: docker ps
