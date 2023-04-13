@@ -48,9 +48,11 @@ jobs:
     
     - name: Run other services
       run: |
-        docker-compose up -d --build
+        docker-compose build --build-arg ENV="CI"
+        docker-compose up -d
         docker-compose ps
       env:
+        ENV: CI,
         OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         AUTH_HEADER: ${{ secrets.AUTH_HEADER }}
         DATABASE_URL: ${{ secrets.DATABASE_URL }}
@@ -62,11 +64,11 @@ jobs:
         AI_TOOLS_AUTH_HEADER: ${{ secrets.AI_TOOLS_AUTH_HEADER }}
         TRANSPORT_SOCKET_URL: ${{ secrets.TRANSPORT_SOCKET_URL }}
     
-    - name: Run Prisma commands
-      run: |
-        docker exec service npx prisma generate
-        docker exec service npx prisma migrate deploy
-      timeout-minutes: 5
+    # - name: Run Prisma commands
+    #   run: |
+    #     docker exec service npx prisma generate
+    #     docker exec service npx prisma migrate deploy
+    #   timeout-minutes: 5
 
     - run: docker ps
     
