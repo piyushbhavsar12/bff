@@ -28,7 +28,7 @@ jobs:
           POSTHOG_BATCH_SIZE: ${{ secrets.POSTHOG_BATCH_SIZE }}
           POSTHOG_FLUSH_INTERVAL: ${{ secrets.POSTHOG_FLUSH_INTERVAL }}
           AI_TOOLS_BASE_URL: ${{ secrets.AI_TOOLS_BASE_URL }}
-          AI_TOOLS_AUTH_HEADER: ${{ secrets.AI_TOOLS_AUTH_HEADER }}\
+          AI_TOOLS_AUTH_HEADER: ${{ secrets.AI_TOOLS_AUTH_HEADER }}
           TRANSPORT_SOCKET_URL: ${{ secrets.TRANSPORT_SOCKET_URL }}
       timeout-minutes: 5
 
