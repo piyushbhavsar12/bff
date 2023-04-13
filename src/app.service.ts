@@ -40,7 +40,6 @@ export interface ResponseForTS {
 
 @Injectable()
 export class AppService {
-  baseURL = "http://127.0.0.1:5000";
   constructor(
     private prisma: PrismaService,
     private configService: ConfigService
