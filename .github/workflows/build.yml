@@ -1,0 +1,45 @@
+name: Docker
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    timeout-minutes: 40
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: Build container image
+      run: docker build -t test-container-image .
+    
+    - name: Run other services
+      run: docker-compose up -d
+    
+    - name: Launch container
+      run: docker run -dp 3000:3000 --name test-container test-container-image
+      env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          POSTHOG_API_KEY: ${{ secrets.POSTHOG_API_KEY }}
+          POSTHOG_BASE_URL: ${{ secrets.POSTHOG_BASE_URL }}
+          POSTHOG_BATCH_SIZE: ${{ secrets.POSTHOG_BATCH_SIZE }}
+          POSTHOG_FLUSH_INTERVAL: ${{ secrets.POSTHOG_FLUSH_INTERVAL }}
+          AI_TOOLS_BASE_URL: ${{ secrets.AI_TOOLS_BASE_URL }}
+          AI_TOOLS_AUTH_HEADER: ${{ secrets.AI_TOOLS_AUTH_HEADER }}\
+          TRANSPORT_SOCKET_URL: ${{ secrets.TRANSPORT_SOCKET_URL }}
+      timeout-minutes: 5
+
+    - name: Run Prisma commands
+      run: |
+        docker exec test-container npx prisma generate
+        docker exec test-container npx prisma migrate deploy
+      timeout-minutes: 5
+
+    - run: docker ps
+    
+    - name: Wait for Service to start
+      run: while ! curl -s localhost:3000; do sleep 1; done
+      timeout-minutes: 1
