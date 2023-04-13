@@ -10,7 +10,7 @@ import {
 
 import { Injectable, Scope } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
-import { TelemetryService } from "src/global-services/telemetry.service";
+import { TelemetryService } from "../../../../global-services/telemetry.service";
 import { ErrorType, GqlConfig, GqlResolverError } from "./../../types";
 
 @Injectable()
@@ -20,10 +20,7 @@ export class GQLResolverService {
     private telemetryService: TelemetryService
   ) {}
 
-  async verify(
-    gqlConfig: GqlConfig,
-    user: string
-  ) {
+  async verify(gqlConfig: GqlConfig, user: string) {
     //secretPath = <user>/<variable>
     const secretPath = `${user}/${gqlConfig.credentials.variable}`;
     const headers = null;
@@ -53,10 +50,7 @@ export class GQLResolverService {
     }
   }
 
-  async resolve(
-    gqlConfig: GqlConfig,
-    user: string | null
-  ): Promise<any[]> {
+  async resolve(gqlConfig: GqlConfig, user: string | null): Promise<any[]> {
     const secretPath = `${user}/${gqlConfig.credentials.variable}`;
     const client = this.getClient(gqlConfig.url, null);
     const variables = gqlConfig.verificationParams;
