@@ -7,7 +7,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - ./pgdata:/var/lib/postgresql/data
+      - pgdata:/var/lib/postgresql/data
     environment:
       POSTGRES_USER: timescaledb
       POSTGRES_PASSWORD: postgrespassword
@@ -42,3 +42,6 @@ services:
       OPENAI_API_KEY: ${OPENAI_API_KEY}
       AUTH_HEADER: ${AUTH_HEADER}
       AUTH_HEADER_KEY: Authorization
+
+volumes:
+  pgdata:
