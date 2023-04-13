@@ -12,6 +12,18 @@ jobs:
     timeout-minutes: 40
     steps:
     - uses: actions/checkout@v2
+
+    - name: Cache Docker images
+      uses: actions/cache@v2
+      with:
+        path: /tmp/docker-images
+        key: docker-images-${{ hashFiles('docker-compose.yaml') }}
+
+    - name: Load cached Docker images
+      run: |
+        if [ -d /tmp/docker-images ]; then
+          docker load < /tmp/docker-images/images.tar
+        fi
     
     - name: Run other services
       run: |
@@ -38,5 +50,5 @@ jobs:
     - run: docker ps
     
     - name: Wait for Service to start
-      run: while ! curl -s localhost:3000; do sleep 1; done
+      run: while ! curl -s localhost:8081; do sleep 1; done
       timeout-minutes: 1
