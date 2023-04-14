@@ -7,15 +7,49 @@
 tasks:
   - init: |
       yarn install
+      cp sample.env .env
       python3 -m venv venv
       source venv/bin/activate
       git clone https://github.com/Samagra-Development/ai-tools
       cd ai-tools
       poetry install
       wget --no-check-certificate -O akai.csv "https://drive.google.com/uc?export=download&id=12L4yfV51irNAIg6Sp7YkDS_Rccqzn2cR"
+      mv akai.csv src/embeddings/openai/remote
+      cp sample.env .env
 
-  - name: Start Docker Compose
+  - name: db and hasura
     openMode: tab-after
     command: docker-compose up -d timescaledb graphql-engine
+
+  - name: bff
+    openMode: tab-after
+    command: |
+      npx prisma migrate deploy
+      yarn start:dev
+  
+  - name: ai-tools
+    openMode: tab-after
+    command: |
+      source venv/bin/activate
+      cd ai-tools
+      quart --app api --debug run
+  
+  - name: Test
+    openMode: tab-after
+    command: |
+      curl --location 'http://localhost:3000/prompt' \
+      --header 'Content-Type: application/json' \
+      --header 'Cookie: csrftoken=SWTHvaNeh4g3KImyRotjdDcMYuiW0dw4ctce3LXEkRWHJx71t7nKMLCk70wSdSSB' \
+      --data '{
+          "body": "What is the best time to sow paddy in Odisha?",
+          "userId": "71843c73-3fdf-48dc-9f06-b89a9885359a",
+          "appId": "appId",
+          "channel": "diksha",
+          "from": "2bekbquKLCxrt-7kABR1",
+          "context": null,
+          "to": "phone:7668717742",
+          "messageId": "da66ab84-8665-4ef8-a720-ff2fd15e9164"
+      }'
+
 
 
