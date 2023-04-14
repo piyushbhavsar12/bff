@@ -5,7 +5,17 @@
 # Learn more from ready-to-use templates: https://www.gitpod.io/docs/introduction/getting-started/quickstart
 
 tasks:
-  - init: yarn install && yarn run build
-    command: yarn run start
+  - init: |
+      yarn install
+      python3 -m venv venv
+      source venv/bin/activate
+      git clone https://github.com/Samagra-Development/ai-tools
+      cd ai-tools
+      poetry install
+      wget --no-check-certificate -O akai.csv "https://drive.google.com/uc?export=download&id=12L4yfV51irNAIg6Sp7YkDS_Rccqzn2cR"
+
+  - name: Start Docker Compose
+    openMode: tab-after
+    command: docker-compose up -d timescaledb graphql-engine
 
 
