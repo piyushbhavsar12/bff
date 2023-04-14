@@ -22,8 +22,8 @@ tasks:
   - name: bff
     openMode: tab-after
     init: |
-      gp sync-done dev-setup
-      gp sync-done docker-compose
+      gp sync-await dev-setup
+      gp sync-await docker-compose
       while true; do echo "Is the file at the /root/.env updated with correct env? (y/n)"; read user_input; if [ "$user_input" = "y" ] || [ "$user_input" = "Y" ]; then echo "User confirmed. Proceeding..."; break; elif [ "$user_input" = "n" ] || [ "$user_input" = "N" ]; then echo "User declined. Exiting..."; exit 1; else echo "Invalid input. Please enter 'y' or 'n'."; fi; done
       npx prisma migrate deploy
       yarn start:dev
@@ -32,8 +32,8 @@ tasks:
   - name: ai-tools
     openMode: tab-after
     command: |
-      gp sync-done dev-setup
-      gp sync-done docker-compose
+      gp sync-await dev-setup
+      gp sync-await docker-compose
       while true; do echo "Is the file at the ai-tools/.env updated with correct env? (y/n)"; read user_input; if [ "$user_input" = "y" ] || [ "$user_input" = "Y" ]; then echo "User confirmed. Proceeding..."; break; elif [ "$user_input" = "n" ] || [ "$user_input" = "N" ]; then echo "User declined. Exiting..."; exit 1; else echo "Invalid input. Please enter 'y' or 'n'."; fi; done
       source venv/bin/activate
       cd ai-tools
@@ -43,9 +43,10 @@ tasks:
   - name: Test
     openMode: tab-after
     command: |
-      gp sync-done dev-setup
-      gp sync-done docker-compose
-      gp sync-done ai-tools
+      gp sync-await dev-setup
+      gp sync-await docker-compose
+      gp sync-await ai-tools
+      gp sync-await bff
       curl --location 'http://localhost:3000/prompt' \
       --header 'Content-Type: application/json' \
       --header 'Cookie: csrftoken=SWTHvaNeh4g3KImyRotjdDcMYuiW0dw4ctce3LXEkRWHJx71t7nKMLCk70wSdSSB' \
