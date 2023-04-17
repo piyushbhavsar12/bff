@@ -2,6 +2,8 @@
 
 This allows for creation and mangement of flows of the building blocks I/O for AKAI.
 
+[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/AmakrushAI/bff)
+
 ### TODO
 
 - [ ] Add an OpenAPI spec for the API

@@ -7,7 +7,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - ./pgdata:/var/lib/postgresql/data
+      - pgdata:/var/lib/postgresql/data
     environment:
       POSTGRES_USER: timescaledb
       POSTGRES_PASSWORD: postgrespassword
@@ -33,3 +33,33 @@ services:
       # HASURA_GRAPHQL_ADMIN_SECRET: myadminsecretkey
       HASURA_GRAPHQL_MIGRATIONS_DISABLE_TRANSACTION: "true"
       HASURA_GRAPHQL_CONSOLE_ASSETS_DIR: /srv/console-assets
+
+  ai-tools:
+    image: ghcr.io/samagra-development/ai-tools:main
+    ports:
+      - "5000:8000"
+    environment:
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      AUTH_HEADER: ${AUTH_HEADER}
+      AUTH_HEADER_KEY: Authorization
+  
+  service:
+    container_name: service
+    build: .
+    image: test-container-image
+    restart: always
+    ports:
+      - "0.0.0.0:8081:3000"
+    environment:
+      DATABASE_URL: postgres://timescaledb:postgrespassword@timescaledb:5432/postgres?sslmode=disable
+      POSTHOG_API_KEY: ${POSTHOG_API_KEY}
+      POSTHOG_BASE_URL: ${POSTHOG_BASE_URL}
+      POSTHOG_BATCH_SIZE: ${POSTHOG_BATCH_SIZE}
+      POSTHOG_FLUSH_INTERVAL: ${POSTHOG_FLUSH_INTERVAL}
+      AI_TOOLS_BASE_URL: ${AI_TOOLS_BASE_URL}
+      AI_TOOLS_AUTH_HEADER: ${AI_TOOLS_AUTH_HEADER}
+      TRANSPORT_SOCKET_URL: ${TRANSPORT_SOCKET_URL}
+      AUTH_HEADER: ${AUTH_HEADER}
+
+volumes:
+  pgdata:

@@ -17,12 +17,19 @@ COPY . .
 
 RUN yarn run build
 
-FROM node:12
+FROM node:16
+
+WORKDIR /app
 
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./
 COPY --from=builder /app/yarn.lock ./
 COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/prisma ./prisma
+
+ARG ENV
+ENV CI_ENV=${ENV}
 
 EXPOSE 3000
-CMD [ "npm", "run", "start:prod" ]
+CMD ["/bin/sh", "-c", "if [ \"$CI_ENV\" = \"CI\" ]; then npm run start:migrate:ci; else npm run start:migrate:prod; fi"]
+# CMD [ "npm", "run", "start:prod" ]

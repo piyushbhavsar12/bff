@@ -14,3 +14,6 @@ prisma/generated/prisma-client-js
 
 data
 pgdata
+
+venv
+ai-tools
