@@ -24,3 +24,14 @@ model query {
 
   @@unique([userId, createdAt])
 }
+
+model feedback {
+  createdAt         DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt         DateTime @updatedAt
+  id                Int @id @default(autoincrement())
+  review            String?
+  rating            Int?
+  phoneNumber       String
+
+  @@unique([phoneNumber])
+}
