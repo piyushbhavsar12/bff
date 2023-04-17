@@ -38,11 +38,16 @@ services:
     image: ghcr.io/samagra-development/ai-tools:main
     ports:
       - "5000:8000"
+    volumes:
+      - type: bind
+        source: ./akai.csv
+        target: /app/src/embeddings/openai/remote/akai.csv
+        read_only: true
     environment:
       OPENAI_API_KEY: ${OPENAI_API_KEY}
       AUTH_HEADER: ${AUTH_HEADER}
       AUTH_HEADER_KEY: Authorization
-  
+
   service:
     container_name: service
     build: .
