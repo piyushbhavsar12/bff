@@ -32,6 +32,9 @@ model feedback {
   review            String?
   rating            Int?
   phoneNumber       String
+  userId            String   @db.Uuid
 
   @@unique([phoneNumber])
+  @@unique([userId])
+  @@unique([userId, createdAt])
 }

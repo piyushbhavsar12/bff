@@ -1,4 +1,4 @@
-import { IsInt, IsNotEmpty, Max, Min, IsPhoneNumber, IsDefined, ValidateIf } from 'class-validator';
+import { IsInt, IsNotEmpty, Max, Min, IsPhoneNumber, IsDefined, ValidateIf, IsUUID } from 'class-validator';
 
 export class CreateFeedbackDto {
   @IsDefined({ message: 'Either review or rating is required' })
@@ -15,4 +15,8 @@ export class CreateFeedbackDto {
   @IsNotEmpty()
   @IsPhoneNumber('IN', { message: 'Invalid phone number' })
   phoneNumber: string;
+
+  @IsNotEmpty()
+  @IsUUID()
+  userId: string
 }

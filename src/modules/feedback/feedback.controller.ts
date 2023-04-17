@@ -9,7 +9,7 @@ export class FeedbackController {
 
   @Post()
   async createOrUpdate(@Body() createFeedbackDto: CreateFeedbackDto): Promise<feedback> {
-    let feedback = await this.feedbackService.findOne(createFeedbackDto.phoneNumber)
+    let feedback = await this.feedbackService.findOne(createFeedbackDto.userId)
     if (feedback) {
       return this.feedbackService.update(createFeedbackDto)
     }
@@ -19,10 +19,5 @@ export class FeedbackController {
   @Get()
   async findAll(): Promise<feedback[]> {
     return this.feedbackService.findAll();
-  }
-
-  @Get(':phoneNumber')
-  async findOne(@Param('phoneNumber') phoneNumber: string): Promise<feedback | null> {
-    return this.feedbackService.findOne(phoneNumber);
   }
 }

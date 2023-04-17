@@ -12,3 +12,12 @@ CREATE TABLE "feedback" (
 
 -- CreateIndex
 CREATE UNIQUE INDEX "feedback_phoneNumber_key" ON "feedback"("phoneNumber");
+
+-- AlterTable
+ALTER TABLE "feedback" ADD COLUMN     "userId" UUID NOT NULL;
+
+-- CreateIndex
+CREATE UNIQUE INDEX "feedback_userId_key" ON "feedback"("userId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "feedback_userId_createdAt_key" ON "feedback"("userId", "createdAt");
