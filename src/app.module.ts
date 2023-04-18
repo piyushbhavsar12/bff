@@ -6,11 +6,12 @@ import { ConfigParserModule } from "./modules/config-parser/config-parser.module
 import { PrismaService } from "./global-services/prisma.service";
 import { FeedbackModule } from "./modules/feedback/feedback.module";
 import { ConfigModule, ConfigService } from "@nestjs/config";
+import { FAQModule } from "./modules/faq/faq.module";
 
 @Module({
   imports: [
     ConfigModule.forRoot(),
-    ServiceInvokerModule, ConfigParserModule, FeedbackModule],
+    ServiceInvokerModule, ConfigParserModule, FeedbackModule, FAQModule],
   controllers: [AppController],
   providers: [AppService, PrismaService, ConfigService],
 })
