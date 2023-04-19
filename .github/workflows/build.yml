@@ -3,6 +3,8 @@ name: Docker Build Verification
 on:
   push:
     branches: [main]
+  pull_request: 
+    branches: [main]
 
 jobs:
   build:
@@ -24,26 +26,26 @@ jobs:
         chmod +x free_disk_space.sh
         ./free_disk_space.sh
 
-    - name: Cache Docker images
-      uses: actions/cache@v2
-      with:
-        path: /tmp/docker-images
-        key: docker-images-${{ hashFiles('docker-compose.yaml') }}
+#     - name: Cache Docker images
+#       uses: actions/cache@v2
+#       with:
+#         path: /tmp/docker-images
+#         key: docker-images-${{ hashFiles('docker-compose.yaml') }}
 
-    - name: Pull and save Docker images
-      if: steps.cache.outputs.cache-hit != 'true'
-      run: |
-        docker pull samagragovernance/postgres:latest-pg15
-        docker pull hasura/graphql-engine:latest
-        docker pull ghcr.io/samagra-development/ai-tools:main
-        mkdir -p /tmp/docker-images
-        docker save -o /tmp/docker-images/images.tar samagragovernance/postgres:latest-pg15 hasura/graphql-engine:latest ghcr.io/samagra-development/ai-tools:main
+#     - name: Pull and save Docker images
+#       if: steps.cache.outputs.cache-hit != 'true'
+#       run: |
+#         docker pull samagragovernance/postgres:latest-pg15
+#         docker pull hasura/graphql-engine:latest
+#         docker pull ghcr.io/samagra-development/ai-tools:main
+#         mkdir -p /tmp/docker-images
+#         docker save -o /tmp/docker-images/images.tar samagragovernance/postgres:latest-pg15 hasura/graphql-engine:latest ghcr.io/samagra-development/ai-tools:main
 
-    - name: Load cached Docker images
-      run: |
-        if [ -d /tmp/docker-images ]; then
-          docker load < /tmp/docker-images/images.tar
-        fi
+#     - name: Load cached Docker images
+#       run: |
+#         if [ -d /tmp/docker-images ]; then
+#           docker load < /tmp/docker-images/images.tar
+#         fi
     
     - name: Run other services
       run: |
