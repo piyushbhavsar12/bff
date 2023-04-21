@@ -9,7 +9,7 @@ generator client {
 datasource db {
   provider   = "postgresql"
   url        = env("DATABASE_URL")
-  extensions = [timescaledb]
+  extensions = [timescaledb, vector]
 }
 
 model query {
@@ -26,15 +26,27 @@ model query {
 }
 
 model feedback {
-  createdAt         DateTime @default(now()) @db.Timestamptz(3)
-  updatedAt         DateTime @updatedAt
-  id                Int @id @default(autoincrement())
-  review            String?
-  rating            Int?
-  phoneNumber       String
-  userId            String   @db.Uuid
+  createdAt   DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt   DateTime @updatedAt
+  id          Int      @id @default(autoincrement())
+  review      String?
+  rating      Int?
+  phoneNumber String
+  userId      String   @db.Uuid
 
   @@unique([phoneNumber])
   @@unique([userId])
   @@unique([userId, createdAt])
+}
+
+model document {
+  createdAt DateTime               @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime               @updatedAt
+  id        Int                    @id @unique
+  userId    String?                @db.Uuid
+  tags      String
+  content   String
+  embedding Unsupported("vector")?
+
+  @@unique([userId])
 }
