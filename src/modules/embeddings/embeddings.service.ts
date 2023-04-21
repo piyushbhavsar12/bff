@@ -2,7 +2,7 @@ import { BadRequestException, Injectable } from "@nestjs/common";
 import { CreateDocumentDto } from "./embeddings.dto";
 
 import { document as Document, document } from "@prisma/client";
-import { PrismaService } from "src/global-services/prisma.service";
+import { PrismaService } from "../../global-services/prisma.service";
 import { ConfigService } from "@nestjs/config";
 import fetch from "node-fetch";
 
