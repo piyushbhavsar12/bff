@@ -1,5 +1,5 @@
 import { Body, Controller, Post, Get } from "@nestjs/common";
-import { CreateDocumentDto } from "./embeddings.dto";
+import { CreateDocumentDto, SearchQueryDto } from "./embeddings.dto";
 import { EmbeddingsService } from "./embeddings.service";
 import { document as Document } from "@prisma/client";
 
@@ -15,6 +15,13 @@ export class EmbeddingsController {
       createFeedbackDto = [createFeedbackDto];
     }
     return this.feedbackService.createOrUpdate(createFeedbackDto);
+  }
+
+  @Post("/searchSimilar")
+  async findByCriteria(
+    @Body() searchQueryDto: SearchQueryDto
+  ): Promise<Document[]> {
+    return this.feedbackService.findByCriteria(searchQueryDto);
   }
 
   //   @Get()

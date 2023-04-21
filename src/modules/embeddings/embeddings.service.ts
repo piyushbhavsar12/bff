@@ -79,19 +79,17 @@ export class EmbeddingsService {
     return response;
   }
 
-  async findByCriteria(
-    query: string,
-    similarityThreshold: number,
-    matchCount = 10
-  ): Promise<any> {
-    const embedding: EmbeddingResponse = (await this.getEmbedding(query))[0];
+  async findByCriteria(searchQueryDto): Promise<any> {
+    const embedding: EmbeddingResponse = (
+      await this.getEmbedding(searchQueryDto.query)
+    )[0];
     const results = await this.prisma
       .$queryRawUnsafe(`SELECT * FROM match_documents(
-        query_embedding := '{${embedding.embedding
+        query_embedding := '[${embedding.embedding
           .map((x) => `${x}`)
-          .join(",")}}',
-        similarity_threshold := ${similarityThreshold},
-        match_count := ${matchCount}
+          .join(",")}]',
+        similarity_threshold := ${searchQueryDto.similarityThreshold},
+        match_count := ${searchQueryDto.matchCount}
       );`);
 
     console.log(results);
