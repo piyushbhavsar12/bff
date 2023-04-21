@@ -50,3 +50,11 @@ model document {
 
   @@unique([userId])
 }
+
+model faq {
+  createdAt         DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt         DateTime @updatedAt
+  id                Int @id @default(autoincrement())
+  question          String
+  answer            String
+}

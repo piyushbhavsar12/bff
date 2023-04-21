@@ -7,6 +7,7 @@ import { PrismaService } from "./global-services/prisma.service";
 import { FeedbackModule } from "./modules/feedback/feedback.module";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { EmbeddingsModule } from "./modules/embeddings/embeddings.module";
+import { FAQModule } from "./modules/faq/faq.module";
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { EmbeddingsModule } from "./modules/embeddings/embeddings.module";
     ConfigParserModule,
     FeedbackModule,
     EmbeddingsModule,
+    FAQModule
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService, ConfigService],
