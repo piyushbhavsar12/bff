@@ -23,3 +23,9 @@ npx prisma migrate dev
 # Start dev server
 yarn start:dev
 ```
+
+2. Importing AKAI CSV
+
+```sh
+yarn cli ingest
+```
