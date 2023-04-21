@@ -8,6 +8,7 @@ import { FeedbackModule } from "./modules/feedback/feedback.module";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { EmbeddingsModule } from "./modules/embeddings/embeddings.module";
 import { FAQModule } from "./modules/faq/faq.module";
+import { TelemetryService } from "./global-services/telemetry.service";
 
 @Module({
   imports: [
@@ -16,9 +17,9 @@ import { FAQModule } from "./modules/faq/faq.module";
     ConfigParserModule,
     FeedbackModule,
     EmbeddingsModule,
-    FAQModule
+    FAQModule,
   ],
   controllers: [AppController],
-  providers: [AppService, PrismaService, ConfigService],
+  providers: [AppService, PrismaService, ConfigService, TelemetryService],
 })
 export class AppModule {}
