@@ -52,6 +52,9 @@ services:
     container_name: service
     build: .
     image: test-container-image
+    networks:
+      - default
+      - letsencrypt-docker-compose
     restart: always
     ports:
       - "0.0.0.0:8081:3000"
@@ -68,3 +71,8 @@ services:
 
 volumes:
   pgdata:
+  
+networks:
+  letsencrypt-docker-compose:
+    name: letsencrypt-docker-compose_default
+    external: true
