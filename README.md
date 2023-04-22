@@ -24,7 +24,15 @@ npx prisma migrate dev
 yarn start:dev
 ```
 
-2. Importing AKAI CSV
+2. Create Missed Indexes
+   Currently some indexes get missed despite being part of prisma and need to be created manually. Go to Hasura => Data => SQL and run the following queries:
+
+```sql
+create index on prompt_history using ivfflat (embedding vector_cosine_ops) with (lists = 100);
+CREATE INDEX on document using ivfflat (embedding vector_cosine_ops) with (lists = 100);
+```
+
+2. Seeding Database
 
 ```sh
 yarn cli ingest

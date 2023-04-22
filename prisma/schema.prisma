@@ -91,6 +91,7 @@ model prompt_history {
   responseInEnglish String
   prompt            prompt                 @relation(fields: [id], references: [id])
   timesUsed         Int
+  metadata          Json
   embedding         Unsupported("vector")?
 }
 
