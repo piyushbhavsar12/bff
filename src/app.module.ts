@@ -7,6 +7,7 @@ import { PrismaService } from "./global-services/prisma.service";
 import { FeedbackModule } from "./modules/feedback/feedback.module";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { EmbeddingsModule } from "./modules/embeddings/embeddings.module";
+import { UserModule } from "./modules/user/user.module";
 import { FAQModule } from "./modules/faq/faq.module";
 import { TelemetryService } from "./global-services/telemetry.service";
 
@@ -18,6 +19,7 @@ import { TelemetryService } from "./global-services/telemetry.service";
     FeedbackModule,
     EmbeddingsModule,
     FAQModule,
+    UserModule
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService, ConfigService, TelemetryService],

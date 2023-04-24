@@ -13,6 +13,7 @@ datasource db {
 }
 
 model query {
+  id                String? @default(uuid()) @db.Uuid
   createdAt         DateTime @default(now()) @db.Timestamptz(3)
   updatedAt         DateTime @updatedAt
   responseTime      Int
@@ -20,10 +21,13 @@ model query {
   response          String
   queryInEnglish    String
   responseInEnglish String
+  conversationId    Int?
   userId            String   @db.Uuid
   workflowId        Int
+  reaction          Int @db.SmallInt @default(0)
 
   @@unique([userId, createdAt])
+  @@unique([userId, createdAt, conversationId])
 }
 
 model feedback {
@@ -101,4 +105,9 @@ model config {
   updatedAt DateTime @updatedAt
   version   Int
   data      Json
+  createdAt         DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt         DateTime @updatedAt
+  id                Int @id @default(autoincrement())
+  question          String
+  answer            String
 }

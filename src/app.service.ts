@@ -329,6 +329,7 @@ export class AppService {
           responseTime: new Date().getTime() - prompt.timestamp,
           queryInEnglish: prompt.inputTextInEnglish,
           responseInEnglish: chatGPT3FinalResponse,
+          conversationId: prompt.input.conversationId
         },
       });
     } else {
@@ -391,6 +392,7 @@ export class AppService {
           responseTime: new Date().getTime() - prompt.timestamp,
           queryInEnglish: prompt.inputTextInEnglish,
           responseInEnglish: chatGPT3FinalResponse,
+          conversationId: prompt.input.conversationId
         },
       });
     }

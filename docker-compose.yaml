@@ -16,6 +16,9 @@ services:
     image: hasura/graphql-engine:latest
     ports:
       - "8080:8080"
+    networks:
+      - default
+      - letsencrypt-docker-compose
     volumes:
       - ./data/migrations:/hasura-migrations
       - ./data/metadata:/hasura-metadata
@@ -30,7 +33,7 @@ services:
       HASURA_GRAPHQL_DEV_MODE: "true"
       HASURA_GRAPHQL_ENABLED_LOG_TYPES: startup,http-log,webhook-log,websocket-log,query-log
       ## uncomment next line to set an admin secret
-      # HASURA_GRAPHQL_ADMIN_SECRET: myadminsecretkey
+      HASURA_GRAPHQL_ADMIN_SECRET: ${HASURA_GRAPHQL_ADMIN_SECRET}
       HASURA_GRAPHQL_MIGRATIONS_DISABLE_TRANSACTION: "true"
       HASURA_GRAPHQL_CONSOLE_ASSETS_DIR: /srv/console-assets
 
@@ -38,6 +41,9 @@ services:
     image: ghcr.io/samagra-development/ai-tools:main
     ports:
       - "5000:8000"
+    networks:
+      - default
+      - letsencrypt-docker-compose
     volumes:
       - type: bind
         source: ./akai.csv
@@ -52,7 +58,13 @@ services:
     container_name: service
     build: .
     image: test-container-image
+    networks:
+      - default
+      - letsencrypt-docker-compose
     restart: always
+    networks:
+      - default
+      - letsencrypt-docker-compose
     ports:
       - "0.0.0.0:8081:3000"
     environment:
@@ -68,3 +80,8 @@ services:
 
 volumes:
   pgdata:
+
+networks:
+  letsencrypt-docker-compose:
+    name: letsencrypt-docker-compose_default
+    external: true
