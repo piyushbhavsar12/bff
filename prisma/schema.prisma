@@ -21,10 +21,12 @@ model query {
   response          String
   queryInEnglish    String
   responseInEnglish String
+  conversationId    Int?
   userId            String   @db.Uuid
   reaction          Int @db.SmallInt @default(0)
 
   @@unique([userId, createdAt])
+  @@unique([userId, createdAt, conversationId])
 }
 
 model feedback {
