@@ -5,5 +5,5 @@
 
 */
 -- AlterTable
-ALTER TABLE "query" ADD COLUMN     "id" UUID NOT NULL,
+ALTER TABLE "query" ADD COLUMN     "id" UUID,
 ADD COLUMN     "reaction" SMALLINT NOT NULL DEFAULT 0;
