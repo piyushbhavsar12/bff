@@ -13,6 +13,7 @@ datasource db {
 }
 
 model query {
+  id                String @default(uuid()) @db.Uuid
   createdAt         DateTime @default(now()) @db.Timestamptz(3)
   updatedAt         DateTime @updatedAt
   responseTime      Int
@@ -21,6 +22,7 @@ model query {
   queryInEnglish    String
   responseInEnglish String
   userId            String   @db.Uuid
+  reaction          Int @db.SmallInt @default(0)
 
   @@unique([userId, createdAt])
 }
