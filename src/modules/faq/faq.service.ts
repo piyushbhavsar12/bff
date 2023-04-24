@@ -13,8 +13,21 @@ export class FAQService {
     });
   }
 
-  async findAll(): Promise<Faq[]> {
-    return this.prisma.faq.findMany();
+  async findAll(page: number, perPage: number): Promise<any> {
+    const faqs = await this.prisma.faq.findMany({
+      take: perPage,
+      skip: (page - 1) * perPage
+    });
+    const totalFaqs = await this.prisma.faq.count();
+    return {
+      pagination: {
+        page,
+        perPage,
+        totalPages: Math.ceil(totalFaqs / perPage),
+        totalFaqs,
+      },
+      faqs: faqs,
+    };
   }
 
   async findOne(id: number): Promise<Faq> {

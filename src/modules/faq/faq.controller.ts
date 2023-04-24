@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Patch, Delete, Body, HttpException, HttpStatus, Param, NotFoundException } from "@nestjs/common";
+import { Controller, Get, Post, Patch, Delete, Body, HttpException, HttpStatus, Param, NotFoundException, Query } from "@nestjs/common";
 import { Prisma } from "@prisma/client";
 import { CreateFaqDto } from "./faq.dto";
 import { FAQService } from "./faq.service";
@@ -18,10 +18,22 @@ export class FAQController {
   }
 
   @Get()
-  async findAll() {
+  async findAll(@Query("page") page: number, @Query("perPage") perPage: number) {
     try {
-      const faqs = await this.faqService.findAll();
+      page = page ? parseInt(`${page}`) : 1;
+      perPage = perPage ? parseInt(`${perPage}`) : 10;
+      const faqs = await this.faqService.findAll(page,perPage);
       return faqs;
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  @Get(":id")
+  async findOne(@Param("id") id: number) {
+    try {
+      const faq = await this.faqService.findOne(id);
+      return faq;
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }

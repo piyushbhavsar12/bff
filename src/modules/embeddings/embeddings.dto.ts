@@ -1,12 +1,8 @@
 import {
   IsInt,
-  IsNotEmpty,
-  Max,
   Min,
-  IsPhoneNumber,
   IsDefined,
-  ValidateIf,
-  IsUUID,
+  IsOptional
 } from "class-validator";
 
 export class CreateDocumentDto {
@@ -27,7 +23,27 @@ export class SearchQueryDto {
   similarityThreshold: number;
 
   @IsDefined({
-    message: "Max matched documents need to be difined to limit search results",
+    message: "Max matched documents need to be defined to limit search results",
   })
   matchCount: number;
+}
+
+class Pagination {
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  page?: number;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  perPage?: number;
+}
+
+export class GetDocumentsDto {
+  @IsOptional()
+  pagination?: Pagination 
+
+  @IsOptional()
+  filter?: SearchQueryDto
 }
