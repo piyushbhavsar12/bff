@@ -13,7 +13,7 @@ datasource db {
 }
 
 model query {
-  id                String @default(uuid()) @db.Uuid
+  id                String? @default(uuid()) @db.Uuid
   createdAt         DateTime @default(now()) @db.Timestamptz(3)
   updatedAt         DateTime @updatedAt
   responseTime      Int
