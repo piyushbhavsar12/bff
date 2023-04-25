@@ -9,44 +9,104 @@ generator client {
 datasource db {
   provider   = "postgresql"
   url        = env("DATABASE_URL")
-  extensions = [timescaledb]
+  extensions = [timescaledb, vector]
 }
 
 model query {
-  id                String? @default(uuid()) @db.Uuid
-  createdAt         DateTime @default(now()) @db.Timestamptz(3)
-  updatedAt         DateTime @updatedAt
+  id                String?   @default(uuid()) @db.Uuid
+  createdAt         DateTime  @default(now()) @db.Timestamptz(3)
+  updatedAt         DateTime  @updatedAt
   responseTime      Int
   query             String
   response          String
   queryInEnglish    String
   responseInEnglish String
   conversationId    Int?
-  userId            String   @db.Uuid
-  reaction          Int @db.SmallInt @default(0)
+  userId            String    @db.Uuid
+  workflowId        Int?
+  reaction          Int       @default(0) @db.SmallInt
+  workflow          workflow? @relation(fields: [workflowId], references: [id])
 
   @@unique([userId, createdAt])
   @@unique([userId, createdAt, conversationId])
 }
 
 model feedback {
-  createdAt         DateTime @default(now()) @db.Timestamptz(3)
-  updatedAt         DateTime @updatedAt
-  id                Int @id @default(autoincrement())
-  review            String?
-  rating            Int?
-  phoneNumber       String
-  userId            String   @db.Uuid
+  createdAt   DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt   DateTime @updatedAt
+  id          Int      @id @default(autoincrement())
+  review      String?
+  rating      Int?
+  phoneNumber String
+  userId      String   @db.Uuid
 
   @@unique([phoneNumber])
   @@unique([userId])
   @@unique([userId, createdAt])
 }
 
+model document {
+  createdAt DateTime               @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime               @updatedAt
+  id        Int                    @id @unique
+  userId    String?                @db.Uuid
+  tags      String
+  content   String
+  embedding Unsupported("vector")?
+}
+
 model faq {
-  createdAt         DateTime @default(now()) @db.Timestamptz(3)
-  updatedAt         DateTime @updatedAt
-  id                Int @id @default(autoincrement())
-  question          String
-  answer            String
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt
+  id        Int      @id @default(autoincrement())
+  question  String
+  answer    String
+}
+
+model prompt {
+  createdAt                 DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt                 DateTime @updatedAt
+  id                        Int      @id @default(autoincrement())
+  prompt                    String
+  description               String?
+  languageModel             String?
+  version                   Int
+  contextIndependence       Boolean
+  modelAgnosticInstructions String?
+  author                    String
+  testing                   Boolean
+  additional_notes          String
+}
+
+model workflow {
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt
+  id        Int      @id @default(autoincrement())
+  userId    String   @db.Uuid
+  content   Json
+  query     query[]
+}
+
+model prompt_history {
+  id                Int                    @id @default(autoincrement())
+  createdAt         DateTime               @default(now()) @db.Timestamptz(3)
+  updatedAt         DateTime               @updatedAt
+  responseTime      Int
+  queryInEnglish    String
+  responseInEnglish String
+  timesUsed         Int
+  metadata          Json?
+  embedding         Unsupported("vector")?
+
+  @@unique([queryInEnglish])
+}
+
+model config {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt
+  version   Int
+  data      Json
+  question  String
+  answer    String
 }

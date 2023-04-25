@@ -1,30 +1,27 @@
-import fetch from 'isomorphic-fetch';
-import { Injectable } from '@nestjs/common';
-import Ajv from 'ajv';
-import { ConfigService } from '@nestjs/config';
-import { TelemetryService } from 'src/global-services/telemetry.service';
+import fetch from "isomorphic-fetch";
+import { Injectable } from "@nestjs/common";
+import Ajv from "ajv";
+import { ConfigService } from "@nestjs/config";
+import { TelemetryService } from "../../../../global-services/telemetry.service";
 import {
   ErrorType,
   PostRequestConfig,
   PostRequestResolverError,
-} from './../../types';
+} from "./../../types";
 
 @Injectable()
 export class PostRequestResolverService {
   constructor(
     private configService: ConfigService,
-    private telemetryService: TelemetryService,
+    private telemetryService: TelemetryService
   ) {}
 
-  async verify(
-    postRequestConfig: PostRequestConfig,
-    user: string,
-  ) {
+  async verify(postRequestConfig: PostRequestConfig, user: string) {
     const secretPath = `${user}/${postRequestConfig.credentials.variable}`;
     const usersOrError: any[] | PostRequestResolverError = await this.getUsers(
       postRequestConfig.url,
       postRequestConfig.requestBody,
-      postRequestConfig.errorNotificationWebhook,
+      postRequestConfig.errorNotificationWebhook
     );
     if (usersOrError instanceof Array) {
       const totalUsers = usersOrError.length;
@@ -46,14 +43,14 @@ export class PostRequestResolverService {
 
   async resolve(
     postRequestConfig: PostRequestConfig,
-    user: string,
+    user: string
   ): Promise<any[]> {
     const secretPath = `${user}/${postRequestConfig.credentials.variable}`;
     // const variables = postRequestConfig.verificationParams;
     const errorNotificationWebhook = postRequestConfig.errorNotificationWebhook;
     const usersOrError: any[] | PostRequestResolverError = await this.getUsers(
       postRequestConfig.url,
-      errorNotificationWebhook,
+      errorNotificationWebhook
     );
     if (usersOrError instanceof Array) {
       //TODO: Additional Checks
@@ -67,12 +64,12 @@ export class PostRequestResolverService {
     url: string,
     headers?: any,
     requestBody?: any,
-    errorNotificationWebhook?: string,
+    errorNotificationWebhook?: string
   ): Promise<any[] | PostRequestResolverError> {
     let isValidUserResponse = true;
     let currentUser: any;
     return fetch(url, {
-      method: 'POST',
+      method: "POST",
       body: requestBody == null ? undefined : JSON.stringify(requestBody),
       headers: headers,
     }).then(async (resp) => {
@@ -94,12 +91,12 @@ export class PostRequestResolverService {
   public notifyOnError(
     errorNotificationWebhook: string,
     user: any,
-    error: any,
+    error: any
   ): Promise<any> {
     return fetch(errorNotificationWebhook, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
         user,
@@ -111,8 +108,8 @@ export class PostRequestResolverService {
       })
       .catch(async (e) => {
         await this.telemetryService.client.capture({
-          distinctId: 'NestJS-Local',
-          event: 'Failed to make POST request to federated service',
+          distinctId: "NestJS-Local",
+          event: "Failed to make POST request to federated service",
           properties: {
             error,
             user,

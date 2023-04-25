@@ -3,15 +3,17 @@ import { FeedbackService } from './feedback.service';
 import { CreateFeedbackDto } from './feedback.dto';
 import { feedback, query } from '@prisma/client';
 
-@Controller('feedback')
+@Controller("feedback")
 export class FeedbackController {
   constructor(private readonly feedbackService: FeedbackService) {}
 
   @Post()
-  async createOrUpdate(@Body() createFeedbackDto: CreateFeedbackDto): Promise<feedback> {
-    let feedback = await this.feedbackService.findOne(createFeedbackDto.userId)
+  async createOrUpdate(
+    @Body() createFeedbackDto: CreateFeedbackDto
+  ): Promise<feedback> {
+    let feedback = await this.feedbackService.findOne(createFeedbackDto.userId);
     if (feedback) {
-      return this.feedbackService.update(createFeedbackDto)
+      return this.feedbackService.update(createFeedbackDto);
     }
     return this.feedbackService.create(createFeedbackDto);
   }
