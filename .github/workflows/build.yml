@@ -52,6 +52,7 @@ jobs:
         docker-compose -f docker-compose.ci.yaml build --build-arg ENV="CI"
         docker-compose -f docker-compose.ci.yaml up -d
         docker-compose -f docker-compose.ci.yaml ps
+        docker-compose -f docker-compose.ci.yaml logs
       env:
         ENV: CI,
         OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
