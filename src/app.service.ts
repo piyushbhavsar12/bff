@@ -275,7 +275,7 @@ export class AppService {
           User: What are the common methods involved in that?
           
         Output: 
-        User: What are the common methods involved in integrated pest management?
+          User: What are the common methods involved in integrated pest management?
 
         Input:
           User: Where can I get seeds for rice?,
@@ -283,7 +283,7 @@ export class AppService {
           User: Where can I get seeds for rice?
           
         Output: 
-        User: Where can I get seeds for rice?
+          User: Where can I get seeds for rice?
 
         Input:
           User: Where can I get seeds for rice?,
@@ -294,7 +294,9 @@ export class AppService {
           User: My paddy has spindle shaped spots with pointed ends. How do I fix the disease?
           
         Input
-        ${history.join("\n")}.`,
+          ${history.join("\n")}
+          
+        Output:`,
         },
       ];
 

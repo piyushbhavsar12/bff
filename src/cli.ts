@@ -60,12 +60,6 @@ async function bootstrap() {
       const output = execSync(`${configService.get("CLI_DOWNLOAD_CSV")}`, {
         encoding: "utf-8",
       });
-      //   const output = execSync(
-      //     `wget --no-check-certificate -O akai.csv "https://drive.google.com/uc?export=download&id=12L4yfV51irNAIg6Sp7YkDS_Rccqzn2cR"`,
-      //     {
-      //       encoding: "utf-8",
-      //     }
-      //   );
       s.stop("✅ 1. AKAI CSV has been downloaded");
       s.start("🚧 2. Setup Embeddings");
       // Read the CSV to create CreateDocumentDto

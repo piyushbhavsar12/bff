@@ -1,18 +1,20 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { PromptHistoryService } from './prompt-history.service';
+import { Test, TestingModule } from "@nestjs/testing";
+import { PromptHistoryService } from "./prompt-history.service";
+import { PrismaService } from "../../global-services/prisma.service";
+import { ConfigService } from "@nestjs/config";
 
-describe('PromptHistoryService', () => {
+describe("PromptHistoryService", () => {
   let service: PromptHistoryService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [PromptHistoryService],
+      providers: [PromptHistoryService, PrismaService, ConfigService],
     }).compile();
 
     service = module.get<PromptHistoryService>(PromptHistoryService);
   });
 
-  it('should be defined', () => {
+  it("should be defined", () => {
     expect(service).toBeDefined();
   });
 });
