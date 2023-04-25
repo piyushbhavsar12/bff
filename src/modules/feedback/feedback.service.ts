@@ -1,7 +1,7 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
-import { CreateFeedbackDto } from './feedback.dto';
-import { PrismaService } from 'src/global-services/prisma.service';
-import { feedback, query } from '@prisma/client';
+import { BadRequestException, Injectable } from "@nestjs/common";
+import { CreateFeedbackDto } from "./feedback.dto";
+import { PrismaService } from "../../global-services/prisma.service";
+import { feedback, query } from "@prisma/client";
 
 @Injectable()
 export class FeedbackService {
@@ -59,14 +59,13 @@ export class FeedbackService {
         UPDATE "query" SET 
         "reaction" = 1, 
         "updatedAt" = NOW() 
-        WHERE "id" = '${id}'`
-      )
+        WHERE "id" = '${id}'`);
     } catch {
-      return null
+      return null;
     }
     return this.prisma.$queryRawUnsafe(`
       SELECT * from "query" where id = '${id}'
-    `)
+    `);
   }
 
   async dislikeQuery(id): Promise<query> {
@@ -75,14 +74,13 @@ export class FeedbackService {
         UPDATE "query" SET 
         "reaction" = -1, 
         "updatedAt" = NOW() 
-        WHERE "id" = '${id}'`
-      )
+        WHERE "id" = '${id}'`);
     } catch {
-      return null
+      return null;
     }
     return this.prisma.$queryRawUnsafe(`
       SELECT * from "query" where id = '${id}'
-    `)
+    `);
   }
 
   async removeReactionOnQuery(id): Promise<query> {
@@ -91,13 +89,12 @@ export class FeedbackService {
         UPDATE "query" SET 
         "reaction" = 0, 
         "updatedAt" = NOW() 
-        WHERE "id" = '${id}'`
-      )
+        WHERE "id" = '${id}'`);
     } catch {
-      return null
+      return null;
     }
     return this.prisma.$queryRawUnsafe(`
       SELECT * from "query" where id = '${id}'
-    `)
+    `);
   }
 }

@@ -13,18 +13,19 @@ datasource db {
 }
 
 model query {
-  id                String? @default(uuid()) @db.Uuid
-  createdAt         DateTime @default(now()) @db.Timestamptz(3)
-  updatedAt         DateTime @updatedAt
+  id                String?   @default(uuid()) @db.Uuid
+  createdAt         DateTime  @default(now()) @db.Timestamptz(3)
+  updatedAt         DateTime  @updatedAt
   responseTime      Int
   query             String
   response          String
   queryInEnglish    String
   responseInEnglish String
   conversationId    Int?
-  userId            String   @db.Uuid
-  workflowId        Int
-  reaction          Int @db.SmallInt @default(0)
+  userId            String    @db.Uuid
+  workflowId        Int?
+  reaction          Int       @default(0) @db.SmallInt
+  workflow          workflow? @relation(fields: [workflowId], references: [id])
 
   @@unique([userId, createdAt])
   @@unique([userId, createdAt, conversationId])
@@ -63,9 +64,9 @@ model faq {
 }
 
 model prompt {
-  createdAt                 DateTime         @default(now()) @db.Timestamptz(3)
-  updatedAt                 DateTime         @updatedAt
-  id                        Int              @id @default(autoincrement())
+  createdAt                 DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt                 DateTime @updatedAt
+  id                        Int      @id @default(autoincrement())
   prompt                    String
   description               String?
   languageModel             String?
@@ -75,7 +76,6 @@ model prompt {
   author                    String
   testing                   Boolean
   additional_notes          String
-  prompt_history            prompt_history[]
 }
 
 model workflow {
@@ -84,6 +84,7 @@ model workflow {
   id        Int      @id @default(autoincrement())
   userId    String   @db.Uuid
   content   Json
+  query     query[]
 }
 
 model prompt_history {
@@ -93,10 +94,11 @@ model prompt_history {
   responseTime      Int
   queryInEnglish    String
   responseInEnglish String
-  prompt            prompt                 @relation(fields: [id], references: [id])
   timesUsed         Int
-  metadata          Json
+  metadata          Json?
   embedding         Unsupported("vector")?
+
+  @@unique([queryInEnglish])
 }
 
 model config {
@@ -105,9 +107,6 @@ model config {
   updatedAt DateTime @updatedAt
   version   Int
   data      Json
-  createdAt         DateTime @default(now()) @db.Timestamptz(3)
-  updatedAt         DateTime @updatedAt
-  id                Int @id @default(autoincrement())
-  question          String
-  answer            String
+  question  String
+  answer    String
 }

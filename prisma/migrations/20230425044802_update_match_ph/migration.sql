@@ -1,14 +1,14 @@
 -- This is an empty migration.
-
-CREATE OR REPLACE function match_prompt_history (
+DROP function match_prompt_history;
+CREATE function match_prompt_history (
   query_embedding vector(1536),
   similarity_threshold float,
   match_count int
 )
 returns table (
   id integer,
-  queryInEnglish text,
-  responseInEnglish text,
+  "queryInEnglish" text,
+  "responseInEnglish" text,
   similarity float
 )
 language plpgsql
@@ -26,5 +26,3 @@ begin
   limit match_count;
 end;
 $$;
-
-create index on prompt_history using ivfflat (embedding vector_cosine_ops) with (lists = 100);

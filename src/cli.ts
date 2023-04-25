@@ -18,7 +18,7 @@ import { CreateDocumentDto } from "./modules/embeddings/embeddings.dto";
 const { execSync } = require("child_process");
 const csv = require("csv-parser");
 const pLimit = require("p-limit");
-const limit = pLimit(10);
+const limit = pLimit(20);
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const fs = require("fs");
@@ -56,17 +56,17 @@ async function bootstrap() {
       process.env["DEBUG"] = argv.debug.toString();
       intro(`Starting Ingestion Process for Embeddings`);
       const s = spinner();
-      //   s.start("🚧 1. Download Embeddings CSV");
-      //   //   const output = execSync(`${configService.get("CLI_DOWNLOAD_CSV")}`, {
-      //   //     encoding: "utf-8",
-      //   //   });
+      s.start("🚧 1. Download Embeddings CSV");
+      const output = execSync(`${configService.get("CLI_DOWNLOAD_CSV")}`, {
+        encoding: "utf-8",
+      });
       //   const output = execSync(
       //     `wget --no-check-certificate -O akai.csv "https://drive.google.com/uc?export=download&id=12L4yfV51irNAIg6Sp7YkDS_Rccqzn2cR"`,
       //     {
       //       encoding: "utf-8",
       //     }
       //   );
-      //   s.stop("✅ 1. AKAI CSV has been downloaded");
+      s.stop("✅ 1. AKAI CSV has been downloaded");
       s.start("🚧 2. Setup Embeddings");
       // Read the CSV to create CreateDocumentDto
       const csvFilePath = "akai.csv";

@@ -7,7 +7,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - ./pgdata:/var/lib/postgresql/data
     environment:
       POSTGRES_USER: timescaledb
       POSTGRES_PASSWORD: postgrespassword
@@ -62,9 +62,6 @@ services:
       - default
       - letsencrypt-docker-compose
     restart: always
-    networks:
-      - default
-      - letsencrypt-docker-compose
     ports:
       - "0.0.0.0:8081:3000"
     environment:
@@ -80,6 +77,7 @@ services:
 
 volumes:
   pgdata:
+
 
 networks:
   letsencrypt-docker-compose:

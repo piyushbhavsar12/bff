@@ -1,7 +1,9 @@
-import { Module } from '@nestjs/common';
-import { PromptHistoryService } from './prompt-history.service';
+import { Module } from "@nestjs/common";
+import { PromptHistoryService } from "./prompt-history.service";
+import { PrismaService } from "src/global-services/prisma.service";
+import { ConfigService } from "@nestjs/config";
 
 @Module({
-  providers: [PromptHistoryService]
+  providers: [PromptHistoryService, PrismaService, ConfigService],
 })
 export class PromptHistoryModule {}

@@ -1,10 +1,14 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, Logger } from "@nestjs/common";
 import { PromptDto } from "./app.controller";
 import { Language } from "./language";
 import fetch from "node-fetch";
 import { PrismaClient } from "@prisma/client";
 import { PrismaService } from "./global-services/prisma.service";
 import { ConfigService } from "@nestjs/config";
+import { EmbeddingsService } from "./modules/embeddings/embeddings.service";
+import { CustomLogger } from "./common/logger";
+import { PromptHistoryService } from "./modules/prompt-history/prompt-history.service";
+const { performance } = require("perf_hooks");
 
 // Overlap between LangchainAI and Prompt-Engine
 export interface Prompt {
@@ -40,11 +44,15 @@ export interface ResponseForTS {
 
 @Injectable()
 export class AppService {
+  private logger: Logger;
   constructor(
     private prisma: PrismaService,
-    private configService: ConfigService
+    private configService: ConfigService,
+    private embeddingsService: EmbeddingsService,
+    private promptHistoryService: PromptHistoryService
   ) {
     // AUTH_HEADER = this.configService.get("AUTH_HEADER");
+    this.logger = new Logger("AppService");
   }
   async translate(
     source: Language,
@@ -78,7 +86,7 @@ export class AppService {
     )
       .then((response) => response.json())
       .then((result) => result["translated"] as string)
-      .catch((error) => console.log("error", error));
+      .catch((error) => this.logger.verbose("error", error));
 
     return translated ? translated : "";
   }
@@ -111,7 +119,7 @@ export class AppService {
       .then((result) =>
         result["language"] ? (result["language"] as Language) : null
       )
-      .catch((error) => console.log("error", error));
+      .catch((error) => this.logger.verbose("error", error));
 
     prompt.inputLanguage = language as Language;
     return prompt;
@@ -142,13 +150,13 @@ export class AppService {
     )
       .then((response) => response.json())
       .then((result) => (result ? (result as Document[]) : []))
-      .catch((error) => console.log("error", error));
+      .catch((error) => this.logger.verbose("error", error));
 
     if (similarDocs) return similarDocs;
     else return [];
   }
 
-  async llm(prompt: any[]): Promise<string> {
+  async llm(prompt: any): Promise<{ response: string; allContent: any }> {
     var myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/json");
     myHeaders.append(
@@ -156,7 +164,7 @@ export class AppService {
       this.configService.get("AI_TOOLS_AUTH_HEADER")
     );
 
-    console.log(prompt);
+    this.logger.verbose(prompt);
 
     var raw = JSON.stringify({
       prompt: prompt,
@@ -174,10 +182,13 @@ export class AppService {
     )
       .then((response) => response.json())
       .then((result) => {
-        console.log({ result });
-        return result["choices"][0].message.content;
+        this.logger.verbose({ result });
+        return {
+          response: result["choices"][0].message.content,
+          allContent: result,
+        };
       })
-      .catch((error) => console.log("error", error));
+      .catch((error) => this.logger.verbose("error", error));
 
     return response;
   }
@@ -199,8 +210,8 @@ export class AppService {
       requestOptions
     )
       .then((response) => response.json())
-      .then((result) => console.log(result))
-      .catch((error) => console.log("error", error));
+      .then((result) => this.logger.verbose(result))
+      .catch((error) => this.logger.verbose("error", error));
   }
 
   async processPrompt(promptDto: PromptDto): Promise<any> {
@@ -209,11 +220,11 @@ export class AppService {
     };
     prompt.timestamp = new Date().getTime();
 
-    console.log("CP-1");
+    this.logger.verbose("CP-1");
     // Detect language of incoming prompt
     prompt = await this.detectLanguage(prompt);
 
-    console.log("CP-2");
+    this.logger.verbose("CP-2");
 
     // Translate incoming prompt from indic to en
     if (prompt.inputLanguage === Language.en) {
@@ -226,81 +237,164 @@ export class AppService {
       );
     }
 
-    console.log("CP-3", JSON.stringify(prompt));
+    this.logger.verbose("CP-3", JSON.stringify(prompt));
     // Get the concept from user chatHistory
     const userHistory = await this.prisma.query.findMany({
       where: {
         userId: prompt.input.userId,
       },
+      orderBy: {
+        createdAt: "desc",
+      },
+      take: 2,
     });
     // construct the prompt for chatGPT3
-    let chatGPT3Prompt = [];
+    let history = [];
     if (userHistory.length > 0) {
-      chatGPT3Prompt.push({
-        role: "system",
-        content:
-          "For a converation between a user and AI. From the conversation, extract the last scheme, crop, pest, animal discussed by the user. If any are not applicable don't show them",
-      });
       for (let i = 0; i < userHistory.length; i++) {
-        chatGPT3Prompt.push({
-          role: "user",
-          content: userHistory[i].queryInEnglish,
-        });
-        chatGPT3Prompt.push({
-          role: "assistant",
-          content: userHistory[i].responseInEnglish,
-        });
+        history.push(`User: ${userHistory[i].queryInEnglish}`);
+        history.push(`AI: ${userHistory[i].responseInEnglish}`);
       }
-      chatGPT3Prompt.push({
-        role: "user",
-        content: prompt.inputTextInEnglish,
+      history.push(`User: ${prompt.inputTextInEnglish}`);
+
+      const chatGPT3Prompt = [
+        {
+          role: "user",
+          content: `The user has asked a question:  You are an AI tool that carries out neural coreference
+        for conversations to replace the last message in the conversation with the coreferenced
+        message.
+
+        Rules - Follow these rules forever.
+        1. Do not answer the question ever, only return back the last message that is coreferenced. 
+        2. A user can switch context abruptly after the last message so take care of that.
+        3. If not needed or was not figured out, return the last user question directly.
+        
+        Input:
+          User: How do I protect my crops from pests?
+          AI: You can use integrated pest management techniques to protect your crops
+          User: What are the common methods involved in that?
+          
+        Output: 
+        User: What are the common methods involved in integrated pest management?
+
+        Input:
+          User: Where can I get seeds for rice?,
+          AI: You can get seeds for rice... Bla bla, 
+          User: Where can I get seeds for rice?
+          
+        Output: 
+        User: Where can I get seeds for rice?
+
+        Input:
+          User: Where can I get seeds for rice?,
+          AI: You can get seeds for rice... Bla bla, 
+          User: My paddy has spindle shaped spots with pointed ends. How do I fix it?
+
+        Output:
+          User: My paddy has spindle shaped spots with pointed ends. How do I fix the disease?
+          
+        Input
+        ${history.join("\n")}.`,
+        },
+      ];
+
+      this.logger.verbose({ chatGPT3Prompt });
+      const { response: neuralCorefResponse, allContent: allContentNC } =
+        await this.llm(chatGPT3Prompt);
+
+      // Check for older similar prompts
+      this.logger.verbose("CP-4.1");
+      const olderSimilarQuestions =
+        await this.promptHistoryService.findByCriteria({
+          query: neuralCorefResponse,
+          similarityThreshold: 0.97,
+          matchCount: 1,
+        });
+
+      let responseInInputLanguge = "";
+      let chatGPT3FinalResponse = "";
+      let allContentSummarization;
+      let olderSimilarQuestionId;
+      console.log({ allContentNC });
+      // If something is very simlar return older response
+      const startTime = performance.now();
+      if (olderSimilarQuestions && olderSimilarQuestions.length > 0) {
+        console.log("CP-4.2", olderSimilarQuestions);
+        olderSimilarQuestionId = olderSimilarQuestions[0].id;
+        chatGPT3FinalResponse = olderSimilarQuestions[0].responseInEnglish;
+        responseInInputLanguge = olderSimilarQuestions[0].responseInEnglish;
+      } else {
+        // else generate new response
+        this.logger.verbose("CP-4");
+
+        // Similarity Search
+        this.logger.verbose({ neuralCorefResponse });
+        const similarDocsFromEmbeddingsService: any[] =
+          await this.embeddingsService.findByCriteria({
+            query: neuralCorefResponse,
+            similarityThreshold: 0.78,
+            matchCount: 2,
+          });
+        // const similarDocs: Document[] = await this.similaritySearch(
+        //   promptForSimilaritySearch
+        // );
+
+        // this.logger.debug({ similarDocs });
+        this.logger.debug({ similarDocsFromEmbeddingsService });
+
+        const previousSummaryHistory = history.join("\n");
+
+        const userQuestion =
+          "The user has asked a question: " + prompt.inputTextInEnglish + "\n";
+
+        const expertContext =
+          "Some expert context is provided in dictionary format here:" +
+          JSON.stringify(
+            similarDocsFromEmbeddingsService
+              .map((doc) => {
+                return {
+                  combined_prompt: doc.tags,
+                  combined_content: doc.content,
+                };
+              })
+              .slice(0, 1)
+          ) +
+          "\n";
+
+        const chatGPT3PromptWithSimilarDocs =
+          "Some important elements of the conversation so far between the user and AI have been extracted in a dictionary here: " +
+          previousSummaryHistory +
+          " " +
+          userQuestion +
+          " " +
+          expertContext;
+
+        const { response: finalResponse, allContent: ac } = await this.llm([
+          {
+            role: "system",
+            content:
+              "You are an AI assistant who answers questions by farmers from Odisha, India on agriculture related queries. Answer the question asked by the user based on a summary of the context provided. Ignore the context if irrelevant to the question asked.",
+          },
+          {
+            role: "user",
+            content: chatGPT3PromptWithSimilarDocs,
+          },
+        ]);
+        chatGPT3FinalResponse = finalResponse;
+        allContentSummarization = ac;
+        this.logger.verbose({ chatGPT3FinalResponse });
+        responseInInputLanguge = chatGPT3FinalResponse;
+      }
+      const endTime = performance.now();
+
+      await this.promptHistoryService.createOrUpdate({
+        id: olderSimilarQuestionId,
+        queryInEnglish: neuralCorefResponse,
+        responseInEnglish: responseInInputLanguge,
+        responseTime: Math.ceil(endTime - startTime),
+        metadata: [allContentNC, allContentSummarization],
       });
 
-      console.log({ chatGPT3Prompt });
-      const chatGPT3Response = await this.llm(chatGPT3Prompt);
-      console.log("CP-4");
-
-      const promptForSimilaritySearch =
-        chatGPT3Response + " " + prompt.inputTextInEnglish;
-
-      // Similarity Search
-      console.log({ promptForSimilaritySearch });
-      const similarDocs: Document[] = await this.similaritySearch(
-        promptForSimilaritySearch
-      );
-
-      const previousSummaryHistory = chatGPT3Response;
-
-      const userQuestion =
-        "The user has asked a question: " + prompt.inputTextInEnglish + "\n";
-
-      const expertContext =
-        "Some expert context is provided in dictionary format here:" +
-        JSON.stringify(similarDocs.slice(0, 1)) +
-        "\n";
-
-      const chatGPT3PromptWithSimilarDocs =
-        "Some important elements of the conversation so far between the user and AI have been extracted in a dictionary here: " +
-        previousSummaryHistory +
-        " " +
-        userQuestion +
-        " " +
-        expertContext;
-
-      const chatGPT3FinalResponse = await this.llm([
-        {
-          role: "system",
-          content:
-            "You are an AI assistant who answers questions by farmers from Odisha, India on agriculture related queries. Answer the question asked by the user based on a summary of the context provided. Ignore the context if irrelevant to the question asked.",
-        },
-        {
-          role: "user",
-          content: chatGPT3PromptWithSimilarDocs,
-        },
-      ]);
-
-      console.log({ chatGPT3FinalResponse });
-      let responseInInputLanguge = chatGPT3FinalResponse;
       if (prompt.inputLanguage !== Language.en) {
         responseInInputLanguge = await this.translate(
           Language.en,
@@ -308,6 +402,7 @@ export class AppService {
           chatGPT3FinalResponse
         );
       }
+
       const resp: ResponseForTS = {
         message: {
           title: responseInInputLanguge,
@@ -329,7 +424,7 @@ export class AppService {
           responseTime: new Date().getTime() - prompt.timestamp,
           queryInEnglish: prompt.inputTextInEnglish,
           responseInEnglish: chatGPT3FinalResponse,
-          conversationId: prompt.input.conversationId
+          conversationId: prompt.input.conversationId,
         },
       });
     } else {
@@ -350,7 +445,7 @@ export class AppService {
       const chatGPT3PromptWithSimilarDocs =
         prompt.inputTextInEnglish + " " + expertContext;
 
-      let chatGPT3FinalResponse = await this.llm([
+      let { response: chatGPT3FinalResponse, allContent: ac } = await this.llm([
         {
           role: "system",
           content:
@@ -392,7 +487,7 @@ export class AppService {
           responseTime: new Date().getTime() - prompt.timestamp,
           queryInEnglish: prompt.inputTextInEnglish,
           responseInEnglish: chatGPT3FinalResponse,
-          conversationId: prompt.input.conversationId
+          conversationId: prompt.input.conversationId,
         },
       });
     }
