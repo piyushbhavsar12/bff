@@ -16,7 +16,7 @@ tasks:
   - name: db and hasura
     openMode: tab-after
     init: |
-      docker-compose up -d timescaledb graphql-engine
+      docker-compose -f docker-compose.local.yaml up -d
       gp sync-done docker-compose
 
   - name: bff
