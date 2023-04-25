@@ -49,10 +49,9 @@ jobs:
     
     - name: Run other services
       run: |
-        docker network create letsencrypt-docker-compose_default
-        docker-compose build --build-arg ENV="CI"
-        docker-compose up -d
-        docker-compose ps
+        docker-compose -f docker-compose.ci.yaml build --build-arg ENV="CI"
+        docker-compose -f docker-compose.ci.yaml up -d
+        docker-compose -f docker-compose.ci.yaml ps
       env:
         ENV: CI,
         OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}

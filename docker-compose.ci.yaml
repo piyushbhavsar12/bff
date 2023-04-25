@@ -1,0 +1,61 @@
+version: '3.6'
+services:
+  timescaledb:
+    container_name: timescaledb
+    image: samagragovernance/postgres:latest-pg15
+    restart: always
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: timescaledb
+      POSTGRES_PASSWORD: postgrespassword
+
+  graphql-engine:
+    image: hasura/graphql-engine:latest
+    ports:
+      - "8080:8080"
+    networks:
+      - default
+      - letsencrypt-docker-compose
+    volumes:
+      - ./data/migrations:/hasura-migrations
+      - ./data/metadata:/hasura-metadata
+    depends_on:
+      - "timescaledb"
+    restart: always
+    environment:
+      HASURA_GRAPHQL_DATABASE_URL: postgres://timescaledb:postgrespassword@timescaledb:5432/postgres?sslmode=disable
+      ## enable the console served by server
+      HASURA_GRAPHQL_ENABLE_CONSOLE: "true" # set to "false" to disable console
+      ## enable debugging mode. It is recommended to disable this in production
+      HASURA_GRAPHQL_DEV_MODE: "true"
+      HASURA_GRAPHQL_ENABLED_LOG_TYPES: startup,http-log,webhook-log,websocket-log,query-log
+      ## uncomment next line to set an admin secret
+      HASURA_GRAPHQL_ADMIN_SECRET: ${HASURA_GRAPHQL_ADMIN_SECRET}
+      HASURA_GRAPHQL_MIGRATIONS_DISABLE_TRANSACTION: "true"
+      HASURA_GRAPHQL_CONSOLE_ASSETS_DIR: /srv/console-assets
+
+  service:
+    container_name: service
+    build: .
+    image: test-container-image
+    networks:
+      - default
+    restart: always
+    ports:
+      - "0.0.0.0:8081:3000"
+    environment:
+      DATABASE_URL: postgres://timescaledb:postgrespassword@timescaledb:5432/postgres?sslmode=disable
+      POSTHOG_API_KEY: ${POSTHOG_API_KEY}
+      POSTHOG_BASE_URL: ${POSTHOG_BASE_URL}
+      POSTHOG_BATCH_SIZE: ${POSTHOG_BATCH_SIZE}
+      POSTHOG_FLUSH_INTERVAL: ${POSTHOG_FLUSH_INTERVAL}
+      AI_TOOLS_BASE_URL: ${AI_TOOLS_BASE_URL}
+      AI_TOOLS_AUTH_HEADER: ${AI_TOOLS_AUTH_HEADER}
+      TRANSPORT_SOCKET_URL: ${TRANSPORT_SOCKET_URL}
+      AUTH_HEADER: ${AUTH_HEADER}
+
+volumes:
+  pgdata:
