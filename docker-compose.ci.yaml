@@ -16,9 +16,6 @@ services:
     image: hasura/graphql-engine:latest
     ports:
       - "8080:8080"
-    networks:
-      - default
-      - letsencrypt-docker-compose
     volumes:
       - ./data/migrations:/hasura-migrations
       - ./data/metadata:/hasura-metadata
@@ -41,8 +38,6 @@ services:
     container_name: service
     build: .
     image: test-container-image
-    networks:
-      - default
     restart: always
     ports:
       - "0.0.0.0:8081:3000"
