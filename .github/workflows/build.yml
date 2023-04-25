@@ -13,18 +13,18 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - name: Clean up disk space
-      run: |
-        docker system prune -af
-        sudo apt-get clean
-        sudo rm -rf /var/lib/apt/lists/*
-        sudo rm -rf /opt/hostedtoolcache
+#     - name: Clean up disk space
+#       run: |
+#         docker system prune -af
+#         sudo apt-get clean
+#         sudo rm -rf /var/lib/apt/lists/*
+#         sudo rm -rf /opt/hostedtoolcache
 
-    - name: Free up disk space
-      run: |
-        curl -o free_disk_space.sh https://raw.githubusercontent.com/apache/flink/02d30ace69dc18555a5085eccf70ee884e73a16e/tools/azure-pipelines/free_disk_space.sh
-        chmod +x free_disk_space.sh
-        ./free_disk_space.sh
+#     - name: Free up disk space
+#       run: |
+#         curl -o free_disk_space.sh https://raw.githubusercontent.com/apache/flink/02d30ace69dc18555a5085eccf70ee884e73a16e/tools/azure-pipelines/free_disk_space.sh
+#         chmod +x free_disk_space.sh
+#         ./free_disk_space.sh
 
 #     - name: Cache Docker images
 #       uses: actions/cache@v2
