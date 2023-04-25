@@ -8,7 +8,7 @@ import { ConfigService } from "@nestjs/config";
 import fetch from "node-fetch";
 import { CreatePromptDto, SearchPromptHistoryDto } from "./prompt.dto";
 
-interface EmbeddingResponse {
+export interface EmbeddingResponse {
   embedding: number[];
   text: string;
 }
@@ -22,7 +22,6 @@ export class PromptHistoryService {
     // AUTH_HEADER = this.configService.get("AUTH_HEADER");
   }
   async createOrUpdate(data: CreatePromptDto): Promise<PromptHistory> {
-    console.log("Inside PH Service", { data });
     let olderDocument;
     let document: PromptHistory;
     try {
