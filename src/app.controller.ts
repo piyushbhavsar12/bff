@@ -11,6 +11,7 @@ export interface PromptDto {
   context: string;
   to: string;
   messageId: string;
+  conversationId?: number;
 }
 
 @Controller()

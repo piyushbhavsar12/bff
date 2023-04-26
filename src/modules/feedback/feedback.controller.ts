@@ -1,7 +1,8 @@
+
 import { Body, Controller, Get, HttpException, HttpStatus, Param, Post, Query } from "@nestjs/common";
-import { FeedbackService } from "./feedback.service";
-import { CreateFeedbackDto } from "./feedback.dto";
-import { feedback } from "@prisma/client";
+import { FeedbackService } from './feedback.service';
+import { CreateFeedbackDto } from './feedback.dto';
+import { feedback, query } from '@prisma/client';
 
 @Controller("feedback")
 export class FeedbackController {
@@ -28,5 +29,20 @@ export class FeedbackController {
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
+  }
+
+  @Get("query/like/:id")
+  async likeQuery(@Param('id') id: string): Promise<query> {
+    return this.feedbackService.likeQuery(id);
+  }
+
+  @Get("query/dislike/:id")
+  async dislikeQuery(@Param('id') id: string): Promise<query> {
+    return this.feedbackService.dislikeQuery(id);
+  }
+
+  @Get("query/removelike/:id")
+  async removeLike(@Param('id') id: string): Promise<query> {
+    return this.feedbackService.removeReactionOnQuery(id);
   }
 }

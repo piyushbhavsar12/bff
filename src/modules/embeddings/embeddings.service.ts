@@ -1,6 +1,5 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
-import { CreateDocumentDto, GetDocumentsDto } from "./embeddings.dto";
-
+import { CreateDocumentDto, SearchQueryDto, GetDocumentsDto } from "./embeddings.dto";
 import { document as Document, document } from "@prisma/client";
 import { PrismaService } from "../../global-services/prisma.service";
 import { ConfigService } from "@nestjs/config";
@@ -96,7 +95,7 @@ export class EmbeddingsService {
     return response;
   }
 
-  async findByCriteria(searchQueryDto): Promise<any> {
+  async findByCriteria(searchQueryDto: SearchQueryDto): Promise<any> {
     const embedding: EmbeddingResponse = (
       await this.getEmbedding(searchQueryDto.query)
     )[0];
@@ -109,7 +108,6 @@ export class EmbeddingsService {
         match_count := ${searchQueryDto.matchCount}
       );`);
 
-    console.log(results);
     return results;
   }
 
@@ -218,6 +216,14 @@ export class EmbeddingsService {
     LIMIT $2;
     
     `,page,perPage);
-    return result[0].result;
+    return result[0]?.result || {
+      pagination: {
+        page: 1,
+        perPage: 10,
+        totalPages: 0,
+        totalDocument: 0
+      },
+      documents: []
+    };
   }
 }

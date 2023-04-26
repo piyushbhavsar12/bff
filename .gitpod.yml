@@ -16,7 +16,7 @@ tasks:
   - name: db and hasura
     openMode: tab-after
     init: |
-      docker-compose up -d timescaledb graphql-engine
+      docker-compose -f docker-compose.local.yaml up -d
       gp sync-done docker-compose
 
   - name: bff
@@ -26,6 +26,7 @@ tasks:
       gp sync-await docker-compose
       while true; do echo "Is the file at the /root/.env updated with correct env? (y/n)"; read user_input; if [ "$user_input" = "y" ] || [ "$user_input" = "Y" ]; then echo "User confirmed. Proceeding..."; break; elif [ "$user_input" = "n" ] || [ "$user_input" = "N" ]; then echo "User declined. Exiting..."; exit 1; else echo "Invalid input. Please enter 'y' or 'n'."; fi; done
       npx prisma migrate deploy
+      yarn cli ingest
       yarn start:dev
       gp sync-done bff
   

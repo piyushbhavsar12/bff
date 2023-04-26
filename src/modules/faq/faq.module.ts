@@ -1,9 +1,9 @@
-import { Module } from '@nestjs/common';
-import { FAQController } from './faq.controller';
-import { FAQService } from './faq.service';
-import { PrismaService } from "src/global-services/prisma.service";
-import { APP_PIPE } from '@nestjs/core';
-import { ValidationPipe } from '@nestjs/common';
+import { Module } from "@nestjs/common";
+import { FAQController } from "./faq.controller";
+import { FAQService } from "./faq.service";
+import { PrismaService } from "../../global-services/prisma.service";
+import { APP_PIPE } from "@nestjs/core";
+import { ValidationPipe } from "@nestjs/common";
 
 @Module({
   providers: [
@@ -12,7 +12,7 @@ import { ValidationPipe } from '@nestjs/common';
     {
       provide: APP_PIPE,
       useClass: ValidationPipe,
-    }
+    },
   ],
   controllers: [FAQController],
 })

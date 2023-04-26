@@ -13,16 +13,22 @@ datasource db {
 }
 
 model query {
-  createdAt         DateTime @default(now()) @db.Timestamptz(3)
-  updatedAt         DateTime @updatedAt
+  createdAt         DateTime  @default(now()) @db.Timestamptz(3)
+  updatedAt         DateTime  @updatedAt
   responseTime      Int
   query             String
   response          String
   queryInEnglish    String
   responseInEnglish String
-  userId            String   @db.Uuid
+  conversationId    Int?
+  userId            String    @db.Uuid
+  workflowId        Int?
+  reaction          Int       @default(0) @db.SmallInt
+  workflow          workflow? @relation(fields: [workflowId], references: [id])
+  messageId         String?   @default(uuid()) @db.Uuid
 
   @@unique([userId, createdAt])
+  @@unique([userId, createdAt, conversationId])
 }
 
 model feedback {
@@ -47,14 +53,60 @@ model document {
   tags      String
   content   String
   embedding Unsupported("vector")?
-
-  @@unique([userId])
 }
 
 model faq {
-  createdAt         DateTime @default(now()) @db.Timestamptz(3)
-  updatedAt         DateTime @updatedAt
-  id                Int @id @default(autoincrement())
-  question          String
-  answer            String
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt
+  id        Int      @id @default(autoincrement())
+  question  String
+  answer    String
+}
+
+model prompt {
+  createdAt                 DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt                 DateTime @updatedAt
+  id                        Int      @id @default(autoincrement())
+  prompt                    String
+  description               String?
+  languageModel             String?
+  version                   Int
+  contextIndependence       Boolean
+  modelAgnosticInstructions String?
+  author                    String
+  testing                   Boolean
+  additional_notes          String
+}
+
+model workflow {
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt
+  id        Int      @id @default(autoincrement())
+  userId    String   @db.Uuid
+  content   Json
+  query     query[]
+}
+
+model prompt_history {
+  id                Int                    @id @default(autoincrement())
+  createdAt         DateTime               @default(now()) @db.Timestamptz(3)
+  updatedAt         DateTime               @updatedAt
+  responseTime      Int
+  queryInEnglish    String
+  responseInEnglish String
+  timesUsed         Int
+  metadata          Json?
+  embedding         Unsupported("vector")?
+
+  @@unique([queryInEnglish])
+}
+
+model config {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt
+  version   Int
+  data      Json
+  question  String
+  answer    String
 }
