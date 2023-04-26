@@ -420,6 +420,7 @@ export class AppService {
       await this.sendMessageBackToTS(resp);
       await this.prisma.query.create({
         data: {
+          id: prompt.input.messageId,
           userId: prompt.input.userId,
           query: prompt.input.body,
           response: chatGPT3FinalResponse,
@@ -483,6 +484,7 @@ export class AppService {
       await this.sendMessageBackToTS(resp);
       await this.prisma.query.create({
         data: {
+          id: prompt.input.messageId,
           userId: prompt.input.userId,
           query: prompt.input.body,
           response: responseInInputLanguge,

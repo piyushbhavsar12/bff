@@ -27,8 +27,21 @@ export class FeedbackService {
     }
   }
 
-  async findAll(): Promise<feedback[]> {
-    return this.prisma.feedback.findMany();
+  async findAll(page: number, perPage: number): Promise<any> {
+    const feedbacks = await this.prisma.feedback.findMany({
+      take: perPage,
+      skip: (page - 1) * perPage
+    });
+    const totalFeedbacks = await this.prisma.feedback.count();
+    return {
+      pagination: {
+        page,
+        perPage,
+        totalPages: Math.ceil(totalFeedbacks / perPage),
+        totalFeedbacks,
+      },
+      feedbacks: feedbacks,
+    };
   }
 
   async findOne(userId: string): Promise<feedback | null> {
