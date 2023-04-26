@@ -1,5 +1,4 @@
 -- This is an empty migration.
-DROP function match_prompt_history;
 CREATE function match_prompt_history (
   query_embedding vector(1536),
   similarity_threshold float,
