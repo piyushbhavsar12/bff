@@ -70,8 +70,8 @@ async function bootstrap() {
         console.log(j[""]);
         let cdd: CreateDocumentDto = {
           id: parseInt(j[""]) + 10,
-          tags: j["combined_prompt"],
-          content: j["combined_content"],
+          tags: j["tags"],
+          content: j["context"],
         };
         cdds.push(cdd);
       }
