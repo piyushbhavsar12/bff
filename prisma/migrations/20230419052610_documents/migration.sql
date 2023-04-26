@@ -15,7 +15,7 @@ CREATE TABLE "document" (
 
 -- CreateIndex
 CREATE UNIQUE INDEX "document_userId_key" ON "document"("userId");
-CREATE INDEX on document using ivfflat (embedding vector_cosine_ops) with (lists = 100);
+-- CREATE INDEX on document using ivfflat (embedding vector_cosine_ops) with (lists = 100);
 
 CREATE OR REPLACE function match_documents (
   query_embedding vector(1536),
