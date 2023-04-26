@@ -55,9 +55,9 @@ services:
       AUTH_HEADER_KEY: Authorization
 
   service:
-    container_name: service
+    container_name: bff
     build: .
-    image: test-container-image
+    image: bff
     networks:
       - default
       - letsencrypt-docker-compose
@@ -74,10 +74,6 @@ services:
       AI_TOOLS_AUTH_HEADER: ${AI_TOOLS_AUTH_HEADER}
       TRANSPORT_SOCKET_URL: ${TRANSPORT_SOCKET_URL}
       AUTH_HEADER: ${AUTH_HEADER}
-
-volumes:
-  pgdata:
-
 
 networks:
   letsencrypt-docker-compose:
