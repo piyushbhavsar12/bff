@@ -15,4 +15,9 @@ export class UserController {
   async chatHistory(@Param("userId") userId: string, @Param("conversationId") conversationId: string): Promise<query[]> {
     return this.userService.conversationHistory(conversationId,userId);
   }
+
+  @Get("conversations/delete/:userId/:conversationId")
+  async deleteConversation(@Param("userId") userId: string, @Param("conversationId") conversationId: string): Promise<boolean> {
+    return this.userService.deleteConversation(conversationId,userId)
+  }
 }

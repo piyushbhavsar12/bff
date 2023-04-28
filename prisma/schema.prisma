@@ -26,6 +26,7 @@ model query {
   workflowId        Int?
   reaction          Int       @default(0) @db.SmallInt
   workflow          workflow? @relation(fields: [workflowId], references: [id])
+  isConversationDeleted Boolean @default(false)
 
   @@unique([userId, createdAt])
   @@unique([userId, createdAt, conversationId])

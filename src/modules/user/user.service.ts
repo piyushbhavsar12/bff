@@ -10,7 +10,10 @@ export class UserService {
     try {
       const userHistory = await this.prisma.query.findMany({
         distinct: ["conversationId"],
-        where: { userId },
+        where: { 
+          userId,
+          isConversationDeleted: false
+        },
         orderBy: [{ conversationId: "asc" }, { createdAt: "asc" }],
       });
       return userHistory;
@@ -29,7 +32,8 @@ export class UserService {
       const userHistory = await this.prisma.query.findMany({
         where: {
           conversationId: conversationId,
-          userId
+          userId,
+          isConversationDeleted: false
         },
         orderBy: [{ createdAt: "asc" }],
       });
@@ -37,6 +41,28 @@ export class UserService {
     } catch (error) {
       throw new BadRequestException([
         "Something went wrong while fetching conversation history",
+      ]);
+    }
+  }
+
+  async deleteConversation(
+    conversationId: string,
+    userId: string
+  ): Promise<boolean> {
+    try {
+      const userHistory = await this.prisma.query.updateMany({
+        where: {
+          conversationId: conversationId,
+          userId
+        },
+        data: {
+          isConversationDeleted: true
+        }
+      });
+      return userHistory? true: false;
+    } catch (error) {
+      throw new BadRequestException([
+        "Something went wrong while deleting conversation history",
       ]);
     }
   }
