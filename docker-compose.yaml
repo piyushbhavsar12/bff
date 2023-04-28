@@ -10,8 +10,6 @@ services:
     volumes:
       - ./data/migrations:/hasura-migrations
       - ./data/metadata:/hasura-metadata
-    depends_on:
-      - "timescaledb"
     restart: always
     environment:
       HASURA_GRAPHQL_DATABASE_URL: ${DATABASE_URL}
