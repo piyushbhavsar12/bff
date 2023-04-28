@@ -22,16 +22,14 @@ export class UserService {
   }
 
   async conversationHistory(
-    conversationId: number,
+    conversationId: string,
     userId: string
   ): Promise<query[]> {
     try {
       const userHistory = await this.prisma.query.findMany({
         where: {
-          conversationId: parseInt(`${conversationId}`)
-            ? parseInt(`${conversationId}`)
-            : null,
-          userId,
+          conversationId: conversationId,
+          userId
         },
         orderBy: [{ createdAt: "asc" }],
       });

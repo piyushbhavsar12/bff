@@ -12,7 +12,7 @@ export class UserController {
   }
 
   @Get("/chathistory/:userId/:conversationId")
-  async chatHistory(@Param("userId") userId: string, @Param("conversationId") conversationId: number): Promise<query[]> {
+  async chatHistory(@Param("userId") userId: string, @Param("conversationId") conversationId: string): Promise<query[]> {
     return this.userService.conversationHistory(conversationId,userId);
   }
 }

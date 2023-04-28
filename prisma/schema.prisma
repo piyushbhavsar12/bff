@@ -21,7 +21,7 @@ model query {
   response          String
   queryInEnglish    String
   responseInEnglish String
-  conversationId    Int?
+  conversationId    String?   @default(uuid()) @db.Uuid
   userId            String    @db.Uuid
   workflowId        Int?
   reaction          Int       @default(0) @db.SmallInt
