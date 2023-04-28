@@ -1,17 +1,5 @@
 version: '3.6'
 services:
-  timescaledb:
-    container_name: timescaledb
-    image: samagragovernance/postgres:latest-pg15
-    restart: always
-    ports:
-      - "5432:5432"
-    volumes:
-      - ./pgdata:/var/lib/postgresql/data
-    environment:
-      POSTGRES_USER: timescaledb
-      POSTGRES_PASSWORD: postgrespassword
-
   graphql-engine:
     image: hasura/graphql-engine:latest
     ports:
@@ -26,7 +14,7 @@ services:
       - "timescaledb"
     restart: always
     environment:
-      HASURA_GRAPHQL_DATABASE_URL: postgres://timescaledb:postgrespassword@timescaledb:5432/postgres?sslmode=disable
+      HASURA_GRAPHQL_DATABASE_URL: ${DATABASE_URL}
       ## enable the console served by server
       HASURA_GRAPHQL_ENABLE_CONSOLE: "true" # set to "false" to disable console
       ## enable debugging mode. It is recommended to disable this in production
@@ -65,7 +53,7 @@ services:
     ports:
       - "0.0.0.0:8081:3000"
     environment:
-      DATABASE_URL: postgres://timescaledb:postgrespassword@timescaledb:5432/postgres?sslmode=disable
+      DATABASE_URL: ${DATABASE_URL}
       POSTHOG_API_KEY: ${POSTHOG_API_KEY}
       POSTHOG_BASE_URL: ${POSTHOG_BASE_URL}
       POSTHOG_BATCH_SIZE: ${POSTHOG_BATCH_SIZE}
