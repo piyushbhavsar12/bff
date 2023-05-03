@@ -5,7 +5,7 @@ import { PrismaService } from "../../global-services/prisma.service";
 import { ConfigService } from "@nestjs/config";
 import fetch from "node-fetch";
 import { DocumentsResponse, DocumentWithEmbedding } from "./embeddings.model";
-import { fetchWithAlert } from "src/common/utils";
+import { fetchWithAlert } from "../../common/utils";
 
 interface EmbeddingResponse {
   embedding: number[];

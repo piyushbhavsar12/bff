@@ -5,9 +5,8 @@ import {
 } from "@prisma/client";
 import { PrismaService } from "../../global-services/prisma.service";
 import { ConfigService } from "@nestjs/config";
-import fetch from "node-fetch";
 import { CreatePromptDto, SearchPromptHistoryDto } from "./prompt.dto";
-import { fetchWithAlert } from "src/common/utils";
+import { fetchWithAlert } from "../../common/utils";
 
 export interface EmbeddingResponse {
   embedding: number[];
