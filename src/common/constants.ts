@@ -3,7 +3,7 @@ export const USING_GPT4_ALERT = (
     inputTextInEnglish,
     chatGPT3FinalResponse,
     previousSummaryHistory
-) => `Using GPT4 as there were no simlar documents found for below query\n
+) => `Using GPT4 as there were no similar documents found for below query\n
 UserId: ${userId}\n\n
 Query: ${inputTextInEnglish}\n\n
 Response: ${chatGPT3FinalResponse}\n\n
