@@ -111,3 +111,12 @@ model config {
   question  String
   answer    String
 }
+
+model similarity_search_response {
+  id             Int      @id @default(autoincrement())
+  documentId     Int
+  content        String
+  tags           String
+  similarity     Float
+  queryId        String  @db.Uuid
+}
