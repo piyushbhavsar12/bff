@@ -8,6 +8,9 @@ import { ConfigService } from "@nestjs/config";
 import { EmbeddingsService } from "./modules/embeddings/embeddings.service";
 import { CustomLogger } from "./common/logger";
 import { PromptHistoryService } from "./modules/prompt-history/prompt-history.service";
+import { sendEmail } from "./common/email.service";
+import { USING_GPT4_ALERT } from "./common/constants";
+import { fetchWithAlert } from "./common/utils";
 const { performance } = require("perf_hooks");
 
 // Overlap between LangchainAI and Prompt-Engine
@@ -78,7 +81,7 @@ export class AppService {
       body: raw,
     };
 
-    const translated = await fetch(
+    const translated = await fetchWithAlert(
       `${this.configService.get(
         "AI_TOOLS_BASE_URL"
       )}/text_translation/bhashini/remote`,
@@ -109,7 +112,7 @@ export class AppService {
       body: raw,
     };
 
-    const language = await fetch(
+    const language = await fetchWithAlert(
       `${this.configService.get(
         "AI_TOOLS_BASE_URL"
       )}/text_lang_detection/bhashini/remote`,
@@ -143,8 +146,7 @@ export class AppService {
       headers: myHeaders,
       body: raw,
     };
-
-    const similarDocs: Document[] | void = await fetch(
+    const similarDocs: Document[] | void = await fetchWithAlert(
       `${this.configService.get("AI_TOOLS_BASE_URL")}/embeddings/openai/remote`,
       requestOptions
     )
@@ -176,7 +178,7 @@ export class AppService {
       body: raw,
     };
 
-    const response = await fetch(
+    const response = await fetchWithAlert(
       `${this.configService.get("AI_TOOLS_BASE_URL")}/llm/openai/chatgpt3`,
       requestOptions
     )
@@ -190,7 +192,8 @@ export class AppService {
       })
       .catch((error) => this.logger.verbose("error", error));
 
-    return response;
+    if (response) return response;
+    else return {response:null, allContent:null};
   }
 
   async sendMessageBackToTS(resp: ResponseForTS) {
@@ -317,6 +320,7 @@ export class AppService {
       let chatGPT3FinalResponse = "";
       let allContentSummarization;
       let olderSimilarQuestionId;
+      let similarDocsFromEmbeddingsService: any[];
       console.log({ allContentNC });
       // If something is very simlar return older response
       const startTime = performance.now();
@@ -331,12 +335,16 @@ export class AppService {
 
         // Similarity Search
         this.logger.verbose({ neuralCorefResponse });
-        const similarDocsFromEmbeddingsService: any[] =
+        similarDocsFromEmbeddingsService =
           await this.embeddingsService.findByCriteria({
             query: neuralCorefResponse,
-            similarityThreshold: 0.78,
+            similarityThreshold: parseFloat(this.configService.get("SIMILARITY_THRESHOLD")) || 0.78,
             matchCount: 2,
           });
+        // let usegpt4 = false
+        // if(similarDocsFromEmbeddingsService){
+        //   usegpt4 = similarDocsFromEmbeddingsService.length == 0
+        // } else { usegpt4 = true }
         // const similarDocs: Document[] = await this.similaritySearch(
         //   promptForSimilaritySearch
         // );
@@ -386,6 +394,19 @@ export class AppService {
         allContentSummarization = ac;
         this.logger.verbose({ chatGPT3FinalResponse });
         responseInInputLanguge = chatGPT3FinalResponse;
+
+        // if(usegpt4){
+        //   sendEmail(
+        //     JSON.parse(this.configService.get("SENDGRID_ALERT_RECEIVERS")),
+        //     "Using GPT4",
+        //     USING_GPT4_ALERT(
+        //       prompt.input.userId,
+        //       prompt.inputTextInEnglish,
+        //       chatGPT3FinalResponse,
+        //       previousSummaryHistory
+        //     )
+        //   )
+        // }
       }
       const endTime = performance.now();
 
@@ -430,6 +451,18 @@ export class AppService {
           conversationId: prompt.input.conversationId,
         },
       });
+      
+      if(similarDocsFromEmbeddingsService && similarDocsFromEmbeddingsService.length > 0){
+        let similarDocsCreateData = similarDocsFromEmbeddingsService.map(e=>{
+          e['queryId'] = prompt.input.messageId
+          e['documentId'] = e.id
+          delete e.id
+          return e
+        })
+        await this.prisma.similarity_search_response.createMany({
+          data: similarDocsCreateData
+        })
+      }
     } else {
       const promptForSimilaritySearch = prompt.inputTextInEnglish;
 
@@ -439,7 +472,7 @@ export class AppService {
       const similarDocs: Document[] = await this.similaritySearch(
         promptForSimilaritySearch
       );
-
+      // let usegpt4 = similarDocs.length == 0
       const expertContext =
         "Some expert context is provided in dictionary format here:" +
         JSON.stringify(similarDocs.slice(0, 1)) +
@@ -494,6 +527,19 @@ export class AppService {
           conversationId: prompt.input.conversationId,
         },
       });
+
+      // if(usegpt4){
+      //   sendEmail(
+      //     JSON.parse(this.configService.get("SENDGRID_ALERT_RECEIVERS")),
+      //     "Using GPT4",
+      //     USING_GPT4_ALERT(
+      //       prompt.input.userId,
+      //       prompt.inputTextInEnglish,
+      //       chatGPT3FinalResponse,
+      //       'N/A'
+      //     )
+      //   )
+      // }
     }
 
     // Store that response to the query in the database

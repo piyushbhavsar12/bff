@@ -5,6 +5,7 @@ import { PrismaService } from "../../global-services/prisma.service";
 import { ConfigService } from "@nestjs/config";
 import fetch from "node-fetch";
 import { DocumentsResponse, DocumentWithEmbedding } from "./embeddings.model";
+import { fetchWithAlert } from "../../common/utils";
 
 interface EmbeddingResponse {
   embedding: number[];
@@ -123,14 +124,14 @@ export class EmbeddingsService {
       text: [query],
     });
 
-    var requestOptions = {
+    var requestOptions: RequestInit = {
       method: "POST",
       headers: myHeaders,
       body: raw,
       redirect: "follow",
     };
 
-    const embeddings = await fetch(
+    const embeddings = await fetchWithAlert(
       `${this.configService.get(
         "AI_TOOLS_BASE_URL"
       )}/t2embedding/openai/remote`,
@@ -139,8 +140,9 @@ export class EmbeddingsService {
       .then((response) => response.json())
       .then((result) => result as EmbeddingResponse[])
       .catch((error) => console.log("error", error));
-
-    return embeddings;
+    
+    if (embeddings) return embeddings
+    else return []
   }
 
   async findOne(id: number): Promise<DocumentWithEmbedding | null> {

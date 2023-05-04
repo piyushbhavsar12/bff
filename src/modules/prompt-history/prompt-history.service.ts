@@ -5,8 +5,8 @@ import {
 } from "@prisma/client";
 import { PrismaService } from "../../global-services/prisma.service";
 import { ConfigService } from "@nestjs/config";
-import fetch from "node-fetch";
 import { CreatePromptDto, SearchPromptHistoryDto } from "./prompt.dto";
+import { fetchWithAlert } from "../../common/utils";
 
 export interface EmbeddingResponse {
   embedding: number[];
@@ -87,14 +87,14 @@ export class PromptHistoryService {
       text: [query],
     });
 
-    var requestOptions = {
+    var requestOptions: RequestInit = {
       method: "POST",
       headers: myHeaders,
       body: raw,
       redirect: "follow",
     };
 
-    const embeddings = await fetch(
+    const embeddings = await fetchWithAlert(
       `${this.configService.get(
         "AI_TOOLS_BASE_URL"
       )}/t2embedding/openai/remote`,
@@ -104,7 +104,8 @@ export class PromptHistoryService {
       .then((result) => result as EmbeddingResponse[])
       .catch((error) => console.log("error", error));
 
-    return embeddings;
+    if (embeddings) return embeddings
+    else return []
   }
 
   async findOne(id: number): Promise<Document | null> {
