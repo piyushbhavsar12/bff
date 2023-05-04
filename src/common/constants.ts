@@ -16,3 +16,12 @@ export const AI_TOOLS_DELAY_ALERT = (
 ) => `Below Ai-Tool request took ${responseTime/1000}sec to respond\n
 URL: ${url}\n
 Request options: ${JSON.stringify(options)}`
+
+export const AI_TOOLS_ERROR = (
+    url,
+    options,
+    error
+) => `Below Ai-Tool request has failed:\n
+URL: ${url}\n
+Request options: ${JSON.stringify(options)}\n
+Error: ${error}`

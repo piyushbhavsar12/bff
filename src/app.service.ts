@@ -158,7 +158,7 @@ export class AppService {
     else return [];
   }
 
-  async llm(prompt: any,usegpt4: boolean = false): Promise<{ response: string; allContent: any }> {
+  async llm(prompt: any): Promise<{ response: string; allContent: any }> {
     var myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/json");
     myHeaders.append(
@@ -179,7 +179,7 @@ export class AppService {
     };
 
     const response = await fetchWithAlert(
-      `${this.configService.get("AI_TOOLS_BASE_URL")}/llm/openai/chatgpt${usegpt4?'4':'3'}`,
+      `${this.configService.get("AI_TOOLS_BASE_URL")}/llm/openai/chatgpt3`,
       requestOptions
     )
       .then((response) => response.json())
@@ -341,10 +341,10 @@ export class AppService {
             similarityThreshold: parseFloat(this.configService.get("SIMILARITY_THRESHOLD")) || 0.78,
             matchCount: 2,
           });
-        let usegpt4 = false
-        if(similarDocsFromEmbeddingsService){
-          usegpt4 = similarDocsFromEmbeddingsService.length == 0
-        } else { usegpt4 = true }
+        // let usegpt4 = false
+        // if(similarDocsFromEmbeddingsService){
+        //   usegpt4 = similarDocsFromEmbeddingsService.length == 0
+        // } else { usegpt4 = true }
         // const similarDocs: Document[] = await this.similaritySearch(
         //   promptForSimilaritySearch
         // );
@@ -389,24 +389,24 @@ export class AppService {
             role: "user",
             content: chatGPT3PromptWithSimilarDocs,
           },
-        ], usegpt4);
+        ]);
         chatGPT3FinalResponse = finalResponse;
         allContentSummarization = ac;
         this.logger.verbose({ chatGPT3FinalResponse });
         responseInInputLanguge = chatGPT3FinalResponse;
 
-        if(usegpt4){
-          sendEmail(
-            JSON.parse(this.configService.get("SENDGRID_ALERT_RECEIVERS")),
-            "Using GPT4",
-            USING_GPT4_ALERT(
-              prompt.input.userId,
-              prompt.inputTextInEnglish,
-              chatGPT3FinalResponse,
-              previousSummaryHistory
-            )
-          )
-        }
+        // if(usegpt4){
+        //   sendEmail(
+        //     JSON.parse(this.configService.get("SENDGRID_ALERT_RECEIVERS")),
+        //     "Using GPT4",
+        //     USING_GPT4_ALERT(
+        //       prompt.input.userId,
+        //       prompt.inputTextInEnglish,
+        //       chatGPT3FinalResponse,
+        //       previousSummaryHistory
+        //     )
+        //   )
+        // }
       }
       const endTime = performance.now();
 
@@ -472,7 +472,7 @@ export class AppService {
       const similarDocs: Document[] = await this.similaritySearch(
         promptForSimilaritySearch
       );
-      let usegpt4 = similarDocs.length == 0
+      // let usegpt4 = similarDocs.length == 0
       const expertContext =
         "Some expert context is provided in dictionary format here:" +
         JSON.stringify(similarDocs.slice(0, 1)) +
@@ -491,7 +491,7 @@ export class AppService {
           role: "user",
           content: chatGPT3PromptWithSimilarDocs,
         },
-      ],usegpt4);
+      ]);
       console.log("CP-5", JSON.stringify(chatGPT3FinalResponse));
       // Translate the answer to original language
       let responseInInputLanguge = chatGPT3FinalResponse;
@@ -528,18 +528,18 @@ export class AppService {
         },
       });
 
-      if(usegpt4){
-        sendEmail(
-          JSON.parse(this.configService.get("SENDGRID_ALERT_RECEIVERS")),
-          "Using GPT4",
-          USING_GPT4_ALERT(
-            prompt.input.userId,
-            prompt.inputTextInEnglish,
-            chatGPT3FinalResponse,
-            'N/A'
-          )
-        )
-      }
+      // if(usegpt4){
+      //   sendEmail(
+      //     JSON.parse(this.configService.get("SENDGRID_ALERT_RECEIVERS")),
+      //     "Using GPT4",
+      //     USING_GPT4_ALERT(
+      //       prompt.input.userId,
+      //       prompt.inputTextInEnglish,
+      //       chatGPT3FinalResponse,
+      //       'N/A'
+      //     )
+      //   )
+      // }
     }
 
     // Store that response to the query in the database
