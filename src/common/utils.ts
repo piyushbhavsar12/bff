@@ -9,7 +9,7 @@ export const fetchWithAlert = async (
     try {
         const start = Date.now();
         const response = await fetch(url, options);
-        if(!response.ok){
+        if(response.status && !response.ok){
             throw new Error(`Network response was not ok. status ${response.status}`);
         }
         const end = Date.now();
