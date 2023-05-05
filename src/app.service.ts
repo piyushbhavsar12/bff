@@ -444,7 +444,7 @@ export class AppService {
           id: prompt.input.messageId,
           userId: prompt.input.userId,
           query: prompt.input.body,
-          response: chatGPT3FinalResponse,
+          response: responseInInputLanguge,
           responseTime: new Date().getTime() - prompt.timestamp,
           queryInEnglish: prompt.inputTextInEnglish,
           responseInEnglish: chatGPT3FinalResponse,
