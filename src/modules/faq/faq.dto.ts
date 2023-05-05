@@ -1,11 +1,17 @@
 import { IsNotEmpty, IsOptional } from 'class-validator';
 
 export class CreateFaqDto {
-  @IsNotEmpty()
+  @IsOptional()
   question: string;
 
-  @IsNotEmpty()
+  @IsOptional()
   answer: string;
+
+  @IsOptional()
+  questionInEnglish: string;
+
+  @IsOptional()
+  answerInEnglish: string;
 }
 
 export class UpdateFaqDto extends CreateFaqDto {}
