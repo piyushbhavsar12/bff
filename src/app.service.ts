@@ -72,7 +72,7 @@ export class AppService {
     var raw = JSON.stringify({
       source_language: source,
       target_language: target,
-      text: text,
+      text: text.replace("\n","."),
     });
 
     var requestOptions = {
@@ -444,7 +444,7 @@ export class AppService {
           id: prompt.input.messageId,
           userId: prompt.input.userId,
           query: prompt.input.body,
-          response: chatGPT3FinalResponse,
+          response: responseInInputLanguge,
           responseTime: new Date().getTime() - prompt.timestamp,
           queryInEnglish: prompt.inputTextInEnglish,
           responseInEnglish: chatGPT3FinalResponse,
