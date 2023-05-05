@@ -72,7 +72,7 @@ export class AppService {
     var raw = JSON.stringify({
       source_language: source,
       target_language: target,
-      batch: text.replace("\n","."),
+      text: text.replace("\n","."),
     });
 
     var requestOptions = {
