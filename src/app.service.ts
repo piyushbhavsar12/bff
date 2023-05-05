@@ -449,6 +449,7 @@ export class AppService {
           queryInEnglish: prompt.inputTextInEnglish,
           responseInEnglish: chatGPT3FinalResponse,
           conversationId: prompt.input.conversationId,
+          coreferencedPrompt: neuralCorefResponse
         },
       });
       
