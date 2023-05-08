@@ -60,7 +60,8 @@ export class AppService {
   async translate(
     source: Language,
     target: Language,
-    text: string
+    text: string,
+    userId: string
   ): Promise<string> {
     var myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/json");
@@ -75,10 +76,24 @@ export class AppService {
       text: text.replace("\n","."),
     });
 
+    if(raw.indexOf('"unk\"') !== -1) {
+      sendEmail(
+        JSON.parse(this.configService.get("SENDGRID_ALERT_RECEIVERS")),
+        "Error while detecting language",
+        `
+        Environment: ${this.configService.get("ENVIRONMENT")}
+        userId: ${userId}
+        input text: ${text}
+        source_language: ${source}
+        target_language: ${target}
+        `
+      )
+    }
+
     var requestOptions = {
       method: "POST",
       headers: myHeaders,
-      body: raw,
+      body: raw.replace('"unk\"','"or\"'),
     };
 
     const translated = await fetchWithAlert(
@@ -236,7 +251,8 @@ export class AppService {
       prompt.inputTextInEnglish = await this.translate(
         prompt.inputLanguage,
         Language.en,
-        prompt.input.body
+        prompt.input.body,
+        prompt.input.userId
       );
     }
 
@@ -422,7 +438,8 @@ export class AppService {
         responseInInputLanguge = await this.translate(
           Language.en,
           prompt.inputLanguage,
-          chatGPT3FinalResponse
+          chatGPT3FinalResponse,
+          prompt.input.userId
         );
       }
 
@@ -500,7 +517,8 @@ export class AppService {
         responseInInputLanguge = await this.translate(
           Language.en,
           prompt.inputLanguage,
-          chatGPT3FinalResponse
+          chatGPT3FinalResponse,
+          prompt.input.userId
         );
       }
       const resp: ResponseForTS = {
