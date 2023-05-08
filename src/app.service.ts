@@ -355,7 +355,7 @@ export class AppService {
         const previousSummaryHistory = history.join("\n");
 
         const userQuestion =
-          "The user has asked a question: " + prompt.inputTextInEnglish + "\n";
+          "The user has asked a question: " + neuralCorefResponse.replace("User:","") + "\n";
 
         const expertContext =
           "Some expert context is provided in dictionary format here:" +
