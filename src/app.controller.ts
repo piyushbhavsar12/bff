@@ -1,5 +1,6 @@
-import { Controller, Get, Post, Headers, Body } from "@nestjs/common";
+import { Controller, Get, Post, Headers, Body, UseInterceptors } from "@nestjs/common";
 import { AppService } from "./app.service";
+import { AlertInterceptor } from "./common/alerts.interceptor";
 
 export interface PromptDto {
   body: string;
@@ -23,6 +24,7 @@ export class AppController {
     return this.appService.getHello();
   }
 
+  @UseInterceptors(AlertInterceptor)
   @Post("/prompt")
   prompt(@Body() promptDto: PromptDto, @Headers() headers): any {
     return this.appService.processPrompt(promptDto);

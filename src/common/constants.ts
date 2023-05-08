@@ -3,7 +3,9 @@ export const USING_GPT4_ALERT = (
     inputTextInEnglish,
     chatGPT3FinalResponse,
     previousSummaryHistory
-) => `Using GPT4 as there were no similar documents found for below query\n
+) => `
+Environment: ${process.env.ENVIRONMENT}
+Using GPT4 as there were no similar documents found for below query\n
 UserId: ${userId}\n\n
 Query: ${inputTextInEnglish}\n\n
 Response: ${chatGPT3FinalResponse}\n\n
@@ -13,7 +15,9 @@ export const AI_TOOLS_DELAY_ALERT = (
     responseTime,
     url,
     options
-) => `Below Ai-Tool request took ${responseTime/1000}sec to respond\n
+) => `
+Environment: ${process.env.ENVIRONMENT}
+Below Ai-Tool request took ${responseTime/1000}sec to respond\n
 URL: ${url}\n
 Request options: ${JSON.stringify(options)}`
 
@@ -21,7 +25,22 @@ export const AI_TOOLS_ERROR = (
     url,
     options,
     error
-) => `Below Ai-Tool request has failed:\n
+) => `
+Environment: ${process.env.ENVIRONMENT}
+Below Ai-Tool request has failed:\n
 URL: ${url}\n
 Request options: ${JSON.stringify(options)}\n
 Error: ${error}`
+
+export const INVALID_REQUEST_ERROR = (request,error) => `
+Environment: ${process.env.ENVIRONMENT}
+Error occurred while processing request:\n\n${JSON.stringify(
+    { 
+        url: request.url, 
+        body: request.body,
+        query: request.query, 
+        params: request.params 
+    },
+    null,
+    2,
+)}\n\n${error.stack}`
