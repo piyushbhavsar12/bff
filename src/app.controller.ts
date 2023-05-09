@@ -1,18 +1,33 @@
 import { Controller, Get, Post, Headers, Body, UseInterceptors } from "@nestjs/common";
 import { AppService } from "./app.service";
 import { AlertInterceptor } from "./common/alerts.interceptor";
+import { IsNotEmpty,IsUUID, IsOptional } from 'class-validator';
 
-export interface PromptDto {
+export class PromptDto {
+  @IsNotEmpty()
   body: string;
+  @IsOptional()
   media: string;
+  @IsNotEmpty()
+  @IsUUID()
   userId: string;
+  @IsOptional()
   appId: string;
+  @IsOptional()
   channel: string;
+  @IsNotEmpty()
+  @IsUUID()
   from: string;
+  @IsOptional()
   context: string;
+  @IsOptional()
   to: string;
+  @IsNotEmpty()
+  @IsUUID()
   messageId: string;
-  conversationId?: string;
+  @IsOptional()
+  @IsUUID()
+  conversationId: string;
 }
 
 @Controller()
