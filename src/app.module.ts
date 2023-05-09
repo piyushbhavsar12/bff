@@ -1,4 +1,4 @@
-import { Module } from "@nestjs/common";
+import { Module, ValidationPipe } from "@nestjs/common";
 import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
 import { ServiceInvokerModule } from "./modules/service-invoker/service-invoker.module";
@@ -13,6 +13,7 @@ import { TelemetryService } from "./global-services/telemetry.service";
 import { EmbeddingsService } from "./modules/embeddings/embeddings.service";
 import { PromptHistoryModule } from "./modules/prompt-history/prompt-history.module";
 import { PromptHistoryService } from "./modules/prompt-history/prompt-history.service";
+import { APP_PIPE } from "@nestjs/core";
 
 @Module({
   imports: [
@@ -32,6 +33,10 @@ import { PromptHistoryService } from "./modules/prompt-history/prompt-history.se
     TelemetryService,
     EmbeddingsService,
     PromptHistoryService,
+    {
+      provide: APP_PIPE,
+      useClass: ValidationPipe,
+    }
   ],
 })
 export class AppModule {}

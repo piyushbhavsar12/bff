@@ -9,7 +9,7 @@ import { EmbeddingsService } from "./modules/embeddings/embeddings.service";
 import { CustomLogger } from "./common/logger";
 import { PromptHistoryService } from "./modules/prompt-history/prompt-history.service";
 import { sendEmail } from "./common/email.service";
-import { USING_GPT4_ALERT } from "./common/constants";
+import { NEURAL_CORE_RESPONSE_ERROR, REPHRASE_YOUR_QUESTION, TEXT_DETECTION_ERROR, TEXT_TRANSLATION_ERROR, UNABLE_TO_DETECT_LANGUAGE, UNABLE_TO_PROCESS_REQUEST, USING_GPT4_ALERT } from "./common/constants";
 import { fetchWithAlert } from "./common/utils";
 const { performance } = require("perf_hooks");
 
@@ -96,7 +96,7 @@ export class AppService {
       body: raw.replace('"unk\"','"or\"'),
     };
 
-    const translated = await fetchWithAlert(
+    const translated = await fetch(
       `${this.configService.get(
         "AI_TOOLS_BASE_URL"
       )}/text_translation/bhashini/remote`,
@@ -127,7 +127,7 @@ export class AppService {
       body: raw,
     };
 
-    const language = await fetchWithAlert(
+    const language = await fetch(
       `${this.configService.get(
         "AI_TOOLS_BASE_URL"
       )}/text_lang_detection/bhashini/remote`,
@@ -232,6 +232,21 @@ export class AppService {
       .catch((error) => this.logger.verbose("error", error));
   }
 
+  async sendError(socketMessage, userId, messageId, error = null) {
+    await this.sendMessageBackToTS({
+      message: {
+        title: socketMessage,
+        choices: [],
+        media_url: null,
+        caption: null,
+        msg_type: "text",
+      },
+      to: userId,
+      messageId: messageId,
+    })
+    if(error) throw new Error(error)
+  }
+
   async processPrompt(promptDto: PromptDto): Promise<any> {
     let prompt: Prompt = {
       input: promptDto,
@@ -241,6 +256,18 @@ export class AppService {
     this.logger.verbose("CP-1");
     // Detect language of incoming prompt
     prompt = await this.detectLanguage(prompt);
+    if(!prompt || !prompt.inputLanguage) {
+      await this.sendError(
+        UNABLE_TO_DETECT_LANGUAGE,
+        prompt.input.userId,
+        prompt.input.messageId,
+        TEXT_DETECTION_ERROR(
+          prompt.input.userId,
+          prompt.input.body,
+          prompt.inputLanguage
+        )
+      )
+    }
 
     this.logger.verbose("CP-2");
 
@@ -254,6 +281,19 @@ export class AppService {
         prompt.input.body,
         prompt.input.userId
       );
+      if(!prompt.inputTextInEnglish) {
+        await this.sendError(
+          REPHRASE_YOUR_QUESTION,
+          prompt.input.userId,
+          prompt.input.messageId,
+          TEXT_TRANSLATION_ERROR(
+            prompt.input.userId,
+            prompt.input.body,
+            prompt.inputLanguage,
+            Language.en
+          )
+        )
+      }
     }
 
     this.logger.verbose("CP-3", JSON.stringify(prompt));
@@ -322,6 +362,19 @@ export class AppService {
       this.logger.verbose({ chatGPT3Prompt });
       const { response: neuralCorefResponse, allContent: allContentNC } =
         await this.llm(chatGPT3Prompt);
+      
+      if(!neuralCorefResponse) {
+        await this.sendError(
+          UNABLE_TO_PROCESS_REQUEST,
+          prompt.input.userId,
+          prompt.input.messageId,
+          NEURAL_CORE_RESPONSE_ERROR(
+            prompt.input.userId,
+            chatGPT3Prompt,
+            { response: neuralCorefResponse, allContent: allContentNC }
+          )
+        )
+      }
 
       // Check for older similar prompts
       this.logger.verbose("CP-4.1");
@@ -426,6 +479,28 @@ export class AppService {
       }
       const endTime = performance.now();
 
+      if (prompt.inputLanguage !== Language.en) {
+        responseInInputLanguge = await this.translate(
+          Language.en,
+          prompt.inputLanguage,
+          chatGPT3FinalResponse,
+          prompt.input.userId
+        );
+        if(!responseInInputLanguge) {
+          await this.sendError(
+            REPHRASE_YOUR_QUESTION,
+            prompt.input.userId,
+            prompt.input.messageId,
+            TEXT_TRANSLATION_ERROR(
+              prompt.input.userId,
+              prompt.input.body,
+              prompt.inputLanguage,
+              Language.en
+            )
+          )
+        }
+      }
+
       await this.promptHistoryService.createOrUpdate({
         id: olderSimilarQuestionId,
         queryInEnglish: neuralCorefResponse,
@@ -520,6 +595,19 @@ export class AppService {
           chatGPT3FinalResponse,
           prompt.input.userId
         );
+        if(!responseInInputLanguge) {
+          await this.sendError(
+            REPHRASE_YOUR_QUESTION,
+            prompt.input.userId,
+            prompt.input.messageId,
+            TEXT_TRANSLATION_ERROR(
+              prompt.input.userId,
+              prompt.input.body,
+              prompt.inputLanguage,
+              Language.en
+            )
+          )
+        }
       }
       const resp: ResponseForTS = {
         message: {
