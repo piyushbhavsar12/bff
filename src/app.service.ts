@@ -562,13 +562,17 @@ export class AppService {
       console.log("CP-4");
       // Similarity Search
       console.log("2", { promptForSimilaritySearch });
-      const similarDocs: Document[] = await this.similaritySearch(
-        promptForSimilaritySearch
-      );
+      const similarDocs: Document[] = await this.embeddingsService.findByCriteria({
+        query: promptForSimilaritySearch,
+        similarityThreshold: parseFloat(this.configService.get("SIMILARITY_THRESHOLD")) || 0.78,
+        matchCount: 2,
+      });
+      console.log(similarDocs)
+      
       // let usegpt4 = similarDocs.length == 0
       const expertContext =
         "Some expert context is provided in dictionary format here:" +
-        JSON.stringify(similarDocs.slice(0, 1)) +
+        JSON.stringify(similarDocs) +
         "\n";
 
       const chatGPT3PromptWithSimilarDocs =
