@@ -426,6 +426,23 @@ export class AppService {
       // this.logger.debug({ similarDocs });
       this.logger.debug({ similarDocsFromEmbeddingsService });
 
+      if(!similarDocsFromEmbeddingsService.length) {
+        similarDocsFromEmbeddingsService =
+          await this.embeddingsService.findByCriteria({
+            query: finalChatGPTQuestion,
+            similarityThreshold: parseFloat(this.configService.get("SIMILARITY_LOWER_THRESHOLD")) || 0.5,
+            matchCount: 2,
+          });
+        if(!similarDocsFromEmbeddingsService.length) {
+          await this.sendError(
+            REPHRASE_YOUR_QUESTION,
+            prompt.input.userId,
+            prompt.input.messageId
+          )
+          return
+        }
+      }
+
       const userQuestion =
         "The user has asked a question: " + finalChatGPTQuestion + "\n";
 
