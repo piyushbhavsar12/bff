@@ -42,8 +42,6 @@ model feedback {
   phoneNumber String
   userId      String   @db.Uuid
 
-  @@unique([phoneNumber])
-  @@unique([userId])
   @@unique([userId, createdAt])
 }
 
