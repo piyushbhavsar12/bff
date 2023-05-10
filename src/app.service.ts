@@ -385,7 +385,7 @@ export class AppService {
       allContent = allContentNC
     }  
     //NOTE: have to check the similarity between coreferencedPrompt and prompt.inputTextInEnglish
-    let finalChatGPTQuestion =  coreferencedPrompt.replace("User:","") || prompt.inputTextInEnglish
+    let finalChatGPTQuestion =  coreferencedPrompt?.replace("User:","") || prompt.inputTextInEnglish
     console.log("finalChatGPTQuestion",finalChatGPTQuestion)
     // Check for older similar prompts
     this.logger.verbose("CP-4.1");
@@ -439,7 +439,6 @@ export class AppService {
                 combined_content: doc.content,
               };
             })
-            .slice(0, 1)
         ) +
         "\n";
 
