@@ -310,6 +310,8 @@ export class AppService {
     });
     // construct the prompt for chatGPT3
     let history = [];
+    let allContent;
+    let coreferencedPrompt;
     if (userHistory.length > 0) {
       for (let i = 0; i < userHistory.length; i++) {
         history.push(`User: ${userHistory[i].queryInEnglish}`);
@@ -376,210 +378,83 @@ export class AppService {
           )
         )
       }
+      console.log("NeuralCoref Response")
+      this.logger.verbose({ response: neuralCorefResponse, allContent: allContentNC })
 
-      // Check for older similar prompts
-      this.logger.verbose("CP-4.1");
-      const olderSimilarQuestions =
-        await this.promptHistoryService.findByCriteria({
-          query: neuralCorefResponse,
-          similarityThreshold: 0.97,
-          matchCount: 1,
+      coreferencedPrompt = neuralCorefResponse
+      allContent = allContentNC
+    }  
+    //NOTE: have to check the similarity between coreferencedPrompt and prompt.inputTextInEnglish
+    let finalChatGPTQuestion =  coreferencedPrompt.replace("User:","") || prompt.inputTextInEnglish
+    console.log("finalChatGPTQuestion",finalChatGPTQuestion)
+    // Check for older similar prompts
+    this.logger.verbose("CP-4.1");
+    const olderSimilarQuestions =
+      await this.promptHistoryService.findByCriteria({
+        query: finalChatGPTQuestion,
+        similarityThreshold: 0.97,
+        matchCount: 1,
+      });
+    this.logger.verbose({olderSimilarQuestions})
+
+    let responseInInputLanguge = "";
+    let chatGPT3FinalResponse = "";
+    let allContentSummarization;
+    let olderSimilarQuestionId;
+    let similarDocsFromEmbeddingsService: any[];
+    console.log({ allContent });
+    // If something is very simlar return older response
+    const startTime = performance.now();
+    if (olderSimilarQuestions && olderSimilarQuestions.length > 0) {
+      console.log("CP-4.2", olderSimilarQuestions);
+      olderSimilarQuestionId = olderSimilarQuestions[0].id;
+      chatGPT3FinalResponse = olderSimilarQuestions[0].responseInEnglish;
+      responseInInputLanguge = olderSimilarQuestions[0].responseInEnglish;
+    } else {
+      // else generate new response
+      this.logger.verbose("CP-4");
+
+      // Similarity Search
+      this.logger.verbose({ finalChatGPTQuestion });
+      similarDocsFromEmbeddingsService =
+        await this.embeddingsService.findByCriteria({
+          query: finalChatGPTQuestion,
+          similarityThreshold: parseFloat(this.configService.get("SIMILARITY_THRESHOLD")) || 0.78,
+          matchCount: 2,
         });
 
-      let responseInInputLanguge = "";
-      let chatGPT3FinalResponse = "";
-      let allContentSummarization;
-      let olderSimilarQuestionId;
-      let similarDocsFromEmbeddingsService: any[];
-      console.log({ allContentNC });
-      // If something is very simlar return older response
-      const startTime = performance.now();
-      if (olderSimilarQuestions && olderSimilarQuestions.length > 0) {
-        console.log("CP-4.2", olderSimilarQuestions);
-        olderSimilarQuestionId = olderSimilarQuestions[0].id;
-        chatGPT3FinalResponse = olderSimilarQuestions[0].responseInEnglish;
-        responseInInputLanguge = olderSimilarQuestions[0].responseInEnglish;
-      } else {
-        // else generate new response
-        this.logger.verbose("CP-4");
+      // this.logger.debug({ similarDocs });
+      this.logger.debug({ similarDocsFromEmbeddingsService });
 
-        // Similarity Search
-        this.logger.verbose({ neuralCorefResponse });
-        similarDocsFromEmbeddingsService =
-          await this.embeddingsService.findByCriteria({
-            query: neuralCorefResponse,
-            similarityThreshold: parseFloat(this.configService.get("SIMILARITY_THRESHOLD")) || 0.78,
-            matchCount: 2,
-          });
-        // let usegpt4 = false
-        // if(similarDocsFromEmbeddingsService){
-        //   usegpt4 = similarDocsFromEmbeddingsService.length == 0
-        // } else { usegpt4 = true }
-        // const similarDocs: Document[] = await this.similaritySearch(
-        //   promptForSimilaritySearch
-        // );
+      const userQuestion =
+        "The user has asked a question: " + finalChatGPTQuestion + "\n";
 
-        // this.logger.debug({ similarDocs });
-        this.logger.debug({ similarDocsFromEmbeddingsService });
-
-        const previousSummaryHistory = history.join("\n");
-
-        const userQuestion =
-          "The user has asked a question: " + neuralCorefResponse.replace("User:","") + "\n";
-
-        const expertContext =
-          "Some expert context is provided in dictionary format here:" +
-          JSON.stringify(
-            similarDocsFromEmbeddingsService
-              .map((doc) => {
-                return {
-                  combined_prompt: doc.tags,
-                  combined_content: doc.content,
-                };
-              })
-              .slice(0, 1)
-          ) +
-          "\n";
-
-        const chatGPT3PromptWithSimilarDocs =
-          "Some important elements of the conversation so far between the user and AI have been extracted in a dictionary here: " +
-          previousSummaryHistory +
-          " " +
-          userQuestion +
-          " " +
-          expertContext;
-
-        const { response: finalResponse, allContent: ac } = await this.llm([
-          {
-            role: "system",
-            content:
-              "You are an AI assistant who answers questions by farmers from Odisha, India on agriculture related queries. Answer the question asked by the user based on a summary of the context provided. Ignore the context if irrelevant to the question asked.",
-          },
-          {
-            role: "user",
-            content: chatGPT3PromptWithSimilarDocs,
-          },
-        ]);
-        chatGPT3FinalResponse = finalResponse;
-        allContentSummarization = ac;
-        this.logger.verbose({ chatGPT3FinalResponse });
-        responseInInputLanguge = chatGPT3FinalResponse;
-
-        // if(usegpt4){
-        //   sendEmail(
-        //     JSON.parse(this.configService.get("SENDGRID_ALERT_RECEIVERS")),
-        //     "Using GPT4",
-        //     USING_GPT4_ALERT(
-        //       prompt.input.userId,
-        //       prompt.inputTextInEnglish,
-        //       chatGPT3FinalResponse,
-        //       previousSummaryHistory
-        //     )
-        //   )
-        // }
-      }
-      const endTime = performance.now();
-
-      if (prompt.inputLanguage !== Language.en) {
-        responseInInputLanguge = await this.translate(
-          Language.en,
-          prompt.inputLanguage,
-          chatGPT3FinalResponse,
-          prompt.input.userId
-        );
-        if(!responseInInputLanguge) {
-          await this.sendError(
-            REPHRASE_YOUR_QUESTION,
-            prompt.input.userId,
-            prompt.input.messageId,
-            TEXT_TRANSLATION_ERROR(
-              prompt.input.userId,
-              prompt.input.body,
-              prompt.inputLanguage,
-              Language.en
-            )
-          )
-        }
-      }
-
-      await this.promptHistoryService.createOrUpdate({
-        id: olderSimilarQuestionId,
-        queryInEnglish: neuralCorefResponse,
-        responseInEnglish: responseInInputLanguge,
-        responseTime: Math.ceil(endTime - startTime),
-        metadata: [allContentNC, allContentSummarization],
-      });
-
-      if (prompt.inputLanguage !== Language.en) {
-        responseInInputLanguge = await this.translate(
-          Language.en,
-          prompt.inputLanguage,
-          chatGPT3FinalResponse,
-          prompt.input.userId
-        );
-      }
-
-      const resp: ResponseForTS = {
-        message: {
-          title: responseInInputLanguge,
-          choices: [],
-          media_url: null,
-          caption: null,
-          msg_type: "text",
-        },
-        to: prompt.input.from,
-        messageId: prompt.input.messageId,
-      };
-
-      await this.sendMessageBackToTS(resp);
-      await this.prisma.query.create({
-        data: {
-          id: prompt.input.messageId,
-          userId: prompt.input.userId,
-          query: prompt.input.body,
-          response: responseInInputLanguge,
-          responseTime: new Date().getTime() - prompt.timestamp,
-          queryInEnglish: prompt.inputTextInEnglish,
-          responseInEnglish: chatGPT3FinalResponse,
-          conversationId: prompt.input.conversationId,
-          coreferencedPrompt: neuralCorefResponse
-        },
-      });
-      
-      if(similarDocsFromEmbeddingsService && similarDocsFromEmbeddingsService.length > 0){
-        let similarDocsCreateData = similarDocsFromEmbeddingsService.map(e=>{
-          e['queryId'] = prompt.input.messageId
-          e['documentId'] = e.id
-          delete e.id
-          return e
-        })
-        await this.prisma.similarity_search_response.createMany({
-          data: similarDocsCreateData
-        })
-      }
-    } else {
-      const promptForSimilaritySearch = prompt.inputTextInEnglish;
-
-      console.log("CP-4");
-      // Similarity Search
-      console.log("2", { promptForSimilaritySearch });
-      const similarDocs: Document[] = await this.embeddingsService.findByCriteria({
-        query: promptForSimilaritySearch,
-        similarityThreshold: parseFloat(this.configService.get("SIMILARITY_THRESHOLD")) || 0.78,
-        matchCount: 2,
-      });
-      console.log(similarDocs)
-      
-      // let usegpt4 = similarDocs.length == 0
       const expertContext =
         "Some expert context is provided in dictionary format here:" +
-        JSON.stringify(similarDocs) +
+        JSON.stringify(
+          similarDocsFromEmbeddingsService
+            .map((doc) => {
+              return {
+                combined_prompt: doc.tags,
+                combined_content: doc.content,
+              };
+            })
+            .slice(0, 1)
+        ) +
         "\n";
 
-      const chatGPT3PromptWithSimilarDocs =
-        prompt.inputTextInEnglish + " " + expertContext;
-
-      let { response: chatGPT3FinalResponse, allContent: ac } = await this.llm([
+      const chatGPT3PromptWithSimilarDocs = history.length > 0 ?
+        ("Some important elements of the conversation so far between the user and AI have been extracted in a dictionary here: " +
+        history.join("\n") +
+        " " +
+        userQuestion +
+        " " +
+        expertContext) :
+        (finalChatGPTQuestion + " " + expertContext);
+      
+      this.logger.verbose(chatGPT3PromptWithSimilarDocs)
+      
+      const { response: finalResponse, allContent: ac } = await this.llm([
         {
           role: "system",
           content:
@@ -590,68 +465,81 @@ export class AppService {
           content: chatGPT3PromptWithSimilarDocs,
         },
       ]);
-      console.log("CP-5", JSON.stringify(chatGPT3FinalResponse));
-      // Translate the answer to original language
-      let responseInInputLanguge = chatGPT3FinalResponse;
-      if (prompt.inputLanguage !== Language.en) {
-        responseInInputLanguge = await this.translate(
-          Language.en,
-          prompt.inputLanguage,
-          chatGPT3FinalResponse,
-          prompt.input.userId
-        );
-        if(!responseInInputLanguge) {
-          await this.sendError(
-            REPHRASE_YOUR_QUESTION,
+      chatGPT3FinalResponse = finalResponse;
+      allContentSummarization = ac;
+      this.logger.verbose({ chatGPT3FinalResponse });
+      responseInInputLanguge = chatGPT3FinalResponse;
+
+    }
+    const endTime = performance.now();
+
+    if (prompt.inputLanguage !== Language.en) {
+      responseInInputLanguge = await this.translate(
+        Language.en,
+        prompt.inputLanguage,
+        chatGPT3FinalResponse,
+        prompt.input.userId
+      );
+      if(!responseInInputLanguge) {
+        await this.sendError(
+          REPHRASE_YOUR_QUESTION,
+          prompt.input.userId,
+          prompt.input.messageId,
+          TEXT_TRANSLATION_ERROR(
             prompt.input.userId,
-            prompt.input.messageId,
-            TEXT_TRANSLATION_ERROR(
-              prompt.input.userId,
-              prompt.input.body,
-              prompt.inputLanguage,
-              Language.en
-            )
+            prompt.input.body,
+            prompt.inputLanguage,
+            Language.en
           )
-        }
+        )
       }
-      const resp: ResponseForTS = {
-        message: {
-          title: responseInInputLanguge,
-          choices: [],
-          media_url: null,
-          caption: null,
-          msg_type: "text",
-        },
-        to: prompt.input.from,
-        messageId: prompt.input.messageId,
-      };
+    }
 
-      await this.sendMessageBackToTS(resp);
-      await this.prisma.query.create({
-        data: {
-          id: prompt.input.messageId,
-          userId: prompt.input.userId,
-          query: prompt.input.body,
-          response: responseInInputLanguge,
-          responseTime: new Date().getTime() - prompt.timestamp,
-          queryInEnglish: prompt.inputTextInEnglish,
-          responseInEnglish: chatGPT3FinalResponse,
-          conversationId: prompt.input.conversationId,
-        },
-      });
+    await this.promptHistoryService.createOrUpdate({
+      id: olderSimilarQuestionId,
+      queryInEnglish: finalChatGPTQuestion,
+      responseInEnglish: responseInInputLanguge,
+      responseTime: Math.ceil(endTime - startTime),
+      metadata: [allContent, allContentSummarization],
+    });
 
-      // if(usegpt4){
-      //   sendEmail(
-      //     JSON.parse(this.configService.get("SENDGRID_ALERT_RECEIVERS")),
-      //     "Using GPT4",
-      //     USING_GPT4_ALERT(
-      //       prompt.input.userId,
-      //       prompt.inputTextInEnglish,
-      //       chatGPT3FinalResponse,
-      //       'N/A'
-      //     )
-      //   )
-      // }
+    const resp: ResponseForTS = {
+      message: {
+        title: responseInInputLanguge,
+        choices: [],
+        media_url: null,
+        caption: null,
+        msg_type: "text",
+      },
+      to: prompt.input.from,
+      messageId: prompt.input.messageId,
+    };
+
+    await this.sendMessageBackToTS(resp);
+    await this.prisma.query.create({
+      data: {
+        id: prompt.input.messageId,
+        userId: prompt.input.userId,
+        query: prompt.input.body,
+        response: responseInInputLanguge,
+        responseTime: new Date().getTime() - prompt.timestamp,
+        queryInEnglish: prompt.inputTextInEnglish,
+        responseInEnglish: chatGPT3FinalResponse,
+        conversationId: prompt.input.conversationId,
+        coreferencedPrompt: coreferencedPrompt
+      },
+    });
+    
+    if(similarDocsFromEmbeddingsService && similarDocsFromEmbeddingsService.length > 0){
+      let similarDocsCreateData = similarDocsFromEmbeddingsService.map(e=>{
+        e['queryId'] = prompt.input.messageId
+        e['documentId'] = e.id
+        delete e.id
+        return e
+      })
+      await this.prisma.similarity_search_response.createMany({
+        data: similarDocsCreateData
+      })
     }
 
     // Store that response to the query in the database
