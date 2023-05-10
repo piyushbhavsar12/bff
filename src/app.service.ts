@@ -298,10 +298,11 @@ export class AppService {
 
     this.logger.verbose("CP-3", JSON.stringify(prompt));
     // Get the concept from user chatHistory
+    let userHistoryWhere: any = {};
+    userHistoryWhere.userId = prompt.input.userId;
+    if(prompt.input.conversationId) userHistoryWhere.conversationId = prompt.input.conversationId;
     const userHistory = await this.prisma.query.findMany({
-      where: {
-        userId: prompt.input.userId,
-      },
+      where: userHistoryWhere,
       orderBy: {
         createdAt: "desc",
       },
