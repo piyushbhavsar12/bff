@@ -9,13 +9,9 @@ export class FeedbackController {
   constructor(private readonly feedbackService: FeedbackService) {}
 
   @Post()
-  async createOrUpdate(
+  async create(
     @Body() createFeedbackDto: CreateFeedbackDto
   ): Promise<feedback> {
-    let feedback = await this.feedbackService.findOne(createFeedbackDto.userId);
-    if (feedback) {
-      return this.feedbackService.update(createFeedbackDto);
-    }
     return this.feedbackService.create(createFeedbackDto);
   }
 
