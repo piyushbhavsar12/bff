@@ -40,6 +40,7 @@ export interface ResponseForTS {
     media_url: string;
     caption: string;
     msg_type: string;
+    conversationId: string;
   };
   to: string;
   messageId: string;
@@ -247,6 +248,7 @@ export class AppService {
         media_url: null,
         caption: null,
         msg_type: "text",
+        conversationId: prompt.input.conversationId
       },
       to: prompt.input.userId,
       messageId: prompt.input.messageId,
@@ -558,6 +560,7 @@ export class AppService {
         media_url: null,
         caption: null,
         msg_type: "text",
+        conversationId: prompt.input.conversationId
       },
       to: prompt.input.from,
       messageId: prompt.input.messageId,
