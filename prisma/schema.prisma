@@ -13,22 +13,23 @@ datasource db {
 }
 
 model query {
-  id                String?   @default(uuid()) @db.Uuid
-  createdAt         DateTime  @default(now()) @db.Timestamptz(3)
-  updatedAt         DateTime  @updatedAt
-  responseTime      Int
-  query             String
-  response          String
-  queryInEnglish    String
-  responseInEnglish String
-  conversationId    String?   @default(uuid()) @db.Uuid
-  userId            String    @db.Uuid
-  workflowId        Int?
-  reaction          Int       @default(0) @db.SmallInt
-  workflow          workflow? @relation(fields: [workflowId], references: [id])
+  id                    String?   @default(uuid()) @db.Uuid
+  createdAt             DateTime  @default(now()) @db.Timestamptz(3)
+  updatedAt             DateTime  @updatedAt
+  responseTime          Int
+  query                 String
+  response              String
+  queryInEnglish        String
+  responseInEnglish     String
+  conversationId        String?   @default(uuid()) @db.Uuid
+  userId                String    @db.Uuid
+  workflowId            Int?
+  reaction              Int       @default(0) @db.SmallInt
+  workflow              workflow? @relation(fields: [workflowId], references: [id])
   isConversationDeleted Boolean @default(false)
   coreferencedPrompt    String?
   error                 String?
+  errorRate             Int       @default(0)
 
   @@unique([userId, createdAt])
   @@unique([userId, createdAt, conversationId])
