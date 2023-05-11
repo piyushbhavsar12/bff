@@ -28,6 +28,7 @@ model query {
   workflow          workflow? @relation(fields: [workflowId], references: [id])
   isConversationDeleted Boolean @default(false)
   coreferencedPrompt    String?
+  error                 String?
 
   @@unique([userId, createdAt])
   @@unique([userId, createdAt, conversationId])

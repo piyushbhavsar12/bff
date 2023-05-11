@@ -72,6 +72,10 @@ output: ${JSON.stringify(output,null,2)}
 `
 export const UNABLE_TO_DETECT_LANGUAGE = "Sorry, we are unable to detect the language. Please try rephrasing your question"
 
-export const REPHRASE_YOUR_QUESTION = "Please try rephrasing your question or try again later."
+export const REPHRASE_YOUR_QUESTION = (inputLanguage) =>
+inputLanguage && inputLanguage == 'en' ? "Please try rephrasing your question or try again later." :
+"ଦୟାକରି ଆପଣଙ୍କର ପ୍ରଶ୍ନର ପୁନରାବୃତ୍ତି କରିବାକୁ ଚେଷ୍ଟା କରନ୍ତୁ କିମ୍ବା ପରେ ପୁନର୍ବାର ଚେଷ୍ଟା କରନ୍ତୁ |";
 
-export const UNABLE_TO_PROCESS_REQUEST = "We are unable to process your request at the moment. Please try again later or contact our support team"
+export const UNABLE_TO_PROCESS_REQUEST = (inputLanguage) =>
+inputLanguage && inputLanguage == 'en' ? "We are unable to process your request at the moment. Please try again later or contact our support team" :
+"ଆମେ ବର୍ତ୍ତମାନ ଆପଣଙ୍କ ଅନୁରୋଧ ପ୍ରକ୍ରିୟାକରଣ କରିବାରେ ଅସମର୍ଥ | ଦୟାକରି ପରେ ପୁନର୍ବାର ଚେଷ୍ଟା କରନ୍ତୁ କିମ୍ବା ଆମର ସମର୍ଥନ ଦଳ ସହିତ ଯୋଗାଯୋଗ କରନ୍ତୁ |"
