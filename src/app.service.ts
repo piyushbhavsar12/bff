@@ -9,7 +9,7 @@ import { EmbeddingsService } from "./modules/embeddings/embeddings.service";
 import { CustomLogger } from "./common/logger";
 import { PromptHistoryService } from "./modules/prompt-history/prompt-history.service";
 import { sendEmail } from "./common/email.service";
-import { NEURAL_CORE_RESPONSE_ERROR, REPHRASE_YOUR_QUESTION, TEXT_DETECTION_ERROR, TEXT_TRANSLATION_ERROR, UNABLE_TO_DETECT_LANGUAGE, UNABLE_TO_PROCESS_REQUEST, USING_GPT4_ALERT } from "./common/constants";
+import { CONTACT_AMAKRUSHI_HELPLINE, NEURAL_CORE_RESPONSE_ERROR, REPHRASE_YOUR_QUESTION, TEXT_DETECTION_ERROR, TEXT_TRANSLATION_ERROR, UNABLE_TO_DETECT_LANGUAGE, UNABLE_TO_PROCESS_REQUEST, USING_GPT4_ALERT } from "./common/constants";
 import { fetchWithAlert } from "./common/utils";
 const { performance } = require("perf_hooks");
 
@@ -321,6 +321,16 @@ export class AppService {
           )
         )
       }
+    }
+
+    if(/contact/i.test(prompt.inputTextInEnglish)){
+      await this.sendError(
+        CONTACT_AMAKRUSHI_HELPLINE('en'),
+        CONTACT_AMAKRUSHI_HELPLINE(prompt.inputLanguage),
+        prompt,
+        null
+      )
+      return
     }
 
     this.logger.verbose("CP-3", JSON.stringify(prompt));
