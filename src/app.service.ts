@@ -546,7 +546,7 @@ export class AppService {
     await this.promptHistoryService.createOrUpdate({
       id: olderSimilarQuestionId,
       queryInEnglish: finalChatGPTQuestion,
-      responseInEnglish: responseInInputLanguge,
+      responseInEnglish: chatGPT3FinalResponse,
       responseTime: Math.ceil(endTime - startTime),
       metadata: [allContent, allContentSummarization],
     });
