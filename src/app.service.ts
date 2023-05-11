@@ -232,19 +232,40 @@ export class AppService {
       .catch((error) => this.logger.verbose("error", error));
   }
 
-  async sendError(socketMessage, userId, messageId, error = null) {
+  async sendError(
+    socketMessage,
+    socketMessageInInputLanguage,
+    prompt,
+    coreferencedPrompt,
+    sendError = false,
+    error = null
+  ) {
     await this.sendMessageBackToTS({
       message: {
-        title: socketMessage,
+        title: socketMessageInInputLanguage,
         choices: [],
         media_url: null,
         caption: null,
         msg_type: "text",
       },
-      to: userId,
-      messageId: messageId,
+      to: prompt.input.userId,
+      messageId: prompt.input.messageId,
     })
-    if(error) throw new Error(error)
+    await this.prisma.query.create({ 
+      data: {
+        id: prompt.input.messageId,
+        userId: prompt.input.userId,
+        query: prompt.input.body,
+        response: socketMessage,
+        responseTime: new Date().getTime() - prompt.timestamp,
+        queryInEnglish: prompt.inputTextInEnglish,
+        responseInEnglish: socketMessageInInputLanguage,
+        conversationId: prompt.input.conversationId,
+        coreferencedPrompt,
+        error
+      },
+    })
+    if(sendError) throw new Error(error)
   }
 
   async processPrompt(promptDto: PromptDto): Promise<any> {
@@ -259,8 +280,10 @@ export class AppService {
     if(!prompt || !prompt.inputLanguage) {
       await this.sendError(
         UNABLE_TO_DETECT_LANGUAGE,
-        prompt.input.userId,
-        prompt.input.messageId,
+        UNABLE_TO_DETECT_LANGUAGE,
+        prompt,
+        null,
+        true,
         TEXT_DETECTION_ERROR(
           prompt.input.userId,
           prompt.input.body,
@@ -283,9 +306,11 @@ export class AppService {
       );
       if(!prompt.inputTextInEnglish) {
         await this.sendError(
-          REPHRASE_YOUR_QUESTION,
-          prompt.input.userId,
-          prompt.input.messageId,
+          REPHRASE_YOUR_QUESTION('en'),
+          REPHRASE_YOUR_QUESTION(prompt.inputLanguage),
+          prompt,
+          null,
+          true,
           TEXT_TRANSLATION_ERROR(
             prompt.input.userId,
             prompt.input.body,
@@ -368,9 +393,11 @@ export class AppService {
       
       if(!neuralCorefResponse) {
         await this.sendError(
-          UNABLE_TO_PROCESS_REQUEST,
-          prompt.input.userId,
-          prompt.input.messageId,
+          UNABLE_TO_PROCESS_REQUEST('en'),
+          UNABLE_TO_PROCESS_REQUEST(prompt.inputLanguage),
+          prompt,
+          null,
+          true,
           NEURAL_CORE_RESPONSE_ERROR(
             prompt.input.userId,
             chatGPT3Prompt,
@@ -435,9 +462,12 @@ export class AppService {
           });
         if(!similarDocsFromEmbeddingsService.length) {
           await this.sendError(
-            REPHRASE_YOUR_QUESTION,
-            prompt.input.userId,
-            prompt.input.messageId
+            REPHRASE_YOUR_QUESTION('en'),
+            REPHRASE_YOUR_QUESTION(prompt.inputLanguage),
+            prompt,
+            coreferencedPrompt,
+            false,
+            "No documents with similarity greater than 0.5 found"
           )
           return
         }
@@ -498,9 +528,11 @@ export class AppService {
       );
       if(!responseInInputLanguge) {
         await this.sendError(
-          REPHRASE_YOUR_QUESTION,
-          prompt.input.userId,
-          prompt.input.messageId,
+          REPHRASE_YOUR_QUESTION('en'),
+          REPHRASE_YOUR_QUESTION(prompt.inputLanguage),
+          prompt,
+          coreferencedPrompt,
+          true,
           TEXT_TRANSLATION_ERROR(
             prompt.input.userId,
             prompt.input.body,
