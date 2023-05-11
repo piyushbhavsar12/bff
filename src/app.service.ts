@@ -264,13 +264,15 @@ export class AppService {
         responseInEnglish: socketMessageInInputLanguage,
         conversationId: prompt.input.conversationId,
         coreferencedPrompt,
-        error
+        error,
+        errorRate: 0
       },
     })
     if(sendError) throw new Error(error)
   }
 
   async processPrompt(promptDto: PromptDto): Promise<any> {
+    let errorRate = 0;
     let prompt: Prompt = {
       input: promptDto,
     };
@@ -400,8 +402,11 @@ export class AppService {
       ];
 
       this.logger.verbose({ chatGPT3Prompt });
+      const nueralCorefStartTime = new Date().getTime();
       const { response: neuralCorefResponse, allContent: allContentNC } =
         await this.llm(chatGPT3Prompt);
+      this.logger.verbose(`nueral coreference prompt response time = ${new Date().getTime() - nueralCorefStartTime}`)
+      if(new Date().getTime() - nueralCorefStartTime > 4000) errorRate+=2
       
       if(!neuralCorefResponse) {
         await this.sendError(
@@ -511,7 +516,7 @@ export class AppService {
         (finalChatGPTQuestion + " " + expertContext);
       
       this.logger.verbose(chatGPT3PromptWithSimilarDocs)
-      
+      const finalResponseStartTime = new Date().getTime();
       const { response: finalResponse, allContent: ac } = await this.llm([
         {
           role: "system",
@@ -527,7 +532,8 @@ export class AppService {
       allContentSummarization = ac;
       this.logger.verbose({ chatGPT3FinalResponse });
       responseInInputLanguge = chatGPT3FinalResponse;
-
+      this.logger.verbose(`final GPT response time = ${new Date().getTime() - finalResponseStartTime}`)
+      if(new Date().getTime() - finalResponseStartTime > 15000) errorRate += 2
     }
     const endTime = performance.now();
 
@@ -577,6 +583,8 @@ export class AppService {
     };
 
     await this.sendMessageBackToTS(resp);
+    this.logger.verbose(`Total query response time = ${new Date().getTime() - prompt.timestamp}`)
+    if(new Date().getTime() - prompt.timestamp > 25000) errorRate+=1
     await this.prisma.query.create({
       data: {
         id: prompt.input.messageId,
@@ -587,7 +595,8 @@ export class AppService {
         queryInEnglish: prompt.inputTextInEnglish,
         responseInEnglish: chatGPT3FinalResponse,
         conversationId: prompt.input.conversationId,
-        coreferencedPrompt: coreferencedPrompt
+        coreferencedPrompt: coreferencedPrompt,
+        errorRate
       },
     });
     
@@ -608,5 +617,33 @@ export class AppService {
   }
   getHello(): string {
     return "Hello World!";
+  }
+
+  async getHealth(minutes: number): Promise<any> {
+    const startTime = new Date(Date.now() - minutes * 60 * 1000);
+    const queries = await this.prisma.query.findMany({
+      where: {
+        createdAt: {
+          gte: startTime,
+        },
+      },
+      select: {
+        errorRate: true,
+      },
+    });
+    const totalQueries = queries.length;
+    const totalErrorRate = queries.reduce(
+      (sum, query) => sum + query.errorRate,
+      0
+    );
+    console.log(totalErrorRate,totalQueries)
+    const averageErrorRate = totalErrorRate / totalQueries;
+    const response = {
+      status: (averageErrorRate || 0) > (this.configService.get("ERROR_RATE_THRESHOLD")) ? "SERVER DOWN" : "OK",
+      averageErrorRate: averageErrorRate || 0,
+      timeFrame: `${minutes} minutes`,
+      version: this.configService.get("SERVER_RELEASE_VERSION")?.slice(0.7)
+    };
+    return response
   }
 }

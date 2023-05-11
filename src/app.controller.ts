@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Headers, Body, UseInterceptors } from "@nestjs/common";
+import { Controller, Get, Post, Headers, Body, UseInterceptors, Param } from "@nestjs/common";
 import { AppService } from "./app.service";
 import { AlertInterceptor } from "./common/alerts.interceptor";
 import { IsNotEmpty,IsUUID, IsOptional } from 'class-validator';
@@ -43,5 +43,10 @@ export class AppController {
   @Post("/prompt")
   prompt(@Body() promptDto: PromptDto, @Headers() headers): any {
     return this.appService.processPrompt(promptDto);
+  }
+
+  @Get("/health/:minutes")
+  health(@Param("minutes") minutes: number): any {
+    return this.appService.getHealth(parseInt(`${minutes}`));
   }
 }
