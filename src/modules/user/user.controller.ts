@@ -1,23 +1,28 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { Controller, Get, Param, Request, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
 import { query } from '@prisma/client';
+import { AuthGuard } from 'src/common/auth-gaurd';
 
 @Controller('user')
+@UseGuards(AuthGuard)
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Get("/conversations/:userId")
-  async conversations(@Param("userId") userId: string): Promise<query[]> {
+  @Get("/conversations")
+  async conversations(@Request() request): Promise<query[]> {
+    const userId = request.headers.userId
     return this.userService.conversationsList(userId);
   }
 
-  @Get("/chathistory/:userId/:conversationId")
-  async chatHistory(@Param("userId") userId: string, @Param("conversationId") conversationId: string): Promise<query[]> {
+  @Get("/chathistory/:conversationId")
+  async chatHistory(@Param("conversationId") conversationId: string, @Request() request): Promise<query[]> {
+    const userId = request.headers.userId
     return this.userService.conversationHistory(conversationId,userId);
   }
 
-  @Get("conversations/delete/:userId/:conversationId")
-  async deleteConversation(@Param("userId") userId: string, @Param("conversationId") conversationId: string): Promise<boolean> {
+  @Get("conversations/delete/:conversationId")
+  async deleteConversation(@Param("conversationId") conversationId: string, @Request() request): Promise<boolean> {
+    const userId = request.headers.userId
     return this.userService.deleteConversation(conversationId,userId)
   }
 }

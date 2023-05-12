@@ -1,18 +1,22 @@
 
-import { Body, Controller, Get, HttpException, HttpStatus, Param, Post, Query } from "@nestjs/common";
+import { Body, Controller, Get, HttpException, HttpStatus, Param, Post, Query, Request, UseGuards } from "@nestjs/common";
 import { FeedbackService } from './feedback.service';
 import { CreateFeedbackDto } from './feedback.dto';
 import { feedback, query } from '@prisma/client';
+import { AuthGuard } from "src/common/auth-gaurd";
 
 @Controller("feedback")
+@UseGuards(AuthGuard)
 export class FeedbackController {
   constructor(private readonly feedbackService: FeedbackService) {}
 
   @Post()
   async create(
-    @Body() createFeedbackDto: CreateFeedbackDto
+    @Body() createFeedbackDto: CreateFeedbackDto,
+    @Request() request
   ): Promise<feedback> {
-    return this.feedbackService.create(createFeedbackDto);
+    const userId = request.headers.userId
+    return this.feedbackService.create(createFeedbackDto, userId);
   }
 
   @Get()
@@ -20,8 +24,8 @@ export class FeedbackController {
     try {
       page = page ? parseInt(`${page}`) : 1;
       perPage = perPage ? parseInt(`${perPage}`) : 10;
-      const faqs = await this.feedbackService.findAll(page,perPage);
-      return faqs;
+      const reviews = await this.feedbackService.findAll(page,perPage);
+      return reviews;
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }

@@ -49,6 +49,8 @@
     "graphql-tag": "^2.12.6",
     "isomorphic-fetch": "^3.0.0",
     "jest-mock-extended": "^3.0.4",
+    "jsonwebtoken": "^9.0.0",
+    "jwks-rsa": "^3.0.1",
     "node-fetch": "2",
     "nodemailer": "^6.9.1",
     "posthog-node": "^2.6.0",

@@ -15,8 +15,4 @@ export class CreateFeedbackDto {
   @IsNotEmpty()
   @IsPhoneNumber('IN', { message: 'Invalid phone number' })
   phoneNumber: string;
-
-  @IsNotEmpty()
-  @IsUUID()
-  userId: string
 }

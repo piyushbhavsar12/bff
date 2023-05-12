@@ -1,9 +1,11 @@
-import { Controller, Get, Post, Patch, Delete, Body, HttpException, HttpStatus, Param, NotFoundException, Query } from "@nestjs/common";
+import { Controller, Get, Post, Patch, Delete, Body, HttpException, HttpStatus, Param, NotFoundException, Query, UseGuards } from "@nestjs/common";
 import { Prisma } from "@prisma/client";
 import { CreateFaqDto } from "./faq.dto";
 import { FAQService } from "./faq.service";
+import { AuthGuard } from "src/common/auth-gaurd";
 
 @Controller("faq")
+@UseGuards(AuthGuard)
 export class FAQController {
   constructor(private readonly faqService: FAQService) {}
 

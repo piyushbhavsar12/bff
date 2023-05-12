@@ -7,9 +7,9 @@ import { feedback, query } from "@prisma/client";
 export class FeedbackService {
   constructor(private prisma: PrismaService) {}
 
-  async create(data: CreateFeedbackDto): Promise<feedback> {
+  async create(data: CreateFeedbackDto, userId): Promise<feedback> {
     try {
-      let feedback = await this.prisma.feedback.create({ data });
+      let feedback = await this.prisma.feedback.create({ data: {...data, userId} });
       return feedback;
     } catch (error) {
       throw new BadRequestException([

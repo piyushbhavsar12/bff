@@ -1,10 +1,12 @@
-import { Body, Controller, Post, Get, HttpException, HttpStatus, Query, Param, Delete, NotFoundException } from "@nestjs/common";
+import { Body, Controller, Post, Get, HttpException, HttpStatus, Query, Param, Delete, NotFoundException, UseGuards } from "@nestjs/common";
 import { CreateDocumentDto, GetDocumentsDto, SearchQueryDto } from "./embeddings.dto";
 import { EmbeddingsService } from "./embeddings.service";
 import { document as Document, Prisma } from "@prisma/client";
 import { DocumentsResponse, DocumentWithEmbedding } from "./embeddings.model";
+import { AuthGuard } from "src/common/auth-gaurd";
 
 @Controller("document")
+@UseGuards(AuthGuard)
 export class EmbeddingsController {
   constructor(private readonly embeddingsService: EmbeddingsService) {}
 
