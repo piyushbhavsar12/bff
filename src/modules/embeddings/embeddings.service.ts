@@ -6,6 +6,7 @@ import { ConfigService } from "@nestjs/config";
 import fetch from "node-fetch";
 import { DocumentsResponse, DocumentWithEmbedding } from "./embeddings.model";
 import { fetchWithAlert } from "../../common/utils";
+import { PromptHistoryService } from "../prompt-history/prompt-history.service";
 
 interface EmbeddingResponse {
   embedding: number[];
@@ -16,7 +17,8 @@ interface EmbeddingResponse {
 export class EmbeddingsService {
   constructor(
     private prisma: PrismaService,
-    private configService: ConfigService
+    private configService: ConfigService,
+    private promptHistoryService: PromptHistoryService
   ) {
     // AUTH_HEADER = this.configService.get("AUTH_HEADER");
   }
@@ -49,6 +51,7 @@ export class EmbeddingsService {
             },
           });
           if (olderDocument) {
+            this.promptHistoryService.softDeleteRelatedToDocument(data.id)
             if (olderDocument.tags == data.tags) {
               olderDocument.content = data.content;
               document = await this.prisma.document.update({

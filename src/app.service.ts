@@ -567,6 +567,7 @@ export class AppService {
       responseInEnglish: chatGPT3FinalResponse,
       responseTime: Math.ceil(endTime - startTime),
       metadata: [allContent, allContentSummarization],
+      queryId: prompt.input.messageId
     });
 
     const resp: ResponseForTS = {

@@ -95,12 +95,14 @@ model prompt_history {
   id                Int                    @id @default(autoincrement())
   createdAt         DateTime               @default(now()) @db.Timestamptz(3)
   updatedAt         DateTime               @updatedAt
+  deletedAt         DateTime?              @db.Timestamptz(3)
   responseTime      Int
   queryInEnglish    String
   responseInEnglish String
   timesUsed         Int
   metadata          Json?
   embedding         Unsupported("vector")?
+  queryId           String?  @db.Uuid
 
   @@unique([queryInEnglish])
 }

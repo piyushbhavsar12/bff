@@ -45,6 +45,7 @@ export class PromptHistoryService {
             timesUsed: 0,
             responseTime: data.responseTime,
             metadata: data.metadata,
+            queryId: data.queryId
           },
         });
         await this.prisma.$queryRawUnsafe(
@@ -117,5 +118,30 @@ export class PromptHistoryService {
     } catch {
       return null;
     }
+  }
+
+  async softDeleteRelatedToDocument(documentId) {
+    const affectedPromptHistories = await this.prisma.similarity_search_response.findMany({
+      where: {
+        documentId: documentId.id,
+      },
+      select: {
+        queryId: true,
+      },
+    });
+    // Soft delete the affected prompt_history records
+    let updated = await Promise.all(
+      affectedPromptHistories.map(({ queryId }) =>
+        this.prisma.prompt_history.updateMany({
+          where: {
+            queryId,
+          },
+          data: {
+            deletedAt: new Date(),
+          },
+        }),
+      ),
+    );
+    return updated
   }
 }
