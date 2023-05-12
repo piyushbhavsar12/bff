@@ -30,6 +30,7 @@ model query {
   coreferencedPrompt    String?
   error                 String?
   errorRate             Int       @default(0)
+  responseType          String?
 
   @@unique([userId, createdAt])
   @@unique([userId, createdAt, conversationId])

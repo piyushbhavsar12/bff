@@ -26,6 +26,7 @@ export interface Prompt {
   // More output metadata
   timeTaken?: number;
   timestamp?: number;
+  responseType?: string;
 }
 
 export interface Document {
@@ -265,7 +266,8 @@ export class AppService {
         conversationId: prompt.input.conversationId,
         coreferencedPrompt,
         error,
-        errorRate: 0
+        errorRate: 0,
+        responseType: prompt.responseType
       },
     })
     if(sendError) throw new Error(error)
@@ -277,6 +279,7 @@ export class AppService {
       input: promptDto,
     };
     prompt.timestamp = new Date().getTime();
+    prompt.responseType = "";
 
     this.logger.verbose("CP-1");
     // Detect language of incoming prompt
@@ -454,6 +457,7 @@ export class AppService {
       olderSimilarQuestionId = olderSimilarQuestions[0].id;
       chatGPT3FinalResponse = olderSimilarQuestions[0].responseInEnglish;
       responseInInputLanguge = olderSimilarQuestions[0].responseInEnglish;
+      prompt.responseType = "Response given from previous similar question with similarity > 0.97"
     } else {
       // else generate new response
       this.logger.verbose("CP-4");
@@ -471,13 +475,15 @@ export class AppService {
       this.logger.debug({ similarDocsFromEmbeddingsService });
 
       if(!similarDocsFromEmbeddingsService.length) {
-        similarDocsFromEmbeddingsService =
+        prompt.responseType = ""
+        let similarDocsFromEmbeddingsServiceLowerThreshold =
           await this.embeddingsService.findByCriteria({
             query: finalChatGPTQuestion,
             similarityThreshold: parseFloat(this.configService.get("SIMILARITY_LOWER_THRESHOLD")) || 0.5,
             matchCount: 2,
           });
-        if(!similarDocsFromEmbeddingsService.length) {
+        if(!similarDocsFromEmbeddingsServiceLowerThreshold.length) {
+          prompt.responseType = `Response given to bogus question`
           await this.sendError(
             REPHRASE_YOUR_QUESTION('en'),
             REPHRASE_YOUR_QUESTION(prompt.inputLanguage),
@@ -488,7 +494,8 @@ export class AppService {
           )
           return
         }
-      }
+        prompt.responseType = `Response given through GPT only (without hitting the content DB i.e. sim cutoff < ${this.configService.get("SIMILARITY_THRESHOLD")})`
+      } else prompt.responseType = `Response given using content + GPT (sim cutoff from ${this.configService.get("SIMILARITY_THRESHOLD")} to 0.98)`
 
       const userQuestion =
         "The user has asked a question: " + finalChatGPTQuestion + "\n";
@@ -597,7 +604,8 @@ export class AppService {
         responseInEnglish: chatGPT3FinalResponse,
         conversationId: prompt.input.conversationId,
         coreferencedPrompt: coreferencedPrompt,
-        errorRate
+        errorRate,
+        responseType: prompt.responseType
       },
     });
     
