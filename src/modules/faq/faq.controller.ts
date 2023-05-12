@@ -2,7 +2,7 @@ import { Controller, Get, Post, Patch, Delete, Body, HttpException, HttpStatus, 
 import { Prisma } from "@prisma/client";
 import { CreateFaqDto } from "./faq.dto";
 import { FAQService } from "./faq.service";
-import { AuthGuard } from "src/common/auth-gaurd";
+import { AuthGuard } from "../../common/auth-gaurd";
 
 @Controller("faq")
 @UseGuards(AuthGuard)

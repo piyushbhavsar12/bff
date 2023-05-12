@@ -1,7 +1,7 @@
 import { Controller, Get, Param, Query, Request, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
 import { query } from '@prisma/client';
-import { AuthGuard } from 'src/common/auth-gaurd';
+import { AuthGuard } from '../../common/auth-gaurd';
 
 @Controller('user')
 @UseGuards(AuthGuard)

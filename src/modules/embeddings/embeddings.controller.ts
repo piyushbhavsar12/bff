@@ -3,7 +3,7 @@ import { CreateDocumentDto, GetDocumentsDto, SearchQueryDto } from "./embeddings
 import { EmbeddingsService } from "./embeddings.service";
 import { document as Document, Prisma } from "@prisma/client";
 import { DocumentsResponse, DocumentWithEmbedding } from "./embeddings.model";
-import { AuthGuard } from "src/common/auth-gaurd";
+import { AuthGuard } from "../../common/auth-gaurd";
 
 @Controller("document")
 @UseGuards(AuthGuard)
