@@ -47,6 +47,7 @@ export class AuthGuard implements CanActivate {
         } else {
           request.headers.userId = decoded.sub;
           request.headers.userPhone = decoded['preferred_username'];
+          request.headers.roles = decoded['roles']
           resolve(true);
         }
       });

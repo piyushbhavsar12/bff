@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Request, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, Query, Request, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
 import { query } from '@prisma/client';
 import { AuthGuard } from 'src/common/auth-gaurd';
@@ -9,14 +9,20 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Get("/conversations")
-  async conversations(@Request() request): Promise<query[]> {
-    const userId = request.headers.userId
+  async conversations(@Request() request, @Query('userid') adminUserId: string): Promise<query[]> {
+    let userId = request.headers.userId
+    if(request.headers.roles.indexOf('Admin') != -1) {
+      userId = adminUserId
+    }
     return this.userService.conversationsList(userId);
   }
 
   @Get("/chathistory/:conversationId")
-  async chatHistory(@Param("conversationId") conversationId: string, @Request() request): Promise<query[]> {
-    const userId = request.headers.userId
+  async chatHistory(@Param("conversationId") conversationId: string, @Request() request, @Query('userid') adminUserId: string): Promise<query[]> {
+    let userId = request.headers.userId
+    if(request.headers.roles.indexOf('Admin') != -1) {
+      userId = adminUserId
+    }
     return this.userService.conversationHistory(conversationId,userId);
   }
 
