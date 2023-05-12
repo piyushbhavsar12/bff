@@ -48,6 +48,7 @@ describe("PromptHistoryService", () => {
       responseInEnglish: "Test response",
       responseTime: 10,
       metadata: {},
+      queryId: "2d876d45-af93-4cf3-ae47-9aad551dea73"
     };
 
     const embeddingResponse: EmbeddingResponse[] = [
@@ -65,6 +66,7 @@ describe("PromptHistoryService", () => {
       timesUsed: 0,
       responseTime: 10,
       metadata: {},
+      queryId: "2d876d45-af93-4cf3-ae47-9aad551dea73"
     });
     prisma.prompt_history.update = jest.fn();
 
@@ -81,6 +83,7 @@ describe("PromptHistoryService", () => {
       timesUsed: 0,
       responseTime: 10,
       metadata: {},
+      queryId: "2d876d45-af93-4cf3-ae47-9aad551dea73"
     });
     expect(prisma.prompt_history.create).toHaveBeenCalled();
   });
@@ -92,6 +95,7 @@ describe("PromptHistoryService", () => {
       responseInEnglish: "Test response",
       responseTime: 10,
       metadata: {},
+      queryId: "2d876d45-af93-4cf3-ae47-9aad551dea73"
     };
 
     const existingPromptHistory = {
@@ -101,6 +105,7 @@ describe("PromptHistoryService", () => {
       timesUsed: 0,
       responseTime: 10,
       metadata: {},
+      queryId: "2d876d45-af93-4cf3-ae47-9aad551dea73"
     };
 
     prisma.prompt_history.findUnique = jest
@@ -121,6 +126,7 @@ describe("PromptHistoryService", () => {
       timesUsed: 1,
       responseTime: 10,
       metadata: {},
+      queryId: "2d876d45-af93-4cf3-ae47-9aad551dea73"
     });
     expect(prisma.prompt_history.update).toHaveBeenCalled();
   });
@@ -148,6 +154,7 @@ describe("PromptHistoryService", () => {
         timesUsed: 0,
         responseTime: 10,
         metadata: {},
+        queryId: "2d876d45-af93-4cf3-ae47-9aad551dea73"
       },
     ]);
 
@@ -161,6 +168,7 @@ describe("PromptHistoryService", () => {
         timesUsed: 0,
         responseTime: 10,
         metadata: {},
+        queryId: "2d876d45-af93-4cf3-ae47-9aad551dea73"
       },
     ]);
   });

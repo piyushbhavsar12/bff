@@ -22,6 +22,9 @@ export class CreatePromptDto {
   responseTime: number;
 
   metadata: any;
+
+  @IsDefined({ message: "QueryId id cannot be empty" })
+  queryId: string
 }
 
 export class SearchPromptHistoryDto {
