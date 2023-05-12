@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Headers, Body, UseInterceptors, Param } from "@nestjs/common";
 import { AppService } from "./app.service";
-import { AlertInterceptor } from "./common/alerts.interceptor";
+import { AlertInterceptor } from "./modules/alerts/alerts.interceptor";
 import { IsNotEmpty,IsUUID, IsOptional } from 'class-validator';
 
 export class PromptDto {

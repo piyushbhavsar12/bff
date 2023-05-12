@@ -8,7 +8,7 @@ import { ConfigService } from "@nestjs/config";
 import { EmbeddingsService } from "./modules/embeddings/embeddings.service";
 import { CustomLogger } from "./common/logger";
 import { PromptHistoryService } from "./modules/prompt-history/prompt-history.service";
-import { sendEmail } from "./common/email.service";
+import { sendDiscordAlert, sendEmail } from "./modules/alerts/alerts.service";
 import { CONTACT_AMAKRUSHI_HELPLINE, NEURAL_CORE_RESPONSE_ERROR, REPHRASE_YOUR_QUESTION, TEXT_DETECTION_ERROR, TEXT_TRANSLATION_ERROR, UNABLE_TO_DETECT_LANGUAGE, UNABLE_TO_PROCESS_REQUEST, USING_GPT4_ALERT } from "./common/constants";
 import { fetchWithAlert } from "./common/utils";
 const { performance } = require("perf_hooks");
@@ -88,6 +88,17 @@ export class AppService {
         source_language: ${source}
         target_language: ${target}
         `
+      )
+      sendDiscordAlert(
+        "Error while detecting language",
+        `
+        Environment: ${this.configService.get("ENVIRONMENT")}
+        userId: ${userId}
+        input text: ${text}
+        source_language: ${source}
+        target_language: ${target}
+        `,
+        16711680
       )
     }
 
