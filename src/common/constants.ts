@@ -49,7 +49,7 @@ export const TEXT_TRANSLATION_ERROR = (userId,text,source,target) => `
 Error while translating the text
 Environment: ${process.env.ENVIRONMENT}
 userId: ${userId}
-url: /text_translation/bhashini/remote
+url: /text_translation/google/remote
 input text: ${text}
 source_language: ${source}
 target_language: ${target}
