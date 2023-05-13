@@ -35,6 +35,10 @@ services:
         source: ./akai.csv
         target: /app/src/embeddings/openai/remote/akai.csv
         read_only: true
+      - type: bind
+        source: ./google-creds.json
+        target: /app/google-creds.json
+        read_only: true
     environment:
       OPENAI_API_KEY: ${OPENAI_API_KEY}
       AUTH_HEADER: ${AUTH_HEADER}
