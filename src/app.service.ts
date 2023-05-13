@@ -112,7 +112,7 @@ export class AppService {
     const translated = await fetch(
       `${this.configService.get(
         "AI_TOOLS_BASE_URL"
-      )}/text_translation/google/remote`,
+      )}/text_translation/azure/remote`,
       requestOptions
     )
       .then((response) => response.json())
