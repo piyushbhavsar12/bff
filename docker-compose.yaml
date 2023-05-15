@@ -74,6 +74,7 @@ services:
       ENVIRONMENT: ${ENVIRONMENT}
       ERROR_RATE_THRESHOLD: ${ERROR_RATE_THRESHOLD}
       DISCORD_WEBHOOK: ${DISCORD_WEBHOOK}
+      JWKS_URI: ${JWKS_URI}
 
 networks:
   letsencrypt-docker-compose:
