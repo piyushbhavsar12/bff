@@ -1,11 +1,12 @@
-import { CanActivate, ExecutionContext, Injectable, Logger, Scope } from '@nestjs/common';
+import { CanActivate, ExecutionContext, Injectable, Scope } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import * as jwt from 'jsonwebtoken';
 import * as jwksClient from 'jwks-rsa';
+import { CustomLogger } from './logger';
 
 @Injectable({ scope: Scope.DEFAULT })
 export class AuthGuard implements CanActivate {
-  private logger: Logger = new Logger('AuthGuard');
+  private logger: CustomLogger = new CustomLogger('AuthGuard');
   private client: jwksClient.JwksClient;
   private getKey: any;
 
@@ -19,7 +20,7 @@ export class AuthGuard implements CanActivate {
     this.getKey = (header: jwt.JwtHeader, callback: any) => {
       this.client.getSigningKey(header.kid, (err, key: any) => {
         if (err) {
-          console.error('Error fetching signing key:', err);
+          this.logger.error(`Error fetching signing key: ${err}`);
           callback(err);
         } else {
           const signingKey = key.publicKey || key.rsaPublicKey;
@@ -42,7 +43,7 @@ export class AuthGuard implements CanActivate {
     return new Promise<boolean>((resolve, reject) => {
       jwt.verify(bearerToken, this.getKey, (err, decoded) => {
         if (err) {
-          console.error('JWT verification error:', err);
+          this.logger.error('JWT verification error:', err);
           resolve(false);
         } else {
           request.headers.userId = decoded.sub;

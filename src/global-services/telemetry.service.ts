@@ -1,10 +1,11 @@
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { Injectable, OnModuleInit } from '@nestjs/common';
 import { PostHog } from 'posthog-node'
 import { ConfigService } from '@nestjs/config';
+import { CustomLogger } from 'src/common/logger';
 
 @Injectable()
 export class TelemetryService implements OnModuleInit {
-  private readonly logger = new Logger('TelemetryService');
+  private readonly logger = new CustomLogger('TelemetryService');
   client: PostHog;
   constructor(private configService: ConfigService) {
     this.client = new PostHog(this.configService.get('POSTHOG_API_KEY') || '', {
