@@ -7,6 +7,8 @@ import { PrismaService } from "../../global-services/prisma.service";
 import { ConfigService } from "@nestjs/config";
 import { CreatePromptDto, SearchPromptHistoryDto } from "./prompt.dto";
 import { fetchWithAlert } from "../../common/utils";
+import { sendDiscordAlert } from "../alerts/alerts.service";
+import { CustomLogger } from "../../common/logger";
 
 export interface EmbeddingResponse {
   embedding: number[];
@@ -15,11 +17,13 @@ export interface EmbeddingResponse {
 
 @Injectable()
 export class PromptHistoryService {
+  private logger: CustomLogger;
   constructor(
     private prisma: PrismaService,
-    private configService: ConfigService
+    private configService: ConfigService,
   ) {
     // AUTH_HEADER = this.configService.get("AUTH_HEADER");
+    this.logger = new CustomLogger("PromptHistoryService");
   }
   async createOrUpdate(data: CreatePromptDto): Promise<PromptHistory> {
     let olderDocument;
@@ -44,21 +48,30 @@ export class PromptHistoryService {
         });
       } else {
         let embedding = (await this.getEmbedding(data.queryInEnglish))[0];
-        document = await this.prisma.prompt_history.create({
-          data: {
-            queryInEnglish: data.queryInEnglish,
-            responseInEnglish: data.responseInEnglish,
-            timesUsed: 0,
-            responseTime: data.responseTime,
-            metadata: data.metadata,
-            queryId: data.queryId
-          },
-        });
-        await this.prisma.$queryRawUnsafe(
-          `UPDATE prompt_history SET embedding = '[${embedding.embedding
-            .map((x) => `${x}`)
-            .join(",")}]' WHERE id = ${document.id}`
-        );
+        try {
+          document = await this.prisma.prompt_history.create({
+            data: {
+              queryInEnglish: data.queryInEnglish,
+              responseInEnglish: data.responseInEnglish,
+              timesUsed: 0,
+              responseTime: data.responseTime,
+              metadata: data.metadata,
+              queryId: data.queryId
+            },
+          });
+          await this.prisma.$queryRawUnsafe(
+            `UPDATE prompt_history SET embedding = '[${embedding.embedding
+              .map((x) => `${x}`)
+              .join(",")}]' WHERE id = ${document.id}`
+          );
+        } catch(error) {
+          this.logger.error(error)
+          sendDiscordAlert(
+            "Race condition - Error while saving prompt history",
+            `Trying to save duplicate entry "${data}"`,
+            16711680
+          )
+        }
       }
     } catch (error) {
       throw new BadRequestException(error);

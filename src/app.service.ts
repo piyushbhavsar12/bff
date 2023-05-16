@@ -138,7 +138,7 @@ export class AppService {
     );
 
     var raw = JSON.stringify({
-      text: prompt.input.body,
+      text: prompt.input.body?.replace("?","")?.trim(),
     });
 
     var requestOptions = {
@@ -528,7 +528,7 @@ export class AppService {
             prompt,
             coreferencedPrompt,
             false,
-            "No documents with similarity greater than 0.5 found"
+            `No documents with similarity greater than ${parseFloat(this.configService.get("SIMILARITY_LOWER_THRESHOLD")) || 0.5} found`
           )
           return
         }
