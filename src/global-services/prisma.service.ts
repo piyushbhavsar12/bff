@@ -5,7 +5,7 @@ import {
 } from "@nestjs/common";
 
 import { PrismaClient } from "@prisma/client";
-import { CustomLogger } from "src/common/logger";
+import { CustomLogger } from "../common/logger";
 
 @Injectable()
 export class PrismaService extends PrismaClient implements OnModuleInit {

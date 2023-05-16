@@ -8,7 +8,7 @@ import {
   GetRequestConfig,
   GetRequestResolverError,
 } from "./../../types";
-import { CustomLogger } from "src/common/logger";
+import { CustomLogger } from "../../../../common/logger";
 
 @Injectable()
 export class GetRequestResolverService {
