@@ -31,6 +31,12 @@ export class PromptHistoryService {
             id: parseInt(data.id),
           },
         });
+      else if (data.queryInEnglish && data.queryInEnglish!='')
+      olderDocument = await this.prisma.prompt_history.findUnique({
+        where: {
+          queryInEnglish: data.queryInEnglish
+        },
+      });
       if (olderDocument) {
         document = await this.prisma.prompt_history.update({
           where: { id: parseInt(data.id) },
