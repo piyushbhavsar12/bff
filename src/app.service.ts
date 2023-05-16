@@ -10,7 +10,7 @@ import { PromptHistoryService } from "./modules/prompt-history/prompt-history.se
 import { sendDiscordAlert, sendEmail } from "./modules/alerts/alerts.service";
 import { 
   CONTACT_AMAKRUSHI_HELPLINE, 
-  NEURAL_CORE_RESPONSE_ERROR, 
+  GPT_RESPONSE_ERROR, 
   REPHRASE_YOUR_QUESTION, 
   TEXT_DETECTION_ERROR, 
   TEXT_TRANSLATION_ERROR, 
@@ -193,7 +193,7 @@ export class AppService {
     else return [];
   }
 
-  async llm(prompt: any): Promise<{ response: string; allContent: any }> {
+  async llm(prompt: any): Promise<{ response: string; allContent: any; error: any }> {
     var myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/json");
     myHeaders.append(
@@ -220,15 +220,17 @@ export class AppService {
       .then((response) => response.json())
       .then((result) => {
         this.logger.verbose({ result });
+        const error = Object.keys(result).indexOf('error')!=-1
         return {
-          response: result["choices"][0].message.content,
-          allContent: result,
+          response: error ? null : result["choices"][0].message.content,
+          allContent: error ? null : result,
+          error: error ? result.error : null
         };
       })
       .catch((error) => this.logger.verbose("error", error));
 
     if (response) return response;
-    else return {response:null, allContent:null};
+    else return {response:null, allContent:null, error: "Unable to fetch gpt response."};
   }
 
   async sendMessageBackToTS(resp: ResponseForTS) {
@@ -258,7 +260,8 @@ export class AppService {
     prompt,
     coreferencedPrompt,
     sendError = false,
-    error = null
+    error = null,
+    errorRate = 0
   ) {
     await this.sendMessageBackToTS({
       message: {
@@ -284,7 +287,7 @@ export class AppService {
         conversationId: prompt.input.conversationId,
         coreferencedPrompt,
         error,
-        errorRate: 0,
+        errorRate,
         responseType: prompt.responseType
       },
     })
@@ -424,8 +427,25 @@ export class AppService {
 
       this.logger.verbose({ chatGPT3Prompt });
       const nueralCorefStartTime = new Date().getTime();
-      const { response: neuralCorefResponse, allContent: allContentNC } =
+      const { response: neuralCorefResponse, allContent: allContentNC, error } =
         await this.llm(chatGPT3Prompt);
+      if(error) {
+        errorRate = 5
+        await this.sendError(
+          UNABLE_TO_PROCESS_REQUEST('en'),
+          UNABLE_TO_PROCESS_REQUEST(prompt.inputLanguage),
+          prompt,
+          null,
+          true,
+          GPT_RESPONSE_ERROR(
+            prompt.input.userId,
+            chatGPT3Prompt,
+            { response: neuralCorefResponse, allContent: allContentNC, error }
+          ),
+          errorRate
+        )
+        return
+      }
       this.logger.verbose(`nueral coreference prompt response time = ${new Date().getTime() - nueralCorefStartTime}`)
       if(new Date().getTime() - nueralCorefStartTime > 4000) errorRate+=2
       
@@ -436,7 +456,7 @@ export class AppService {
           prompt,
           null,
           true,
-          NEURAL_CORE_RESPONSE_ERROR(
+          GPT_RESPONSE_ERROR(
             prompt.input.userId,
             chatGPT3Prompt,
             { response: neuralCorefResponse, allContent: allContentNC }
@@ -542,7 +562,7 @@ export class AppService {
       
       this.logger.verbose(chatGPT3PromptWithSimilarDocs)
       const finalResponseStartTime = new Date().getTime();
-      const { response: finalResponse, allContent: ac } = await this.llm([
+      const llmInput = [
         {
           role: "system",
           content:
@@ -552,7 +572,25 @@ export class AppService {
           role: "user",
           content: chatGPT3PromptWithSimilarDocs,
         },
-      ]);
+      ]
+      const { response: finalResponse, allContent: ac, error } = await this.llm(llmInput);
+      if(error) {
+        errorRate = 5
+        await this.sendError(
+          UNABLE_TO_PROCESS_REQUEST('en'),
+          UNABLE_TO_PROCESS_REQUEST(prompt.inputLanguage),
+          prompt,
+          null,
+          true,
+          GPT_RESPONSE_ERROR(
+            prompt.input.userId,
+            llmInput,
+            { response: finalResponse, allContent: ac, error }
+          ),
+          errorRate
+        )
+        return
+      }
       chatGPT3FinalResponse = finalResponse;
       allContentSummarization = ac;
       this.logger.verbose({ chatGPT3FinalResponse });

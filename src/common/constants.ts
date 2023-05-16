@@ -63,8 +63,8 @@ url: /text_lang_detection/bhashini/remote
 input text: ${text}
 response: ${response}
 `
-export const NEURAL_CORE_RESPONSE_ERROR = (userId, input, output) => `
-Error while fetching coreferenced message
+export const GPT_RESPONSE_ERROR = (userId, input, output) => `
+Error from gpt
 url: /llm/openai/chatgpt3
 userId: ${userId},
 input: ${JSON.stringify(input,null,2)},
