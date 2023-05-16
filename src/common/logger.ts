@@ -15,6 +15,17 @@ export class CustomLogger extends Logger {
     return `${hours12}:${minutes}:${seconds}.${milliseconds} ${amPm}`;
   }
 
+  private static combineLogs(params: any[]): string {
+    return params.map(param=> {
+      try {
+        param = JSON.stringify(param,null,2)
+      } catch {
+        param = param
+      }
+      return param
+    }).join(" ")
+  }
+
   private readonly axiomLogger: winston.Logger;
   private readonly serviceName: string;
 
@@ -34,11 +45,11 @@ export class CustomLogger extends Logger {
 
   log(...params: any[]) {
     const timestamp = CustomLogger.formatTimestamp(new Date());
-    super.log(params.join(" "), this.serviceName, timestamp);
+    super.log(CustomLogger.combineLogs(params), this.serviceName, timestamp);
     if(process.env.ENVIRONMENT == 'Staging' || process.env.ENVIRONMENT == 'Production')
     this.axiomLogger.log({
       level: "info",
-      message: params.join(" "),
+      message: CustomLogger.combineLogs(params),
       service: this.serviceName,
       timestamp
     })
@@ -46,11 +57,11 @@ export class CustomLogger extends Logger {
 
   error(...params: any[]) {
     const timestamp = CustomLogger.formatTimestamp(new Date());
-    super.error(params.join(" "), this.serviceName, timestamp);
+    super.error(CustomLogger.combineLogs(params), this.serviceName, timestamp);
     if(process.env.ENVIRONMENT == 'Staging' || process.env.ENVIRONMENT == 'Production')
     this.axiomLogger.log({
       level: "error",
-      message: params.join(" "),
+      message: CustomLogger.combineLogs(params),
       service: this.serviceName,
       timestamp
     })
@@ -58,11 +69,11 @@ export class CustomLogger extends Logger {
 
   warn(...params: any[]) {
     const timestamp = CustomLogger.formatTimestamp(new Date());
-    super.warn(params.join(" "), this.serviceName, timestamp);
+    super.warn(CustomLogger.combineLogs(params), this.serviceName, timestamp);
     if(process.env.ENVIRONMENT == 'Staging' || process.env.ENVIRONMENT == 'Production')
     this.axiomLogger.log({
       level: "warn",
-      message: params.join(" "),
+      message: CustomLogger.combineLogs(params),
       service: this.serviceName,
       timestamp
     })
@@ -70,11 +81,11 @@ export class CustomLogger extends Logger {
 
   debug(...params: any[]) {
     const timestamp = CustomLogger.formatTimestamp(new Date());
-    super.debug(params.join(" "), this.serviceName, timestamp);
+    super.debug(CustomLogger.combineLogs(params), this.serviceName, timestamp);
     if(process.env.ENVIRONMENT == 'Staging' || process.env.ENVIRONMENT == 'Production')
     this.axiomLogger.log({
       level: "debug",
-      message: params.join(" "),
+      message: CustomLogger.combineLogs(params),
       service: this.serviceName,
       timestamp
     })
@@ -82,11 +93,11 @@ export class CustomLogger extends Logger {
 
   verbose(...params: any[]) {
     const timestamp = CustomLogger.formatTimestamp(new Date());
-    super.verbose(params.join(" "), this.serviceName, timestamp);
+    super.verbose(CustomLogger.combineLogs(params), this.serviceName, timestamp);
     if(process.env.ENVIRONMENT == 'Staging' || process.env.ENVIRONMENT == 'Production')
     this.axiomLogger.log({
       level: "verbose",
-      message: params.join(" "),
+      message: CustomLogger.combineLogs(params),
       service: this.serviceName,
       timestamp
     })

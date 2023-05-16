@@ -75,6 +75,9 @@ services:
       ERROR_RATE_THRESHOLD: ${ERROR_RATE_THRESHOLD}
       DISCORD_WEBHOOK: ${DISCORD_WEBHOOK}
       JWKS_URI: ${JWKS_URI}
+      AXIOM_DATASET: ${AXIOM_DATASET}
+      AXIOM_TOKEN: ${AXIOM_TOKEN}
+      AXIOM_ORG_ID: ${AXIOM_ORG_ID}
 
 networks:
   letsencrypt-docker-compose:
