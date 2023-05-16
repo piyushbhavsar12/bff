@@ -1,15 +1,22 @@
-import { Injectable, Logger } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 import { PromptDto } from "./app.controller";
 import { Language } from "./language";
 import fetch from "node-fetch";
-import { PrismaClient } from "@prisma/client";
 import { PrismaService } from "./global-services/prisma.service";
 import { ConfigService } from "@nestjs/config";
 import { EmbeddingsService } from "./modules/embeddings/embeddings.service";
 import { CustomLogger } from "./common/logger";
 import { PromptHistoryService } from "./modules/prompt-history/prompt-history.service";
 import { sendDiscordAlert, sendEmail } from "./modules/alerts/alerts.service";
-import { CONTACT_AMAKRUSHI_HELPLINE, NEURAL_CORE_RESPONSE_ERROR, REPHRASE_YOUR_QUESTION, TEXT_DETECTION_ERROR, TEXT_TRANSLATION_ERROR, UNABLE_TO_DETECT_LANGUAGE, UNABLE_TO_PROCESS_REQUEST, USING_GPT4_ALERT } from "./common/constants";
+import { 
+  CONTACT_AMAKRUSHI_HELPLINE, 
+  NEURAL_CORE_RESPONSE_ERROR, 
+  REPHRASE_YOUR_QUESTION, 
+  TEXT_DETECTION_ERROR, 
+  TEXT_TRANSLATION_ERROR, 
+  UNABLE_TO_DETECT_LANGUAGE, 
+  UNABLE_TO_PROCESS_REQUEST
+} from "./common/constants";
 import { fetchWithAlert } from "./common/utils";
 const { performance } = require("perf_hooks");
 
@@ -49,7 +56,7 @@ export interface ResponseForTS {
 
 @Injectable()
 export class AppService {
-  private logger: Logger;
+  private logger: CustomLogger;
   constructor(
     private prisma: PrismaService,
     private configService: ConfigService,
@@ -57,7 +64,7 @@ export class AppService {
     private promptHistoryService: PromptHistoryService
   ) {
     // AUTH_HEADER = this.configService.get("AUTH_HEADER");
-    this.logger = new Logger("AppService");
+    this.logger = new CustomLogger("AppService");
   }
   async translate(
     source: Language,

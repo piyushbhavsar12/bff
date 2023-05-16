@@ -1,6 +1,5 @@
 import { NestFactory } from "@nestjs/core";
 import { AppModule } from "./app.module";
-import { Logger } from "@nestjs/common";
 import {
   FastifyAdapter,
   NestFastifyApplication,
@@ -11,9 +10,10 @@ import helmet from "@fastify/helmet";
 import multipart from "@fastify/multipart";
 import compression from "@fastify/compress";
 import { join } from "path";
+import { CustomLogger } from "./common/logger";
 
 async function bootstrap() {
-  const logger = new Logger("Main");
+  const logger = new CustomLogger("Main");
 
   /** Fastify Application */
   const app = await NestFactory.create<NestFastifyApplication>(

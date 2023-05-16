@@ -1,15 +1,15 @@
 import {
   INestApplication,
   Injectable,
-  Logger,
   OnModuleInit,
 } from "@nestjs/common";
 
 import { PrismaClient } from "@prisma/client";
+import { CustomLogger } from "../common/logger";
 
 @Injectable()
 export class PrismaService extends PrismaClient implements OnModuleInit {
-  private readonly logger = new Logger("DBService");
+  private readonly logger = new CustomLogger("DBService");
   async onModuleInit() {
     this.logger.verbose("Initialized and Connected 🎉");
     await this.$connect();

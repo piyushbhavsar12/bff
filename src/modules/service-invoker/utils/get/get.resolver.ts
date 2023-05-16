@@ -1,5 +1,5 @@
 import fetch from "isomorphic-fetch";
-import { Injectable, Logger } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 import Ajv from "ajv";
 import { ConfigService } from "@nestjs/config";
 import { TelemetryService } from "../../../../global-services/telemetry.service";
@@ -8,15 +8,16 @@ import {
   GetRequestConfig,
   GetRequestResolverError,
 } from "./../../types";
+import { CustomLogger } from "../../../../common/logger";
 
 @Injectable()
 export class GetRequestResolverService {
-  logger: Logger;
+  logger: CustomLogger;
   constructor(
     private configService: ConfigService,
     private telemetryService: TelemetryService
   ) {
-    this.logger = new Logger("HTTP-GET-ResolverService");
+    this.logger = new CustomLogger("HTTP-GET-ResolverService");
   }
 
   async verify(getRequestConfig: GetRequestConfig, user: string) {
