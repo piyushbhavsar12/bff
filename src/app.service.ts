@@ -70,7 +70,7 @@ export class AppService {
     source: Language,
     target: Language,
     text: string,
-    userId: string
+    prompt: Prompt
   ): Promise<string> {
     var myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/json");
@@ -91,7 +91,7 @@ export class AppService {
         "Error while detecting language",
         `
         Environment: ${this.configService.get("ENVIRONMENT")}
-        userId: ${userId}
+        userId: ${prompt.input.userId}
         input text: ${text}
         source_language: ${source}
         target_language: ${target}
@@ -101,7 +101,7 @@ export class AppService {
         "Error while detecting language",
         `
         Environment: ${this.configService.get("ENVIRONMENT")}
-        userId: ${userId}
+        userId: ${prompt.input.userId}
         input text: ${text}
         source_language: ${source}
         target_language: ${target}
@@ -124,7 +124,10 @@ export class AppService {
     )
       .then((response) => response.json())
       .then((result) => result["translated"] as string)
-      .catch((error) => this.logger.verbose("error", error));
+      .catch((error) => this.logger.logWithCustomFields({
+        messageId: prompt.input.messageId,
+        userId: prompt.input.userId
+      },"error")("error", error));
 
     return translated ? translated : "";
   }
@@ -157,7 +160,10 @@ export class AppService {
       .then((result) =>
         result["language"] ? (result["language"] as Language) : null
       )
-      .catch((error) => this.logger.verbose("error", error));
+      .catch((error) => this.logger.logWithCustomFields({
+        messageId: prompt.input.messageId,
+        userId: prompt.input.userId
+      },"error")("error", error));
 
     prompt.inputLanguage = language as Language;
     return prompt;
@@ -193,15 +199,18 @@ export class AppService {
     else return [];
   }
 
-  async llm(prompt: any): Promise<{ response: string; allContent: any; error: any }> {
+  async llm(prompt: any, userData: Prompt): Promise<{ response: string; allContent: any; error: any }> {
     var myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/json");
     myHeaders.append(
       "Authorization",
       this.configService.get("AI_TOOLS_AUTH_HEADER")
     );
-
-    this.logger.verbose(prompt);
+    let promptLogger = this.logger.logWithCustomFields({
+      messageId: userData.input.messageId,
+      userId: userData.input.userId
+    },"verbose")
+    promptLogger(prompt)
 
     var raw = JSON.stringify({
       prompt: prompt,
@@ -219,7 +228,7 @@ export class AppService {
     )
       .then((response) => response.json())
       .then((result) => {
-        this.logger.verbose({ result });
+        promptLogger({ result });
         const error = Object.keys(result).indexOf('error')!=-1
         return {
           response: error ? null : result["choices"][0].message.content,
@@ -227,7 +236,10 @@ export class AppService {
           error: error ? result.error : null
         };
       })
-      .catch((error) => this.logger.verbose("error", error));
+      .catch((error) => this.logger.logWithCustomFields({
+        messageId: prompt.input.messageId,
+        userId: prompt.input.userId
+      },"error")("error", error));
 
     if (response) return response;
     else return {response:null, allContent:null, error: "Unable to fetch gpt response."};
@@ -250,8 +262,12 @@ export class AppService {
       requestOptions
     )
       .then((response) => response.json())
-      .then((result) => this.logger.verbose(result))
-      .catch((error) => this.logger.verbose("error", error));
+      .then((result) => this.logger.logWithCustomFields({
+        messageId: resp.messageId
+      },"verbose")(result))
+      .catch((error) => this.logger.logWithCustomFields({
+        messageId: resp.messageId
+      },"error")("error", error));
   }
 
   async sendError(
@@ -302,7 +318,11 @@ export class AppService {
     prompt.timestamp = new Date().getTime();
     prompt.responseType = "";
 
-    this.logger.verbose("CP-1");
+    let promptLogger = this.logger.logWithCustomFields({
+      messageId: prompt.input.messageId, 
+      userId: prompt.input.userId 
+    },"verbose")
+    promptLogger("CP-1");
     // Detect language of incoming prompt
     prompt = await this.detectLanguage(prompt);
     if(!prompt || !prompt.inputLanguage) {
@@ -320,7 +340,7 @@ export class AppService {
       )
     }
 
-    this.logger.verbose("CP-2");
+    promptLogger("CP-2");
 
     // Translate incoming prompt from indic to en
     if (prompt.inputLanguage === Language.en) {
@@ -330,7 +350,7 @@ export class AppService {
         prompt.inputLanguage,
         Language.en,
         prompt.input.body,
-        prompt.input.userId
+        prompt
       );
       if(!prompt.inputTextInEnglish) {
         await this.sendError(
@@ -359,7 +379,7 @@ export class AppService {
       return
     }
 
-    this.logger.verbose("CP-3", JSON.stringify(prompt));
+    promptLogger("CP-3", prompt);
     // Get the concept from user chatHistory
     let userHistoryWhere: any = {};
     userHistoryWhere.userId = prompt.input.userId;
@@ -425,10 +445,10 @@ export class AppService {
         },
       ];
 
-      this.logger.verbose({ chatGPT3Prompt });
+      promptLogger({ chatGPT3Prompt });
       const nueralCorefStartTime = new Date().getTime();
       const { response: neuralCorefResponse, allContent: allContentNC, error } =
-        await this.llm(chatGPT3Prompt);
+        await this.llm(chatGPT3Prompt,prompt);
       if(error) {
         errorRate = 5
         await this.sendError(
@@ -446,7 +466,7 @@ export class AppService {
         )
         return
       }
-      this.logger.verbose(`nueral coreference prompt response time = ${new Date().getTime() - nueralCorefStartTime}`)
+      promptLogger(`nueral coreference prompt response time = ${new Date().getTime() - nueralCorefStartTime}`)
       if(new Date().getTime() - nueralCorefStartTime > 4000) errorRate+=2
       
       if(!neuralCorefResponse) {
@@ -464,7 +484,7 @@ export class AppService {
         )
       }
       console.log("NeuralCoref Response")
-      this.logger.verbose({ response: neuralCorefResponse, allContent: allContentNC })
+      promptLogger({ response: neuralCorefResponse, allContent: allContentNC })
 
       coreferencedPrompt = neuralCorefResponse
       allContent = allContentNC
@@ -473,14 +493,14 @@ export class AppService {
     let finalChatGPTQuestion =  coreferencedPrompt?.replace("User:","") || prompt.inputTextInEnglish
     console.log("finalChatGPTQuestion",finalChatGPTQuestion)
     // Check for older similar prompts
-    this.logger.verbose("CP-4.1");
+    promptLogger("CP-4.1");
     const olderSimilarQuestions =
       await this.promptHistoryService.findByCriteria({
         query: finalChatGPTQuestion,
         similarityThreshold: 0.97,
         matchCount: 1,
       });
-    this.logger.verbose({olderSimilarQuestions})
+    promptLogger({olderSimilarQuestions})
 
     let responseInInputLanguge = "";
     let chatGPT3FinalResponse = "";
@@ -498,10 +518,10 @@ export class AppService {
       prompt.responseType = "Response given from previous similar question with similarity > 0.97"
     } else {
       // else generate new response
-      this.logger.verbose("CP-4");
+      promptLogger("CP-4");
 
       // Similarity Search
-      this.logger.verbose({ finalChatGPTQuestion });
+      promptLogger({ finalChatGPTQuestion });
       similarDocsFromEmbeddingsService =
         await this.embeddingsService.findByCriteria({
           query: finalChatGPTQuestion,
@@ -510,7 +530,7 @@ export class AppService {
         });
 
       // this.logger.debug({ similarDocs });
-      this.logger.debug({ similarDocsFromEmbeddingsService });
+      promptLogger({ similarDocsFromEmbeddingsService });
 
       if(!similarDocsFromEmbeddingsService.length) {
         prompt.responseType = ""
@@ -560,7 +580,7 @@ export class AppService {
         expertContext) :
         (finalChatGPTQuestion + " " + expertContext);
       
-      this.logger.verbose(chatGPT3PromptWithSimilarDocs)
+      promptLogger(chatGPT3PromptWithSimilarDocs)
       const finalResponseStartTime = new Date().getTime();
       const llmInput = [
         {
@@ -573,7 +593,7 @@ export class AppService {
           content: chatGPT3PromptWithSimilarDocs,
         },
       ]
-      const { response: finalResponse, allContent: ac, error } = await this.llm(llmInput);
+      const { response: finalResponse, allContent: ac, error } = await this.llm(llmInput,prompt);
       if(error) {
         errorRate = 5
         await this.sendError(
@@ -593,9 +613,9 @@ export class AppService {
       }
       chatGPT3FinalResponse = finalResponse;
       allContentSummarization = ac;
-      this.logger.verbose({ chatGPT3FinalResponse });
+      promptLogger({ chatGPT3FinalResponse });
       responseInInputLanguge = chatGPT3FinalResponse;
-      this.logger.verbose(`final GPT response time = ${new Date().getTime() - finalResponseStartTime}`)
+      promptLogger(`final GPT response time = ${new Date().getTime() - finalResponseStartTime}`)
       if(new Date().getTime() - finalResponseStartTime > 15000) errorRate += 2
     }
     const endTime = performance.now();
@@ -605,7 +625,7 @@ export class AppService {
         Language.en,
         prompt.inputLanguage,
         chatGPT3FinalResponse,
-        prompt.input.userId
+        prompt
       );
       if(!responseInInputLanguge) {
         await this.sendError(
@@ -647,7 +667,7 @@ export class AppService {
     };
 
     await this.sendMessageBackToTS(resp);
-    this.logger.verbose(`Total query response time = ${new Date().getTime() - prompt.timestamp}`)
+    promptLogger(`Total query response time = ${new Date().getTime() - prompt.timestamp}`)
     if(new Date().getTime() - prompt.timestamp > 25000) errorRate+=1
     await this.prisma.query.create({
       data: {

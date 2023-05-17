@@ -16,7 +16,7 @@ export class CustomLogger extends Logger {
   }
 
   private static combineLogs(params: any[]): string {
-    return params.map(param=> {
+    return params?.map(param => {
       try {
         param = JSON.stringify(param,null,2)
       } catch {
@@ -24,6 +24,16 @@ export class CustomLogger extends Logger {
       }
       return param
     }).join(" ")
+  }
+
+  private formatLog(level, params) {
+    const timestamp = CustomLogger.formatTimestamp(new Date());
+    return {
+      level,
+      message: CustomLogger.combineLogs(params),
+      service: this.serviceName,
+      timestamp
+    }
   }
 
   private readonly axiomLogger: winston.Logger;
@@ -43,63 +53,59 @@ export class CustomLogger extends Logger {
     this.serviceName = serviceName;
   }
 
-  log(...params: any[]) {
-    const timestamp = CustomLogger.formatTimestamp(new Date());
-    super.log(CustomLogger.combineLogs(params), this.serviceName, timestamp);
+  logToAxiomAndConsole(logData) {
+    switch(logData.level) {
+      case "info":
+        super.log(logData?.message, this.serviceName, logData?.timestamp);
+        break;
+      case "error":
+        super.error(logData?.message, this.serviceName, logData?.timestamp);
+        break;
+      case "warn":
+        super.warn(logData?.message, this.serviceName, logData?.timestamp);
+        break;
+      case "debug":
+        super.debug(logData?.message, this.serviceName, logData?.timestamp);
+        break;
+      case "verbose":
+        super.verbose(logData?.message, this.serviceName, logData?.timestamp);
+        break;
+      default:
+        super.log(logData?.message, this.serviceName, logData?.timestamp);
+        break;
+    }
     if(process.env.ENVIRONMENT == 'Staging' || process.env.ENVIRONMENT == 'Production')
-    this.axiomLogger.log({
-      level: "info",
-      message: CustomLogger.combineLogs(params),
-      service: this.serviceName,
-      timestamp
-    })
+    this.axiomLogger.log(logData)
+  }
+
+  log(...params: any[]) {
+    this.logToAxiomAndConsole(this.formatLog('info',params))
   }
 
   error(...params: any[]) {
-    const timestamp = CustomLogger.formatTimestamp(new Date());
-    super.error(CustomLogger.combineLogs(params), this.serviceName, timestamp);
-    if(process.env.ENVIRONMENT == 'Staging' || process.env.ENVIRONMENT == 'Production')
-    this.axiomLogger.log({
-      level: "error",
-      message: CustomLogger.combineLogs(params),
-      service: this.serviceName,
-      timestamp
-    })
+    this.logToAxiomAndConsole(this.formatLog('error',params))
   }
 
   warn(...params: any[]) {
-    const timestamp = CustomLogger.formatTimestamp(new Date());
-    super.warn(CustomLogger.combineLogs(params), this.serviceName, timestamp);
-    if(process.env.ENVIRONMENT == 'Staging' || process.env.ENVIRONMENT == 'Production')
-    this.axiomLogger.log({
-      level: "warn",
-      message: CustomLogger.combineLogs(params),
-      service: this.serviceName,
-      timestamp
-    })
+    this.logToAxiomAndConsole(this.formatLog('warn',params))
   }
 
   debug(...params: any[]) {
-    const timestamp = CustomLogger.formatTimestamp(new Date());
-    super.debug(CustomLogger.combineLogs(params), this.serviceName, timestamp);
-    if(process.env.ENVIRONMENT == 'Staging' || process.env.ENVIRONMENT == 'Production')
-    this.axiomLogger.log({
-      level: "debug",
-      message: CustomLogger.combineLogs(params),
-      service: this.serviceName,
-      timestamp
-    })
+    this.logToAxiomAndConsole(this.formatLog('debug',params))
   }
 
   verbose(...params: any[]) {
-    const timestamp = CustomLogger.formatTimestamp(new Date());
-    super.verbose(CustomLogger.combineLogs(params), this.serviceName, timestamp);
-    if(process.env.ENVIRONMENT == 'Staging' || process.env.ENVIRONMENT == 'Production')
-    this.axiomLogger.log({
-      level: "verbose",
-      message: CustomLogger.combineLogs(params),
-      service: this.serviceName,
-      timestamp
-    })
+    this.logToAxiomAndConsole(this.formatLog('verbose',params))
+  }
+
+  logWithCustomFields(customFields, level="info") {
+    return (...params: any[]) => {
+      let logData = this.formatLog(level,params)
+      logData = {
+        ...customFields,
+        ...logData
+      }
+      this.logToAxiomAndConsole(logData)
+    }
   }
 }
