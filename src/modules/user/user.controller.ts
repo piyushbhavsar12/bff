@@ -9,12 +9,14 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Get("/conversations")
-  async conversations(@Request() request, @Query('userid') adminUserId: string): Promise<query[]> {
+  async conversations(@Request() request, @Query('userid') adminUserId: string, @Query('page') page: number, @Query('perPage') perPage: number): Promise<query[]> {
     let userId = request.headers.userId
     if(request.headers.roles.indexOf('Admin') != -1) {
       userId = adminUserId
     }
-    return this.userService.conversationsList(userId);
+    page = page?page:1
+    perPage = perPage?perPage:10
+    return this.userService.conversationsList(userId,parseInt(`${page}`),parseInt(`${perPage}`));
   }
 
   @Get("/chathistory/:conversationId")

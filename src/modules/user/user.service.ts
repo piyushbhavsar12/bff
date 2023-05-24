@@ -6,16 +6,33 @@ import { query } from "@prisma/client";
 export class UserService {
   constructor(private prisma: PrismaService) {}
 
-  async conversationsList(userId: string): Promise<query[]> {
+  async conversationsList(userId: string, page: number, perPage: number): Promise<any[]> {
     try {
-      const userHistory = await this.prisma.query.findMany({
+      let userHistory = await this.prisma.query.findMany({
         distinct: ["conversationId"],
         where: { 
           userId,
           isConversationDeleted: false
         },
         orderBy: [{ conversationId: "asc" }, { createdAt: "asc" }],
+        skip: (page - 1) * perPage,
+        take: perPage,
       });
+      userHistory = await Promise.all(userHistory.map( async (message) => {
+        let lastUpdatedMessage = await this.prisma.query.findFirst({
+          where:{
+            conversationId: message.conversationId
+          },
+          orderBy: [{ updatedAt: "desc"}]
+        })
+        message['lastConversationAt'] = lastUpdatedMessage.updatedAt
+        message['feedback'] = await this.prisma.conversationFeedback.findUnique({
+          where:{
+            conversationId: message.conversationId
+          }
+        })
+        return message
+      }))
       return userHistory;
     } catch (error) {
       throw new BadRequestException([
@@ -27,9 +44,9 @@ export class UserService {
   async conversationHistory(
     conversationId: string,
     userId: string
-  ): Promise<any[]> {
+  ): Promise<query[]> {
     try {
-      let userHistory = await this.prisma.query.findMany({
+      const userHistory = await this.prisma.query.findMany({
         where: {
           conversationId: conversationId,
           userId,
@@ -37,14 +54,6 @@ export class UserService {
         },
         orderBy: [{ createdAt: "asc" }]
       });
-      userHistory = await Promise.all(userHistory.map( async (message) => {
-        message['feedback'] = await this.prisma.messageFeedback.findMany({
-          where:{
-            queryId: message.id
-          }
-        })
-        return message
-      }))
       return userHistory;
     } catch (error) {
       throw new BadRequestException([

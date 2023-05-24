@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
 import { CreateFeedbackDto } from "./feedback.dto";
 import { PrismaService } from "../../global-services/prisma.service";
-import { feedback, messageFeedback, query } from "@prisma/client";
+import { feedback, conversationFeedback, query } from "@prisma/client";
 
 @Injectable()
 export class FeedbackService {
@@ -82,17 +82,32 @@ export class FeedbackService {
     `);
   }
 
-  async createMessageFeedback(body): Promise<messageFeedback> {
+  async createConversationFeedback(body): Promise<conversationFeedback> {
     try {
-      let query = await this.prisma.query.findFirst({where:{id:body.messageId}})
-      if(!query) throw new Error(`Query with id - ${body.messageId} not found`)
-      let feedback = await this.prisma.messageFeedback.create({
-        data: {
-          rating: body.rating,
-          review: body.review,
-          queryId: body.messageId
+      let query = await this.prisma.query.findFirst({where:{conversationId:body.conversationId}})
+      if(!query) throw new Error(`Converstion with id - ${body.conversationId} not found`)
+      let feedback = await this.prisma.conversationFeedback.findUnique({
+        where: {
+          conversationId: body.conversationId
         }
-      });
+      })
+      if(!feedback) {
+        feedback = await this.prisma.conversationFeedback.create({
+          data: {
+            rating: body.rating,
+            review: body.review,
+            conversationId: body.conversationId
+          }
+        });
+      } else {
+        feedback = await this.prisma.conversationFeedback.update({
+          where: { conversationId: body.conversationId },
+          data: {
+            rating: body.rating,
+            review: body.review
+          }
+        });
+      }
       return feedback;
     } catch (error) {
       console.log(error)
