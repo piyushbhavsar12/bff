@@ -127,11 +127,13 @@ model similarity_search_response {
   queryId        String  @db.Uuid
 }
 
-model messageFeedback {
-  createdAt DateTime @default(now()) @db.Timestamptz(3)
-  updatedAt DateTime @updatedAt
-  id        Int      @id @default(autoincrement())
-  rating    Int?
-  review    String?
-  queryId   String  @db.Uuid
+model conversationFeedback {
+  createdAt        DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt        DateTime @updatedAt
+  id               Int      @id @default(autoincrement())
+  rating           Int?
+  review           String?
+  conversationId   String  @db.Uuid
+
+  @@unique([conversationId])
 }

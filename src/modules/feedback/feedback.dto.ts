@@ -17,7 +17,7 @@ export class CreateFeedbackDto {
   phoneNumber: string;
 }
 
-export class CreateMessageFeedbackDto {
+export class CreateConversationFeedbackDto {
   @IsDefined({ message: 'Either review or rating is required' })
   @ValidateIf(o => !o.rating)
   review?: string;
@@ -31,5 +31,5 @@ export class CreateMessageFeedbackDto {
 
   @IsNotEmpty()
   @IsUUID()
-  messageId: string
+  conversationId: string
 }
