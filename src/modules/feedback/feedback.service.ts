@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
 import { CreateFeedbackDto } from "./feedback.dto";
 import { PrismaService } from "../../global-services/prisma.service";
-import { feedback, query } from "@prisma/client";
+import { feedback, messageFeedback, query } from "@prisma/client";
 
 @Injectable()
 export class FeedbackService {
@@ -80,5 +80,25 @@ export class FeedbackService {
     return this.prisma.$queryRawUnsafe(`
       SELECT * from "query" where id = '${id}'
     `);
+  }
+
+  async createMessageFeedback(body): Promise<messageFeedback> {
+    try {
+      let query = await this.prisma.query.findFirst({where:{id:body.messageId}})
+      if(!query) throw new Error(`Query with id - ${body.messageId} not found`)
+      let feedback = await this.prisma.messageFeedback.create({
+        data: {
+          rating: body.rating,
+          review: body.review,
+          queryId: body.messageId
+        }
+      });
+      return feedback;
+    } catch (error) {
+      console.log(error)
+      throw new BadRequestException([
+        "Something went wrong while creating feedback",
+      ]);
+    }
   }
 }

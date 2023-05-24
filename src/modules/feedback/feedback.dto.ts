@@ -16,3 +16,20 @@ export class CreateFeedbackDto {
   @IsPhoneNumber('IN', { message: 'Invalid phone number' })
   phoneNumber: string;
 }
+
+export class CreateMessageFeedbackDto {
+  @IsDefined({ message: 'Either review or rating is required' })
+  @ValidateIf(o => !o.rating)
+  review?: string;
+
+  @IsDefined({ message: 'Either review or rating is required' })
+  @ValidateIf(o => !o.review)
+  @IsInt()
+  @Min(1)
+  @Max(10)
+  rating?: number;
+
+  @IsNotEmpty()
+  @IsUUID()
+  messageId: string
+}

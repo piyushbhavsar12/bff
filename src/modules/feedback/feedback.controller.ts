@@ -1,7 +1,7 @@
 
 import { Body, Controller, Get, HttpException, HttpStatus, Param, Post, Query, Request, UseGuards } from "@nestjs/common";
 import { FeedbackService } from './feedback.service';
-import { CreateFeedbackDto } from './feedback.dto';
+import { CreateFeedbackDto, CreateMessageFeedbackDto } from './feedback.dto';
 import { feedback, query } from '@prisma/client';
 import { AuthGuard } from "src/common/auth-gaurd";
 
@@ -44,5 +44,10 @@ export class FeedbackController {
   @Get("query/removelike/:id")
   async removeLike(@Param('id') id: string): Promise<query> {
     return this.feedbackService.removeReactionOnQuery(id);
+  }
+
+  @Post("message")
+  async messageFeedback(@Body() body: CreateMessageFeedbackDto){
+    return this.feedbackService.createMessageFeedback(body)
   }
 }

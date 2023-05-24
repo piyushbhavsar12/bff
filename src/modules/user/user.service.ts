@@ -27,16 +27,24 @@ export class UserService {
   async conversationHistory(
     conversationId: string,
     userId: string
-  ): Promise<query[]> {
+  ): Promise<any[]> {
     try {
-      const userHistory = await this.prisma.query.findMany({
+      let userHistory = await this.prisma.query.findMany({
         where: {
           conversationId: conversationId,
           userId,
           isConversationDeleted: false
         },
-        orderBy: [{ createdAt: "asc" }],
+        orderBy: [{ createdAt: "asc" }]
       });
+      userHistory = await Promise.all(userHistory.map( async (message) => {
+        message['feedback'] = await this.prisma.messageFeedback.findMany({
+          where:{
+            queryId: message.id
+          }
+        })
+        return message
+      }))
       return userHistory;
     } catch (error) {
       throw new BadRequestException([
