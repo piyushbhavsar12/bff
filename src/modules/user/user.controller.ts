@@ -38,7 +38,7 @@ export class UserController {
           redirect: 'follow'
         };
         try{
-          let res: any = await fetch(`${this.configService.get('FUSION_AUTH_BASE_URL')}/api/user?username=${mobileNumber}`, requestOptions)
+          let res: any = await fetch(`${this.configService.get('FUSION_AUTH_BASE_URL')}api/user?username=${mobileNumber}`, requestOptions)
           res = await res.json()
           userId = res.user.id
         } catch(error) {

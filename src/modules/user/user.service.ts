@@ -45,7 +45,7 @@ export class UserService {
           redirect: 'follow'
         };
         try {
-          let res: any = await fetch(`${this.configService.get('FUSION_AUTH_BASE_URL')}/api/user?userId=${message.userId}`, requestOptions)
+          let res: any = await fetch(`${this.configService.get('FUSION_AUTH_BASE_URL')}api/user?userId=${message.userId}`, requestOptions)
           res = await res.json()
           message['mobileNumber'] = res.user.mobilePhone
         } catch(error) {
