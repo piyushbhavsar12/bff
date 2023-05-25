@@ -2,7 +2,7 @@ import { BadRequestException, Injectable } from "@nestjs/common";
 import { PrismaService } from "../../global-services/prisma.service";
 import { query } from "@prisma/client";
 import { ConfigService } from "@nestjs/config";
-import { CustomLogger } from "src/common/logger";
+import { CustomLogger } from "../../common/logger";
 
 @Injectable()
 export class UserService {
