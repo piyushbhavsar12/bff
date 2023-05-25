@@ -1,10 +1,18 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
 import { PrismaService } from "../../global-services/prisma.service";
 import { query } from "@prisma/client";
+import { ConfigService } from "@nestjs/config";
+import { CustomLogger } from "src/common/logger";
 
 @Injectable()
 export class UserService {
-  constructor(private prisma: PrismaService) {}
+  private logger: CustomLogger;
+  constructor(
+    private prisma: PrismaService,
+    private configService: ConfigService
+  ) {
+    this.logger = new CustomLogger("UserService");
+  }
 
   async conversationsList(userId: string, page: number, perPage: number): Promise<any> {
     try {
@@ -19,6 +27,7 @@ export class UserService {
         take: perPage,
       });
       userHistory = await Promise.all(userHistory.map( async (message) => {
+        //get last conversed date
         let lastUpdatedMessage = await this.prisma.query.findFirst({
           where:{
             conversationId: message.conversationId
@@ -26,6 +35,24 @@ export class UserService {
           orderBy: [{ updatedAt: "desc"}]
         })
         message['lastConversationAt'] = lastUpdatedMessage.updatedAt
+        //get users mobile number
+        var myHeaders = new Headers();
+        myHeaders.append("x-application-id", this.configService.get('FRONTEND_APPLICATION_ID'));
+        myHeaders.append("Authorization", this.configService.get('FUSION_AUTH_API_KEY'));
+        var requestOptions: RequestInit = {
+          method: 'GET',
+          headers: myHeaders,
+          redirect: 'follow'
+        };
+        try {
+          let res: any = await fetch(`${this.configService.get('FUSION_AUTH_BASE_URL')}/api/user?userId=${message.userId}`, requestOptions)
+          res = await res.json()
+          message['mobileNumber'] = res.user.mobilePhone
+        } catch(error) {
+          this.logger.error(error)
+          message['mobileNumber'] = null
+        }
+        //get conversation feedbacks
         message['feedback'] = await this.prisma.conversationFeedback.findUnique({
           where:{
             conversationId: message.conversationId
