@@ -6,7 +6,7 @@ import { query } from "@prisma/client";
 export class UserService {
   constructor(private prisma: PrismaService) {}
 
-  async conversationsList(userId: string, page: number, perPage: number): Promise<any[]> {
+  async conversationsList(userId: string, page: number, perPage: number): Promise<any> {
     try {
       let userHistory = await this.prisma.query.findMany({
         distinct: ["conversationId"],
@@ -33,7 +33,17 @@ export class UserService {
         })
         return message
       }))
-      return userHistory;
+      const conversations = await this.prisma.query.findMany({
+        distinct: ['conversationId'],
+        where: {
+          userId,
+          isConversationDeleted: false,
+        },
+      });
+      const totalConversations = conversations.length;
+      const totalPages = Math.ceil(totalConversations / perPage);
+      const pagination = { page, perPage, totalPages, totalConversations };
+      return {pagination, userHistory};
     } catch (error) {
       throw new BadRequestException([
         "Something went wrong while fetching user history",
