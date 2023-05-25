@@ -2,21 +2,58 @@ import { Controller, Get, Param, Query, Request, UseGuards } from '@nestjs/commo
 import { UserService } from './user.service';
 import { query } from '@prisma/client';
 import { AuthGuard } from '../../common/auth-gaurd';
+import { ConfigService } from '@nestjs/config';
+import { CustomLogger } from 'src/common/logger';
 
 @Controller('user')
 @UseGuards(AuthGuard)
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  private logger: CustomLogger;
+  constructor(
+    private readonly userService: UserService,
+    private readonly configService: ConfigService
+  ) {
+    this.logger = new CustomLogger("UserService");
+  }
 
   @Get("/conversations")
-  async conversations(@Request() request, @Query('userid') adminUserId: string, @Query('page') page: number, @Query('perPage') perPage: number): Promise<query[]> {
-    let userId = request.headers.userId
+  async conversations(
+    @Request() request, 
+    @Query('userid') adminUserId: string, 
+    @Query('page') page: number, 
+    @Query('perPage') perPage: number,
+    @Query('mobileNumber') mobileNumber: string
+  ): Promise<query[]> {
+    let userId = null
     if(request.headers.roles.indexOf('Admin') != -1) {
       userId = adminUserId
+      if(!userId && mobileNumber) {
+        var myHeaders = new Headers();
+        myHeaders.append("x-application-id", this.configService.get("FRONTEND_APPLICATION_ID"));
+        myHeaders.append("Authorization", this.configService.get('FUSION_AUTH_API_KEY'));
+
+        var requestOptions: RequestInit = {
+          method: 'GET',
+          headers: myHeaders,
+          redirect: 'follow'
+        };
+        try{
+          let res: any = await fetch(`${this.configService.get('FUSION_AUTH_BASE_URL')}/api/user?username=${mobileNumber}`, requestOptions)
+          res = await res.json()
+          userId = res.user.id
+        } catch(error) {
+          this.logger.error(error)
+        }
+      }
     }
+    if(!userId) userId = request.headers.userId
     page = page?page:1
     perPage = perPage?perPage:10
-    return this.userService.conversationsList(userId,parseInt(`${page}`),parseInt(`${perPage}`));
+    return this.userService.conversationsList(
+      userId,
+      parseInt(`${page}`),
+      parseInt(`${perPage}`)
+    );
   }
 
   @Get("/chathistory/:conversationId")

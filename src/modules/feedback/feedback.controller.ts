@@ -3,7 +3,7 @@ import { Body, Controller, Get, HttpException, HttpStatus, Param, Post, Query, R
 import { FeedbackService } from './feedback.service';
 import { CreateFeedbackDto, CreateConversationFeedbackDto } from './feedback.dto';
 import { feedback, query } from '@prisma/client';
-import { AuthGuard } from "src/common/auth-gaurd";
+import { AuthGuard } from "../../common/auth-gaurd";
 
 @Controller("feedback")
 @UseGuards(AuthGuard)
