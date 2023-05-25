@@ -237,8 +237,8 @@ export class AppService {
         };
       })
       .catch((error) => this.logger.logWithCustomFields({
-        messageId: prompt.input.messageId,
-        userId: prompt.input.userId
+        messageId: userData.input.messageId,
+        userId: userData.input.userId
       },"error")("error", error));
 
     if (response) return response;
