@@ -45,8 +45,9 @@ export class UserController {
           this.logger.error(error)
         }
       }
+    } else {
+      userId = request.headers.userId
     }
-    if(!userId) userId = request.headers.userId
     page = page?page:1
     perPage = perPage?perPage:10
     return this.userService.conversationsList(
