@@ -18,6 +18,7 @@ import {
   UNABLE_TO_PROCESS_REQUEST
 } from "./common/constants";
 import { fetchWithAlert } from "./common/utils";
+import { isMostlyEnglish } from "./utils";
 const { performance } = require("perf_hooks");
 
 // Overlap between LangchainAI and Prompt-Engine
@@ -160,10 +161,17 @@ export class AppService {
       .then((result) =>
         result["language"] ? (result["language"] as Language) : null
       )
-      .catch((error) => this.logger.logWithCustomFields({
-        messageId: prompt.input.messageId,
-        userId: prompt.input.userId
-      },"error")("error", error));
+      .catch((error) => {
+        this.logger.logWithCustomFields({
+          messageId: prompt.input.messageId,
+          userId: prompt.input.userId
+        },"error")("error", error)
+        if(isMostlyEnglish(prompt.input.body?.replace("?","")?.trim())){
+          return Language.en
+        } else {
+          return 'unk'
+        }
+    });
 
     prompt.inputLanguage = language as Language;
     return prompt;
