@@ -22,7 +22,9 @@ export class UserController {
     @Query('userid') adminUserId: string, 
     @Query('page') page: number, 
     @Query('perPage') perPage: number,
-    @Query('mobileNumber') mobileNumber: string
+    @Query('mobileNumber') mobileNumber: string,
+    @Query('fromDate') fromDate: string,
+    @Query('toDate') toDate: string
   ): Promise<query[]> {
     let userId = null
     if(request.headers.roles.indexOf('Admin') != -1) {
@@ -53,7 +55,9 @@ export class UserController {
     return this.userService.conversationsList(
       userId,
       parseInt(`${page}`),
-      parseInt(`${perPage}`)
+      parseInt(`${perPage}`),
+      fromDate,
+      toDate
     );
   }
 

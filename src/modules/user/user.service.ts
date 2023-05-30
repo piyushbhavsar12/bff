@@ -3,6 +3,9 @@ import { PrismaService } from "../../global-services/prisma.service";
 import { query } from "@prisma/client";
 import { ConfigService } from "@nestjs/config";
 import { CustomLogger } from "../../common/logger";
+import * as momentTZ from "moment-timezone";
+import * as moment from 'moment';
+
 
 @Injectable()
 export class UserService {
@@ -14,27 +17,61 @@ export class UserService {
     this.logger = new CustomLogger("UserService");
   }
 
-  async conversationsList(userId: string, page: number, perPage: number): Promise<any> {
+  async conversationsList(
+    userId: string, 
+    page: number, 
+    perPage: number,
+    fromDate: string,
+    toDate: string
+  ): Promise<any> {
+    if (
+      fromDate &&
+      !moment(fromDate, "YYYY-MM-DD HH:mm:ss", true).isValid()
+    ) {
+      throw new BadRequestException("Invalid 'fromDate' format. Please provide it in 'YYYY-MM-DD HH:mm:ss' format.");
+    }
+
+    if (toDate && !moment(toDate, "YYYY-MM-DD HH:mm:ss", true).isValid()) {
+      throw new BadRequestException("Invalid 'toDate' format. Please provide it in 'YYYY-MM-DD HH:mm:ss' format.");
+    }
     try {
-      let userHistory = await this.prisma.query.findMany({
-        distinct: ["conversationId"],
-        where: { 
-          userId,
-          isConversationDeleted: false
-        },
-        orderBy: [{ conversationId: "asc" }, { createdAt: "asc" }],
-        skip: (page - 1) * perPage,
-        take: perPage,
-      });
+      let whereClause = '';
+
+      if (fromDate) {
+        const utcFromDateTime = momentTZ
+          .tz(fromDate, "YYYY-MM-DD HH:mm:ss", "Asia/Kolkata")
+          .utc()
+          .format();
+        whereClause += `m."updatedAt" >= '${utcFromDateTime}'::timestamptz`;
+      }
+
+      if (toDate) {
+        const utcToDateTime = momentTZ
+          .tz(toDate, "YYYY-MM-DD HH:mm:ss", "Asia/Kolkata")
+          .utc()
+          .format();
+        whereClause += `${fromDate ? ' AND ' : ''}m."updatedAt" <= '${utcToDateTime}'::timestamptz`;
+      }
+
+      let userHistory: any = await this.prisma.$queryRawUnsafe(`
+        SELECT DISTINCT ON (q."conversationId") q.*, m."updatedAt" AS "lastConversationAt"
+        FROM (
+          SELECT *
+          FROM "query"
+          WHERE "userId" = '${userId}' AND "isConversationDeleted" = false
+        ) q
+        INNER JOIN "query" m ON q."conversationId" = m."conversationId"
+        WHERE m."updatedAt" = (
+          SELECT MAX("updatedAt")
+          FROM "query"
+          WHERE "conversationId" = q."conversationId"
+        )
+        ${whereClause ? `AND ${whereClause}` : ''}
+        ORDER BY q."conversationId" ASC, q."createdAt" ASC
+        OFFSET ${(page - 1) * perPage} LIMIT ${perPage}
+      `);
+
       userHistory = await Promise.all(userHistory.map( async (message) => {
-        //get last conversed date
-        let lastUpdatedMessage = await this.prisma.query.findFirst({
-          where:{
-            conversationId: message.conversationId
-          },
-          orderBy: [{ updatedAt: "desc"}]
-        })
-        message['lastConversationAt'] = lastUpdatedMessage.updatedAt
         //get users mobile number
         var myHeaders = new Headers();
         myHeaders.append("x-application-id", this.configService.get('FRONTEND_APPLICATION_ID'));
@@ -60,13 +97,23 @@ export class UserService {
         })
         return message
       }))
-      const conversations = await this.prisma.query.findMany({
-        distinct: ['conversationId'],
-        where: {
-          userId,
-          isConversationDeleted: false,
-        },
-      });
+
+      const conversations: any =  await this.prisma.$queryRawUnsafe(`
+        SELECT DISTINCT ON (q."conversationId") q.*, m."updatedAt" AS "lastConversationAt"
+        FROM (
+          SELECT *
+          FROM "query"
+          WHERE "userId" = '${userId}' AND "isConversationDeleted" = false
+        ) q
+        INNER JOIN "query" m ON q."conversationId" = m."conversationId"
+        WHERE m."updatedAt" = (
+          SELECT MAX("updatedAt")
+          FROM "query"
+          WHERE "conversationId" = q."conversationId"
+        )
+        ${whereClause ? `AND ${whereClause}` : ''}
+        ORDER BY q."conversationId" ASC, q."createdAt" ASC
+      `);
       const totalConversations = conversations.length;
       const totalPages = Math.ceil(totalConversations / perPage);
       const pagination = { page, perPage, totalPages, totalConversations };
