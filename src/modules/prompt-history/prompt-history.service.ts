@@ -43,7 +43,7 @@ export class PromptHistoryService {
       });
       if (olderDocument) {
         document = await this.prisma.prompt_history.update({
-          where: { id: parseInt(data.id) },
+          where: { id: parseInt(olderDocument.id) },
           data: { timesUsed: olderDocument.timesUsed + 1 },
         });
       } else {
@@ -68,7 +68,7 @@ export class PromptHistoryService {
           this.logger.error(error)
           sendDiscordAlert(
             "Race condition - Error while saving prompt history",
-            `Trying to save duplicate entry "${data}"`,
+            `Trying to save duplicate entry "${JSON.stringify(data,null,2)}"`,
             16711680
           )
         }
