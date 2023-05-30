@@ -58,7 +58,7 @@ export class UserService {
         FROM (
           SELECT *
           FROM "query"
-          WHERE "userId" = '${userId}' AND "isConversationDeleted" = false
+          WHERE ${userId ? `"userId" = '${userId}' AND `:''}"isConversationDeleted" = false
         ) q
         INNER JOIN "query" m ON q."conversationId" = m."conversationId"
         WHERE m."updatedAt" = (
@@ -103,7 +103,7 @@ export class UserService {
         FROM (
           SELECT *
           FROM "query"
-          WHERE "userId" = '${userId}' AND "isConversationDeleted" = false
+          WHERE ${userId ? `"userId" = '${userId}' AND `:''}"isConversationDeleted" = false
         ) q
         INNER JOIN "query" m ON q."conversationId" = m."conversationId"
         WHERE m."updatedAt" = (
