@@ -20,7 +20,8 @@
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "start:migrate:prod": "npx prisma migrate deploy && npm run start:prod",
     "start:migrate:ci": "npx prisma migrate deploy && npm run start:prod",
-    "cli": "ts-node src/cli.ts"
+    "cli": "ts-node src/cli.ts",
+    "codecov": "codecov"
   },
   "dependencies": {
     "@apollo/client": "^3.7.11",
@@ -41,6 +42,7 @@
     "apollo-cache-inmemory": "^1.6.6",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.0",
+    "codecov": "^3.8.3",
     "csv-parser": "^3.0.0",
     "fastify-compress": "^4.1.0",
     "fastify-helmet": "^7.1.0",
@@ -101,6 +103,10 @@
       "**/*.(t|j)s"
     ],
     "coverageDirectory": "../coverage",
-    "testEnvironment": "node"
+    "testEnvironment": "node",
+    "coverageReporters": [
+      "text",
+      "lcov"
+    ]
   }
 }
