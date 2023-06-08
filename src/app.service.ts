@@ -712,6 +712,10 @@ export class AppService {
     return "Hello World!";
   }
 
+  getOdiaEnglishDic(): any {
+    return this.prisma.odiaEnglish.findMany()
+  }
+
   async getHealth(minutes: number): Promise<any> {
     const startTime = new Date(Date.now() - minutes * 60 * 1000);
     const queries = await this.prisma.query.findMany({

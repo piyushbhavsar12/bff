@@ -49,4 +49,9 @@ export class AppController {
   health(@Param("minutes") minutes: number): any {
     return this.appService.getHealth(parseInt(`${minutes}`));
   }
+
+  @Get("/odiaengdict")
+  OdiaEnglishDic(): any{
+    return this.appService.getOdiaEnglishDic();
+  }
 }
