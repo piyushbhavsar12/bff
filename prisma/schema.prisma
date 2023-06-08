@@ -137,3 +137,9 @@ model conversationFeedback {
 
   @@unique([conversationId])
 }
+
+model OdiaEnglish {
+  index               Int      @id @default(autoincrement())
+  odiaWord            String
+  correctTranslation  String
+}
