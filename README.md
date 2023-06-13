@@ -37,3 +37,4 @@ CREATE INDEX on document using ivfflat (embedding vector_cosine_ops) with (lists
 ```sh
 yarn cli ingest
 ```
+
