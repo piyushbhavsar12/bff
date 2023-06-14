@@ -389,126 +389,126 @@ export class AppService {
 
     promptLogger("CP-3", prompt);
     // Get the concept from user chatHistory
-    let userHistoryWhere: any = {};
-    userHistoryWhere.userId = prompt.input.userId;
-    if(prompt.input.conversationId) userHistoryWhere.conversationId = prompt.input.conversationId;
-    const userHistory = await this.prisma.query.findMany({
-      where: userHistoryWhere,
-      orderBy: {
-        createdAt: "desc",
-      },
-      take: 2,
-    });
+    // let userHistoryWhere: any = {};
+    // userHistoryWhere.userId = prompt.input.userId;
+    // if(prompt.input.conversationId) userHistoryWhere.conversationId = prompt.input.conversationId;
+    // const userHistory = await this.prisma.query.findMany({
+    //   where: userHistoryWhere,
+    //   orderBy: {
+    //     createdAt: "desc",
+    //   },
+    //   take: 2,
+    // });
     // construct the prompt for chatGPT3
     let history = [];
     let allContent;
     let coreferencedPrompt;
-    if (userHistory.length > 0) {
-      for (let i = 0; i < userHistory.length; i++) {
-        history.push(`User: ${userHistory[i].queryInEnglish}`);
-        history.push(`AI: ${userHistory[i].responseInEnglish}`);
-      }
-      history.push(`User: ${prompt.inputTextInEnglish}`);
+    // if (userHistory.length > 0) {
+    //   for (let i = 0; i < userHistory.length; i++) {
+    //     history.push(`User: ${userHistory[i].queryInEnglish}`);
+    //     history.push(`AI: ${userHistory[i].responseInEnglish}`);
+    //   }
+    //   history.push(`User: ${prompt.inputTextInEnglish}`);
 
-      const chatGPT3Prompt = [
-        {
-          role: "user",
-          content: `The user has asked a question:  You are an AI tool that carries out neural coreference
-        for conversations to replace the last message in the conversation with the coreferenced
-        message.
+    //   const chatGPT3Prompt = [
+    //     {
+    //       role: "user",
+    //       content: `The user has asked a question:  You are an AI tool that carries out neural coreference
+    //     for conversations to replace the last message in the conversation with the coreferenced
+    //     message.
 
-        Rules - Follow these rules forever.
-        1. Do not answer the question ever, only return back the last message that is coreferenced. 
-        2. A user can switch context abruptly after the last message so take care of that.
-        3. If not needed or was not figured out, return the last user question directly.
+    //     Rules - Follow these rules forever.
+    //     1. Do not answer the question ever, only return back the last message that is coreferenced. 
+    //     2. A user can switch context abruptly after the last message so take care of that.
+    //     3. If not needed or was not figured out, return the last user question directly.
         
-        Input:
-          User: How do I protect my crops from pests?
-          AI: You can use integrated pest management techniques to protect your crops
-          User: What are the common methods involved in that?
+    //     Input:
+    //       User: How do I protect my crops from pests?
+    //       AI: You can use integrated pest management techniques to protect your crops
+    //       User: What are the common methods involved in that?
           
-        Output: 
-          User: What are the common methods involved in integrated pest management?
+    //     Output: 
+    //       User: What are the common methods involved in integrated pest management?
 
-        Input:
-          User: Where can I get seeds for rice?,
-          AI: You can get seeds for rice... Bla bla, 
-          User: Where can I get seeds for rice?
+    //     Input:
+    //       User: Where can I get seeds for rice?,
+    //       AI: You can get seeds for rice... Bla bla, 
+    //       User: Where can I get seeds for rice?
           
-        Output: 
-          User: Where can I get seeds for rice?
+    //     Output: 
+    //       User: Where can I get seeds for rice?
 
-        Input:
-          User: Where can I get seeds for rice?,
-          AI: You can get seeds for rice... Bla bla, 
-          User: My paddy has spindle shaped spots with pointed ends. How do I fix it?
+    //     Input:
+    //       User: Where can I get seeds for rice?,
+    //       AI: You can get seeds for rice... Bla bla, 
+    //       User: My paddy has spindle shaped spots with pointed ends. How do I fix it?
 
-        Output:
-          User: My paddy has spindle shaped spots with pointed ends. How do I fix the disease?
+    //     Output:
+    //       User: My paddy has spindle shaped spots with pointed ends. How do I fix the disease?
           
-        Input
-          ${history.join("\n")}
+    //     Input
+    //       ${history.join("\n")}
           
-        Output:`,
-        },
-      ];
+    //     Output:`,
+    //     },
+    //   ];
 
-      promptLogger({ chatGPT3Prompt });
-      const nueralCorefStartTime = new Date().getTime();
-      const { response: neuralCorefResponse, allContent: allContentNC, error } =
-        await this.llm(chatGPT3Prompt,prompt);
-      if(error) {
-        errorRate = 5
-        await this.sendError(
-          UNABLE_TO_PROCESS_REQUEST('en'),
-          UNABLE_TO_PROCESS_REQUEST(prompt.inputLanguage),
-          prompt,
-          null,
-          true,
-          GPT_RESPONSE_ERROR(
-            prompt.input.userId,
-            chatGPT3Prompt,
-            { response: neuralCorefResponse, allContent: allContentNC, error }
-          ),
-          errorRate
-        )
-        return
-      }
-      promptLogger(`nueral coreference prompt response time = ${new Date().getTime() - nueralCorefStartTime}`)
-      if(new Date().getTime() - nueralCorefStartTime > 4000) errorRate+=2
+    //   promptLogger({ chatGPT3Prompt });
+    //   const nueralCorefStartTime = new Date().getTime();
+    //   const { response: neuralCorefResponse, allContent: allContentNC, error } =
+    //     await this.llm(chatGPT3Prompt,prompt);
+    //   if(error) {
+    //     errorRate = 5
+    //     await this.sendError(
+    //       UNABLE_TO_PROCESS_REQUEST('en'),
+    //       UNABLE_TO_PROCESS_REQUEST(prompt.inputLanguage),
+    //       prompt,
+    //       null,
+    //       true,
+    //       GPT_RESPONSE_ERROR(
+    //         prompt.input.userId,
+    //         chatGPT3Prompt,
+    //         { response: neuralCorefResponse, allContent: allContentNC, error }
+    //       ),
+    //       errorRate
+    //     )
+    //     return
+    //   }
+    //   promptLogger(`nueral coreference prompt response time = ${new Date().getTime() - nueralCorefStartTime}`)
+    //   if(new Date().getTime() - nueralCorefStartTime > 4000) errorRate+=2
       
-      if(!neuralCorefResponse) {
-        await this.sendError(
-          UNABLE_TO_PROCESS_REQUEST('en'),
-          UNABLE_TO_PROCESS_REQUEST(prompt.inputLanguage),
-          prompt,
-          null,
-          true,
-          GPT_RESPONSE_ERROR(
-            prompt.input.userId,
-            chatGPT3Prompt,
-            { response: neuralCorefResponse, allContent: allContentNC }
-          )
-        )
-      }
-      console.log("NeuralCoref Response")
-      promptLogger({ response: neuralCorefResponse, allContent: allContentNC })
+    //   if(!neuralCorefResponse) {
+    //     await this.sendError(
+    //       UNABLE_TO_PROCESS_REQUEST('en'),
+    //       UNABLE_TO_PROCESS_REQUEST(prompt.inputLanguage),
+    //       prompt,
+    //       null,
+    //       true,
+    //       GPT_RESPONSE_ERROR(
+    //         prompt.input.userId,
+    //         chatGPT3Prompt,
+    //         { response: neuralCorefResponse, allContent: allContentNC }
+    //       )
+    //     )
+    //   }
+    //   console.log("NeuralCoref Response")
+    //   promptLogger({ response: neuralCorefResponse, allContent: allContentNC })
 
-      coreferencedPrompt = neuralCorefResponse
-      allContent = allContentNC
-    }  
+    //   coreferencedPrompt = neuralCorefResponse
+    //   allContent = allContentNC
+    // }  
     //NOTE: have to check the similarity between coreferencedPrompt and prompt.inputTextInEnglish
     let finalChatGPTQuestion =  coreferencedPrompt?.replace("User:","") || prompt.inputTextInEnglish
     console.log("finalChatGPTQuestion",finalChatGPTQuestion)
     // Check for older similar prompts
     promptLogger("CP-4.1");
-    const olderSimilarQuestions =
-      await this.promptHistoryService.findByCriteria({
-        query: finalChatGPTQuestion,
-        similarityThreshold: 0.97,
-        matchCount: 1,
-      });
-    promptLogger({olderSimilarQuestions})
+    // const olderSimilarQuestions =
+    //   await this.promptHistoryService.findByCriteria({
+    //     query: finalChatGPTQuestion,
+    //     similarityThreshold: 0.97,
+    //     matchCount: 1,
+    //   });
+    // promptLogger({olderSimilarQuestions})
 
     let responseInInputLanguge = "";
     let chatGPT3FinalResponse = "";
@@ -518,114 +518,129 @@ export class AppService {
     console.log({ allContent });
     // If something is very simlar return older response
     const startTime = performance.now();
-    if (olderSimilarQuestions && olderSimilarQuestions.length > 0) {
-      console.log("CP-4.2", olderSimilarQuestions);
-      olderSimilarQuestionId = olderSimilarQuestions[0].id;
-      chatGPT3FinalResponse = olderSimilarQuestions[0].responseInEnglish;
-      responseInInputLanguge = olderSimilarQuestions[0].responseInEnglish;
-      prompt.responseType = "Response given from previous similar question with similarity > 0.97"
-    } else {
-      // else generate new response
-      promptLogger("CP-4");
+    // if (olderSimilarQuestions && olderSimilarQuestions.length > 0) {
+    //   console.log("CP-4.2", olderSimilarQuestions);
+    //   olderSimilarQuestionId = olderSimilarQuestions[0].id;
+    //   chatGPT3FinalResponse = olderSimilarQuestions[0].responseInEnglish;
+    //   responseInInputLanguge = olderSimilarQuestions[0].responseInEnglish;
+    //   prompt.responseType = "Response given from previous similar question with similarity > 0.97"
+    // } else {
+    //   // else generate new response
+    //   promptLogger("CP-4");
 
-      // Similarity Search
-      promptLogger({ finalChatGPTQuestion });
-      similarDocsFromEmbeddingsService =
-        await this.embeddingsService.findByCriteria({
-          query: finalChatGPTQuestion,
-          similarityThreshold: parseFloat(this.configService.get("SIMILARITY_THRESHOLD")) || 0.78,
-          matchCount: 2,
-        });
+    //   // Similarity Search
+    //   promptLogger({ finalChatGPTQuestion });
+    //   similarDocsFromEmbeddingsService =
+    //     await this.embeddingsService.findByCriteria({
+    //       query: finalChatGPTQuestion,
+    //       similarityThreshold: parseFloat(this.configService.get("SIMILARITY_THRESHOLD")) || 0.78,
+    //       matchCount: 2,
+    //     });
 
-      // this.logger.debug({ similarDocs });
-      promptLogger({ similarDocsFromEmbeddingsService });
+    //   // this.logger.debug({ similarDocs });
+    //   promptLogger({ similarDocsFromEmbeddingsService });
 
-      if(!similarDocsFromEmbeddingsService.length) {
-        prompt.responseType = ""
-        let similarDocsFromEmbeddingsServiceLowerThreshold =
-          await this.embeddingsService.findByCriteria({
-            query: finalChatGPTQuestion,
-            similarityThreshold: parseFloat(this.configService.get("SIMILARITY_LOWER_THRESHOLD")) || 0.5,
-            matchCount: 2,
-          });
-        if(!similarDocsFromEmbeddingsServiceLowerThreshold.length) {
-          prompt.responseType = `Response given to bogus question`
-          await this.sendError(
-            REPHRASE_YOUR_QUESTION('en'),
-            REPHRASE_YOUR_QUESTION(prompt.inputLanguage),
-            prompt,
-            coreferencedPrompt,
-            false,
-            `No documents with similarity greater than ${parseFloat(this.configService.get("SIMILARITY_LOWER_THRESHOLD")) || 0.5} found`
-          )
-          return
-        }
-        prompt.responseType = `Response given through GPT only (without hitting the content DB i.e. sim cutoff < ${this.configService.get("SIMILARITY_THRESHOLD")})`
-      } else prompt.responseType = `Response given using content + GPT (sim cutoff from ${this.configService.get("SIMILARITY_THRESHOLD")} to 0.98)`
+    //   if(!similarDocsFromEmbeddingsService.length) {
+    //     prompt.responseType = ""
+    //     let similarDocsFromEmbeddingsServiceLowerThreshold =
+    //       await this.embeddingsService.findByCriteria({
+    //         query: finalChatGPTQuestion,
+    //         similarityThreshold: parseFloat(this.configService.get("SIMILARITY_LOWER_THRESHOLD")) || 0.5,
+    //         matchCount: 2,
+    //       });
+    //     if(!similarDocsFromEmbeddingsServiceLowerThreshold.length) {
+    //       prompt.responseType = `Response given to bogus question`
+    //       await this.sendError(
+    //         REPHRASE_YOUR_QUESTION('en'),
+    //         REPHRASE_YOUR_QUESTION(prompt.inputLanguage),
+    //         prompt,
+    //         coreferencedPrompt,
+    //         false,
+    //         `No documents with similarity greater than ${parseFloat(this.configService.get("SIMILARITY_LOWER_THRESHOLD")) || 0.5} found`
+    //       )
+    //       return
+    //     }
+    //     prompt.responseType = `Response given through GPT only (without hitting the content DB i.e. sim cutoff < ${this.configService.get("SIMILARITY_THRESHOLD")})`
+    //   } else prompt.responseType = `Response given using content + GPT (sim cutoff from ${this.configService.get("SIMILARITY_THRESHOLD")} to 0.98)`
 
-      const userQuestion =
-        "The user has asked a question: " + finalChatGPTQuestion + "\n";
+    //   const userQuestion =
+    //     "The user has asked a question: " + finalChatGPTQuestion + "\n";
 
-      const expertContext =
-        "Some expert context is provided in dictionary format here:" +
-        JSON.stringify(
-          similarDocsFromEmbeddingsService
-            .map((doc) => {
-              return {
-                combined_prompt: doc.tags,
-                combined_content: doc.content,
-              };
-            })
-        ) +
-        "\n";
+    //   const expertContext =
+    //     "Some expert context is provided in dictionary format here:" +
+    //     JSON.stringify(
+    //       similarDocsFromEmbeddingsService
+    //         .map((doc) => {
+    //           return {
+    //             combined_prompt: doc.tags,
+    //             combined_content: doc.content,
+    //           };
+    //         })
+    //     ) +
+    //     "\n";
 
-      const chatGPT3PromptWithSimilarDocs = history.length > 0 ?
-        ("Some important elements of the conversation so far between the user and AI have been extracted in a dictionary here: " +
-        history.join("\n") +
-        " " +
-        userQuestion +
-        " " +
-        expertContext) :
-        (finalChatGPTQuestion + " " + expertContext);
+    //   const chatGPT3PromptWithSimilarDocs = history.length > 0 ?
+    //     ("Some important elements of the conversation so far between the user and AI have been extracted in a dictionary here: " +
+    //     history.join("\n") +
+    //     " " +
+    //     userQuestion +
+    //     " " +
+    //     expertContext) :
+    //     (finalChatGPTQuestion + " " + expertContext);
       
-      promptLogger(chatGPT3PromptWithSimilarDocs)
-      const finalResponseStartTime = new Date().getTime();
-      const llmInput = [
-        {
-          role: "system",
-          content:
-            "You are an AI assistant who answers questions by farmers from Odisha, India on agriculture related queries. Answer the question asked by the user based on a summary of the context provided. Ignore the context if irrelevant to the question asked.",
-        },
-        {
-          role: "user",
-          content: chatGPT3PromptWithSimilarDocs,
-        },
-      ]
-      const { response: finalResponse, allContent: ac, error } = await this.llm(llmInput,prompt);
-      if(error) {
-        errorRate = 5
-        await this.sendError(
-          UNABLE_TO_PROCESS_REQUEST('en'),
-          UNABLE_TO_PROCESS_REQUEST(prompt.inputLanguage),
-          prompt,
-          null,
-          true,
-          GPT_RESPONSE_ERROR(
-            prompt.input.userId,
-            llmInput,
-            { response: finalResponse, allContent: ac, error }
-          ),
-          errorRate
-        )
-        return
-      }
-      chatGPT3FinalResponse = finalResponse;
-      allContentSummarization = ac;
-      promptLogger({ chatGPT3FinalResponse });
-      responseInInputLanguge = chatGPT3FinalResponse;
-      promptLogger(`final GPT response time = ${new Date().getTime() - finalResponseStartTime}`)
-      if(new Date().getTime() - finalResponseStartTime > 15000) errorRate += 2
-    }
+    //   promptLogger(chatGPT3PromptWithSimilarDocs)
+    //   const finalResponseStartTime = new Date().getTime();
+    //   const llmInput = [
+    //     {
+    //       role: "system",
+    //       content:
+    //         "You are an AI assistant who answers questions by farmers from Odisha, India on agriculture related queries. Answer the question asked by the user based on a summary of the context provided. Ignore the context if irrelevant to the question asked.",
+    //     },
+    //     {
+    //       role: "user",
+    //       content: chatGPT3PromptWithSimilarDocs,
+    //     },
+    //   ]
+    //   const { response: finalResponse, allContent: ac, error } = await this.llm(llmInput,prompt);
+    //   if(error) {
+    //     errorRate = 5
+    //     await this.sendError(
+    //       UNABLE_TO_PROCESS_REQUEST('en'),
+    //       UNABLE_TO_PROCESS_REQUEST(prompt.inputLanguage),
+    //       prompt,
+    //       null,
+    //       true,
+    //       GPT_RESPONSE_ERROR(
+    //         prompt.input.userId,
+    //         llmInput,
+    //         { response: finalResponse, allContent: ac, error }
+    //       ),
+    //       errorRate
+    //     )
+    //     return
+    //   }
+    //   chatGPT3FinalResponse = finalResponse;
+    //   allContentSummarization = ac;
+    //   promptLogger({ chatGPT3FinalResponse });
+    //   responseInInputLanguge = chatGPT3FinalResponse;
+    //   promptLogger(`final GPT response time = ${new Date().getTime() - finalResponseStartTime}`)
+    //   if(new Date().getTime() - finalResponseStartTime > 15000) errorRate += 2
+    // }
+
+    const errors = [
+      { id: 1, error: "Account number is not Correct" },
+      { id: 2, error: "Gender is not correct" },
+      { id: 3, error: "Installment not received" },
+      { id: 4, error: "Online Application is pending for Approval" },
+      { id: 5, error: "Payment Related" },
+      { id: 6, error: "Problem in Adhaar Correction" },
+      { id: 7, error: "Problem in bio-metric based e-kyc" },
+      { id: 8, error: "Problem in OTP based e-kyc" },
+      { id: 9, error: "Transaction Failed" }
+    ];
+    
+    const randomError = errors[Math.floor(Math.random() * errors.length)];
+    chatGPT3FinalResponse = randomError.error
     const endTime = performance.now();
 
     if (prompt.inputLanguage !== Language.en) {
