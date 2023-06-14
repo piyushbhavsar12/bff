@@ -675,10 +675,10 @@ export class AppService {
       metadata: [allContent, allContentSummarization],
       queryId: prompt.input.messageId
     });
-
+    promptLogger("response", responseInInputLanguge || chatGPT3FinalResponse)
     const resp: ResponseForTS = {
       message: {
-        title: responseInInputLanguge,
+        title: responseInInputLanguge || chatGPT3FinalResponse,
         choices: [],
         media_url: null,
         caption: null,
@@ -697,7 +697,7 @@ export class AppService {
         id: prompt.input.messageId,
         userId: prompt.input.userId,
         query: prompt.input.body,
-        response: responseInInputLanguge,
+        response: responseInInputLanguge || chatGPT3FinalResponse,
         responseTime: new Date().getTime() - prompt.timestamp,
         queryInEnglish: prompt.inputTextInEnglish,
         responseInEnglish: chatGPT3FinalResponse,
