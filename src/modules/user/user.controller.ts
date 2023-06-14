@@ -75,4 +75,22 @@ export class UserController {
     const userId = request.headers.userId
     return this.userService.deleteConversation(conversationId,userId)
   }
+
+  @Get("/error/:aadharId")
+  async getErrorCode(@Param("aadharId") aadharId: string) {
+    const errors = [
+      { id: 1, error: "Account number is not Correct" },
+      { id: 2, error: "Gender is not correct" },
+      { id: 3, error: "Installment not received" },
+      { id: 4, error: "Online Application is pending for Approval" },
+      { id: 5, error: "Payment Related" },
+      { id: 6, error: "Problem in Adhaar Correction" },
+      { id: 7, error: "Problem in bio-metric based e-kyc" },
+      { id: 8, error: "Problem in OTP based e-kyc" },
+      { id: 9, error: "Transaction Failed" }
+    ];
+    
+    const randomError = errors[Math.floor(Math.random() * errors.length)];
+    return randomError
+  }
 }
