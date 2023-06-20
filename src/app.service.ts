@@ -10,8 +10,7 @@ import { PromptHistoryService } from "./modules/prompt-history/prompt-history.se
 import { sendDiscordAlert, sendEmail } from "./modules/alerts/alerts.service";
 import { 
   CONTACT_AMAKRUSHI_HELPLINE, 
-  GPT_RESPONSE_ERROR, 
-  PMKissanProtalErrors, 
+  GPT_RESPONSE_ERROR,  
   REPHRASE_YOUR_QUESTION, 
   TEXT_DETECTION_ERROR, 
   TEXT_TRANSLATION_ERROR, 
@@ -21,7 +20,9 @@ import {
 import { fetchWithAlert } from "./common/utils";
 import { isMostlyEnglish } from "./utils";
 const { performance } = require("perf_hooks");
-
+const path = require('path');
+const filePath = path.resolve(__dirname, 'common/kisanPortalErrors.json');
+const PMKissanProtalErrors = require(filePath);
 // Overlap between LangchainAI and Prompt-Engine
 export interface Prompt {
   input: PromptDto;

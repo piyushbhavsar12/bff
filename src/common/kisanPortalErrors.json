@@ -1,0 +1,47 @@
+[
+    { 
+        "id": 1, 
+        "error": "Account number is not Correct", 
+        "message": "Dear farmer, it appears there is a discrepancy with the account number you've provided us in your PMKISAN application. For us to effectively process your application, we kindly request that you review the account number, ensuring it aligns with your personal banking details, and resubmit your information. Thank you." 
+    },
+    { 
+        "id": 2, 
+        "error": "Gender is not correct", 
+        "message": "Greetings, we've encountered an issue in your PMKISAN application regarding the gender information provided. The gender you've selected doesn't match our records. Please kindly review and update your gender information correctly on the application form and submit it again. We appreciate your cooperation." 
+    },
+    { 
+        "id": 3, 
+        "error": "Installment not received", 
+        "message": "Dear valued farmer, we acknowledge your concern about not having received your installment. We want to assure you that our team is investigating this matter thoroughly to understand the cause of the delay. We strive to rectify the issue and ensure the prompt transfer of your installment into your account. We appreciate your patience." 
+    },
+    { 
+        "id": 4, 
+        "error": "Online Application is pending for Approval", 
+        "message": "We wish to inform you that your online PMKISAN application is currently under review. Our team is working diligently to process your application. Once the approval is complete, you will receive an update regarding the status. We appreciate your patience and understanding during this process." 
+    },
+    { 
+        "id": 5, 
+        "error": "Payment Related", 
+        "message": "We understand you may be having payment-related concerns. At PMKISAN, we are committed to ensuring that all transactions are handled efficiently and effectively. Please provide more details about your issue so that we can address it directly and offer the most accurate solution. Thank you for bringing this to our attention." 
+    },
+    { 
+        "id": 6, 
+        "error": "Problem in Adhaar Correction", 
+        "message": "Dear applicant, we understand that you're encountering difficulties in making corrections to your Aadhaar details in your PMKISAN application. We apologize for the inconvenience and advise you to follow the correct steps listed on our website. If you continue facing issues, please contact our support team for further assistance." 
+    },
+    { 
+        "id": 7, 
+        "error": "Problem in bio-metric based e-kyc", 
+        "message": "We've noted your difficulty in completing the biometric-based e-KYC process. This could be due to a technical glitch or inaccurate input of information. Please retry the process, ensuring that your details are accurate and that the biometric device is working properly. If the problem persists, reach out to our helpdesk for further support." 
+    },
+    { 
+        "id": 8, 
+        "error": "Problem in OTP based e-kyc", 
+        "message": "We understand you're experiencing issues while completing the OTP-based e-KYC verification process for your PMKISAN application. Please ensure you're entering the OTP received on your registered mobile number within the given timeframe. If you did not receive an OTP, kindly request for it to be resent. If you continue facing difficulties, please contact our customer support for additional help." 
+    },
+    { 
+        "id": 9, 
+        "error": "Transaction Failed", 
+        "message": "Dear farmer, we are sincerely sorry to learn about your unsuccessful transaction attempt. This could have occurred due to various reasons, including network errors or incorrect banking information. Please retry the transaction, ensuring all entered details are correct. If this issue persists, we encourage you to get in touch with our customer support or your bank for further assistance." 
+    }
+]
