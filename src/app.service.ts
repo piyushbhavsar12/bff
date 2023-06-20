@@ -11,6 +11,7 @@ import { sendDiscordAlert, sendEmail } from "./modules/alerts/alerts.service";
 import { 
   CONTACT_AMAKRUSHI_HELPLINE, 
   GPT_RESPONSE_ERROR, 
+  PMKissanProtalErrors, 
   REPHRASE_YOUR_QUESTION, 
   TEXT_DETECTION_ERROR, 
   TEXT_TRANSLATION_ERROR, 
@@ -626,21 +627,9 @@ export class AppService {
     //   promptLogger(`final GPT response time = ${new Date().getTime() - finalResponseStartTime}`)
     //   if(new Date().getTime() - finalResponseStartTime > 15000) errorRate += 2
     // }
-
-    const errors = [
-      { id: 1, error: "Account number is not Correct" },
-      { id: 2, error: "Gender is not correct" },
-      { id: 3, error: "Installment not received" },
-      { id: 4, error: "Online Application is pending for Approval" },
-      { id: 5, error: "Payment Related" },
-      { id: 6, error: "Problem in Adhaar Correction" },
-      { id: 7, error: "Problem in bio-metric based e-kyc" },
-      { id: 8, error: "Problem in OTP based e-kyc" },
-      { id: 9, error: "Transaction Failed" }
-    ];
     
-    const randomError = errors[Math.floor(Math.random() * errors.length)];
-    chatGPT3FinalResponse = randomError.error
+    const randomError = PMKissanProtalErrors[Math.floor(Math.random() * PMKissanProtalErrors.length)];
+    chatGPT3FinalResponse = randomError.message
     const endTime = performance.now();
 
     if (prompt.inputLanguage !== Language.en) {
