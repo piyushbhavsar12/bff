@@ -5,7 +5,7 @@ import { ConfigService } from "@nestjs/config";
 import { CustomLogger } from "../../common/logger";
 import * as momentTZ from "moment-timezone";
 import * as moment from 'moment';
-import axios from "axios";
+import axios, { Method } from "axios";
 
 
 @Injectable()
@@ -173,7 +173,7 @@ export class UserService {
     mobileNumber: string
   ): Promise<any> {
     //call user service to send the OTP
-    let config = {
+    let config: any = {
       method: 'get',
       maxBodyLength: Infinity,
       url: `${this.configService.get('USERSERVICE_BASE_URL')}/api/sendOTP?phone=${mobileNumber}`
@@ -199,7 +199,7 @@ export class UserService {
       "applicationId": this.configService.get('FRONTEND_APPLICATION_ID')
     });
 
-    let config = {
+    let config: any = {
       method: 'post',
       maxBodyLength: Infinity,
       url: `${this.configService.get('USERSERVICE_BASE_URL')}/api/login/otp`,
