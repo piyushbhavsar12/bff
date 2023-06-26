@@ -5,6 +5,7 @@ import { ConfigService } from "@nestjs/config";
 import { CustomLogger } from "../../common/logger";
 import * as momentTZ from "moment-timezone";
 import * as moment from 'moment';
+import axios from "axios";
 
 
 @Injectable()
@@ -165,6 +166,57 @@ export class UserService {
       throw new BadRequestException([
         "Something went wrong while deleting conversation history",
       ]);
+    }
+  }
+
+  async sendOTP(
+    mobileNumber: string
+  ): Promise<any> {
+    //call user service to send the OTP
+    let config = {
+      method: 'get',
+      maxBodyLength: Infinity,
+      url: `${this.configService.get('USERSERVICE_BASE_URL')}/api/sendOTP?phone=${mobileNumber}`
+    };
+    try {
+      let response =  await axios.request(config)
+      return response.data
+    } catch (error) {
+      return {
+        status: "NOT_OK",
+        error: error.message
+      }
+    }
+  }
+
+  async verifyOTP(
+    mobileNumber: string,
+    opt: string
+  ): Promise<any> {
+    let data = JSON.stringify({
+      "loginId": mobileNumber,
+      "password": opt,
+      "applicationId": this.configService.get('FRONTEND_APPLICATION_ID')
+    });
+
+    let config = {
+      method: 'post',
+      maxBodyLength: Infinity,
+      url: `${this.configService.get('USERSERVICE_BASE_URL')}/api/login/otp`,
+      data : data,
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    };
+
+    try {
+      let response =  await axios.request(config)
+      return response.data
+    } catch (error) {
+      return {
+        status: "NOT_OK",
+        error: error.message
+      }
     }
   }
 }

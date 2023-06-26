@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Query, Request, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query, Request, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
 import { query } from '@prisma/client';
 import { AuthGuard } from '../../common/auth-gaurd';
@@ -6,7 +6,6 @@ import { ConfigService } from '@nestjs/config';
 import { CustomLogger } from 'src/common/logger';
 
 @Controller('user')
-@UseGuards(AuthGuard)
 export class UserController {
   private logger: CustomLogger;
   constructor(
@@ -17,6 +16,7 @@ export class UserController {
   }
 
   @Get("/conversations")
+  @UseGuards(AuthGuard)
   async conversations(
     @Request() request, 
     @Query('userid') adminUserId: string, 
@@ -62,6 +62,7 @@ export class UserController {
   }
 
   @Get("/chathistory/:conversationId")
+  @UseGuards(AuthGuard)
   async chatHistory(@Param("conversationId") conversationId: string, @Request() request, @Query('userid') adminUserId: string): Promise<query[]> {
     let userId = request.headers.userId
     if(request.headers.roles.indexOf('Admin') != -1) {
@@ -76,21 +77,65 @@ export class UserController {
     return this.userService.deleteConversation(conversationId,userId)
   }
 
-  @Get("/error/:aadharId")
-  async getErrorCode(@Param("aadharId") aadharId: string) {
-    const errors = [
-      { id: 1, error: "Account number is not Correct" },
-      { id: 2, error: "Gender is not correct" },
-      { id: 3, error: "Installment not received" },
-      { id: 4, error: "Online Application is pending for Approval" },
-      { id: 5, error: "Payment Related" },
-      { id: 6, error: "Problem in Adhaar Correction" },
-      { id: 7, error: "Problem in bio-metric based e-kyc" },
-      { id: 8, error: "Problem in OTP based e-kyc" },
-      { id: 9, error: "Transaction Failed" }
-    ];
-    
-    const randomError = errors[Math.floor(Math.random() * errors.length)];
-    return randomError
+  @Get("/sendotp/:identifier")
+  async getOtp(@Param("identifier") identifier: string) {
+    if(/^[6-9]\d{9}$/.test(identifier)) {
+      return this.userService.sendOTP(identifier)
+    } else if(/^\d{12}$/.test(identifier)) {
+      return {
+        "status": "OK"
+      }
+    } else {
+      return {
+        "status": "NOT_OK",
+        "error": "invalid aadhaar/benificiaryId/phoneNumber"
+      }
+    }
+  }
+
+  @Post("/verifyotp")
+  async verifyOtp(@Body() body: any ) {
+    if(/^[6-9]\d{9}$/.test(body.identifier)) {
+      console.log("I am here",body.identifier,body.otp)
+      return this.userService.verifyOTP(body.identifier,body.otp)
+    } else if(/^\d{12}$/.test(body.identifier)) {
+      return {
+        "status": "OK"
+      }
+    } else {
+      return {
+        "status": "NOT_OK",
+        "error": "invalid aadhaar/benificiaryId/phoneNumber"
+      }
+    }
+  }
+
+  @Get("/linkedBeneficiaryIdsCount/:phoneNumber")
+  async linkedBeneficiaryIdsCount(@Param("phoneNumber") phoneNumber: string) {
+    if(/^[6-9]\d{9}$/.test(phoneNumber)) {
+      return {
+        status: "OK",
+        beneficiaryIdCount: Math.floor(Math.random() * 4)
+      }
+    }else {
+      return {
+        "status": "NOT_OK",
+        "error": "invalid phoneNumber"
+      }
+    }
+  }
+
+  @Get("/checkMapping")
+  async checkMapping(@Query('phoneNo') phoneNo: string, @Query('maskedAadhaar') maskedAadhaar: string) {
+    if(/^[6-9]\d{9}$/.test(phoneNo) && maskedAadhaar) {
+      return {
+        status: true
+      }
+    } else {
+      return {
+        "status": "NOT_OK",
+        "error": "invalid phoneNumber"
+      }
+    }
   }
 }
