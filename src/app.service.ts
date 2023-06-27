@@ -9,6 +9,7 @@ import { CustomLogger } from "./common/logger";
 import { PromptHistoryService } from "./modules/prompt-history/prompt-history.service";
 import { sendDiscordAlert, sendEmail } from "./modules/alerts/alerts.service";
 import { 
+  AADHAAR_GREETING_MESSAGE,
   CONTACT_AMAKRUSHI_HELPLINE, 
   GPT_RESPONSE_ERROR,  
   REPHRASE_YOUR_QUESTION, 
@@ -630,7 +631,7 @@ export class AppService {
     // }
     
     const randomError = PMKissanProtalErrors[Math.floor(Math.random() * PMKissanProtalErrors.length)];
-    chatGPT3FinalResponse = randomError.message
+    chatGPT3FinalResponse = `${AADHAAR_GREETING_MESSAGE}${randomError.message}`
     const endTime = performance.now();
 
     if (prompt.inputLanguage !== Language.en) {

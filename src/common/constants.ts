@@ -82,3 +82,12 @@ inputLanguage && inputLanguage == 'en' ? "We are unable to process your request 
 
 export const CONTACT_AMAKRUSHI_HELPLINE = (inputLanguage) => 
 inputLanguage && inputLanguage == 'en' ? "You can contact the Ama Krushi helpline by dialing 155333. They will provide you with information and reply to your queries within 24 hours." : "ଆପଣ 155333 ଡାଏଲ୍ କରି ଆମା କ୍ରୁସି ହେଲ୍ପଲାଇନ ସହିତ ଯୋଗାଯୋଗ କରିପାରିବେ | ସେମାନେ ଆପଣଙ୍କୁ ସୂଚନା ପ୍ରଦାନ କରିବେ ଏବଂ 24 ଘଣ୍ଟା ମଧ୍ୟରେ ଆପଣଙ୍କ ପ୍ରଶ୍ନର ଉତ୍ତର ଦେବେ |"
+
+export const AADHAAR_GREETING_MESSAGE = `
+Hi user,
+Name: user
+Fathers name: father name
+DOB: 01/01/1999
+Registration date: 01/01/2005
+
+`
