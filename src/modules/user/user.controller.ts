@@ -108,9 +108,9 @@ export class UserController {
     }
   }
 
-  @Get("/linkedBeneficiaryIdsCount/:phoneNumber")
-  async linkedBeneficiaryIdsCount(@Param("phoneNumber") phoneNumber: string) {
-    if(/^[6-9]\d{9}$/.test(phoneNumber)) {
+  @Get("/linkedBeneficiaryIdsCount/:identifier")
+  async linkedBeneficiaryIdsCount(@Param("identifier") identifier: string) {
+    if(/^[6-9]\d{9}$/.test(identifier) || /^\d{12}$/.test(identifier) || identifier.length>4) {
       return {
         status: "OK",
         beneficiaryIdCount: Math.floor(Math.random() * 4)
@@ -118,7 +118,7 @@ export class UserController {
     }else {
       return {
         "status": "NOT_OK",
-        "error": "invalid phoneNumber"
+        "error": "invalid aadhaar/benificiaryId/phoneNumber"
       }
     }
   }
