@@ -95,11 +95,8 @@ export class UserController {
 
   @Post("/verifyotp")
   async verifyOtp(@Body() body: any ) {
-    if(/^[6-9]\d{9}$/.test(body.identifier)) {
-      console.log("I am here",body.identifier,body.otp)
+    if(/^[6-9]\d{9}$/.test(body.identifier) || /^\d{12}$/.test(body.identifier) || body.identifier.length>4) {
       return this.userService.verifyOTP(body.identifier,body.otp)
-    } else if(/^\d{12}$/.test(body.identifier) || body.identifier.length>4) {
-      return this.userService.verifyOTP('9550360277','1234')
     } else {
       return {
         "status": "NOT_OK",
@@ -110,10 +107,26 @@ export class UserController {
 
   @Get("/linkedBeneficiaryIdsCount/:identifier")
   async linkedBeneficiaryIdsCount(@Param("identifier") identifier: string) {
-    if(/^[6-9]\d{9}$/.test(identifier) || /^\d{12}$/.test(identifier) || identifier.length>4) {
+    if(/^[6-9]\d{9}$/.test(identifier) || /^\d{12}$/.test(identifier) || identifier.length > 9) {
+      let mockJSON = {
+        9999999990 : 0,
+        9999999991 : 1,
+        9999999992 :  2,
+        111111111110: 0,
+        111111111111: 1,
+        AP111111110: 0,
+        AP111111111: 1
+      }
+      let beneficiaryIdCount = 0
+      try {
+        beneficiaryIdCount =  mockJSON[`${identifier}`]
+      } catch (e) {
+        beneficiaryIdCount = Math.floor(Math.random() * (/^[6-9]\d{9}$/.test(identifier)?4:1))
+      }
       return {
         status: "OK",
-        beneficiaryIdCount: Math.floor(Math.random() * 4)
+        beneficiaryIdCount,
+        type: /^[6-9]\d{9}$/.test(identifier)?'phoneNumber':(/^\d{12}$/.test(identifier)?'aadhaar':(identifier.length > 9?'beneficiaryId':'invalid'))
       }
     }else {
       return {

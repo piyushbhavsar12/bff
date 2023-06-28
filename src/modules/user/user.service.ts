@@ -173,14 +173,10 @@ export class UserService {
     mobileNumber: string
   ): Promise<any> {
     //call user service to send the OTP
-    let config: any = {
-      method: 'get',
-      maxBodyLength: Infinity,
-      url: `${this.configService.get('USERSERVICE_BASE_URL')}/api/sendOTP?phone=${mobileNumber}`
-    };
     try {
-      let response =  await axios.request(config)
-      return response.data
+      return {
+        status: "OK"
+      }
     } catch (error) {
       return {
         status: "NOT_OK",
@@ -191,27 +187,15 @@ export class UserService {
 
   async verifyOTP(
     mobileNumber: string,
-    opt: string
+    otp: string
   ): Promise<any> {
-    let data = JSON.stringify({
-      "loginId": mobileNumber,
-      "password": opt,
-      "applicationId": this.configService.get('FRONTEND_APPLICATION_ID')
-    });
-
-    let config: any = {
-      method: 'post',
-      maxBodyLength: Infinity,
-      url: `${this.configService.get('USERSERVICE_BASE_URL')}/api/login/otp`,
-      data : data,
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    };
 
     try {
-      let response =  await axios.request(config)
-      return response.data
+      if(otp == "1234") {
+        return {
+          status: "OK"
+        }
+      }
     } catch (error) {
       return {
         status: "NOT_OK",
