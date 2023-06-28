@@ -88,7 +88,7 @@ export class UserController {
     } else {
       return {
         "status": "NOT_OK",
-        "error": "invalid aadhaar/benificiaryId/phoneNumber"
+        "error": "Please enter a valid Beneficiary ID/Aadhaar Number/Phone number"
       }
     }
   }
@@ -100,7 +100,7 @@ export class UserController {
     } else {
       return {
         "status": "NOT_OK",
-        "error": "invalid aadhaar/benificiaryId/phoneNumber"
+        "error": "Please enter a valid Beneficiary ID/Aadhaar Number/Phone number"
       }
     }
   }
@@ -132,7 +132,7 @@ export class UserController {
     }else {
       return {
         "status": "NOT_OK",
-        "error": "invalid aadhaar/benificiaryId/phoneNumber"
+        "error": "Please enter a valid Beneficiary ID/Aadhaar Number/Phone number"
       }
     }
   }
