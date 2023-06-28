@@ -120,6 +120,7 @@ export class UserController {
       let beneficiaryIdCount = 0
       try {
         beneficiaryIdCount =  mockJSON[`${identifier}`]
+        if(!beneficiaryIdCount) beneficiaryIdCount = Math.floor(Math.random() * (/^[6-9]\d{9}$/.test(identifier)?4:1))
       } catch (e) {
         beneficiaryIdCount = Math.floor(Math.random() * (/^[6-9]\d{9}$/.test(identifier)?4:1))
       }
