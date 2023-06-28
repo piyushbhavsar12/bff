@@ -20,6 +20,7 @@ import {
 } from "./common/constants";
 import { fetchWithAlert } from "./common/utils";
 import { isMostlyEnglish } from "./utils";
+import { randomUUID } from "crypto";
 const { performance } = require("perf_hooks");
 const path = require('path');
 const filePath = path.resolve(__dirname, 'common/kisanPortalErrors.json');
@@ -630,8 +631,23 @@ export class AppService {
     //   if(new Date().getTime() - finalResponseStartTime > 15000) errorRate += 2
     // }
     
-    const randomError = PMKissanProtalErrors[Math.floor(Math.random() * PMKissanProtalErrors.length)];
-    chatGPT3FinalResponse = `${AADHAAR_GREETING_MESSAGE}${randomError.message}`
+    let mockJSON = {
+      9999999990 : 0,
+      9999999991 : 1,
+      9999999992 :  2,
+      111111111110: 3,
+      111111111111: 4,
+      AP111111110: 6,
+      AP111111111: 7
+    }
+    let randomError: any = {};
+    try {
+      randomError =  PMKissanProtalErrors[mockJSON[`${prompt.input.identifier}`]]
+      if(!randomError) randomError = PMKissanProtalErrors[Math.floor(Math.random() * PMKissanProtalErrors.length)]
+    } catch (e) {
+      randomError = PMKissanProtalErrors[Math.floor(Math.random() * PMKissanProtalErrors.length)]
+    }
+    chatGPT3FinalResponse = randomError.message
     const endTime = performance.now();
 
     if (prompt.inputLanguage !== Language.en) {
@@ -679,7 +695,18 @@ export class AppService {
       to: prompt.input.from,
       messageId: prompt.input.messageId,
     };
-
+    await this.sendMessageBackToTS({
+      message: {
+        title: AADHAAR_GREETING_MESSAGE,
+        choices: [],
+        media_url: null,
+        caption: null,
+        msg_type: "text",
+        conversationId: prompt.input.conversationId
+      },
+      to: prompt.input.from,
+      messageId: randomUUID(),
+    })
     await this.sendMessageBackToTS(resp);
     promptLogger(`Total query response time = ${new Date().getTime() - prompt.timestamp}`)
     if(new Date().getTime() - prompt.timestamp > 25000) errorRate+=1

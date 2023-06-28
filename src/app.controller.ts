@@ -28,6 +28,8 @@ export class PromptDto {
   @IsOptional()
   @IsUUID()
   conversationId: string;
+  @IsOptional()
+  identifier: string;
 }
 
 @Controller()

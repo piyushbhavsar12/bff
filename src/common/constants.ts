@@ -89,5 +89,4 @@ Name: User
 Father's Name: Father name
 Date Of Birth: 01/01/1999
 Registration Date: 01/01/2005
-
 `
