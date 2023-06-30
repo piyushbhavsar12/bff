@@ -21,6 +21,7 @@ import {
 import { fetchWithAlert } from "./common/utils";
 import { isMostlyEnglish } from "./utils";
 import { randomUUID } from "crypto";
+import axios from "axios";
 const { performance } = require("perf_hooks");
 const path = require('path');
 const filePath = path.resolve(__dirname, 'common/kisanPortalErrors.json');
@@ -695,18 +696,60 @@ export class AppService {
       to: prompt.input.from,
       messageId: prompt.input.messageId,
     };
-    await this.sendMessageBackToTS({
-      message: {
-        title: AADHAAR_GREETING_MESSAGE,
-        choices: [],
-        media_url: null,
-        caption: null,
-        msg_type: "text",
-        conversationId: prompt.input.conversationId
-      },
-      to: prompt.input.from,
-      messageId: randomUUID(),
-    })
+    
+    let res: any;
+    try {
+      let type = "Mobile";
+      if(/^[6-9]\d{9}$/.test(prompt.input.identifier)) {
+        type = "Mobile"
+      } else if(prompt.input.identifier.length==14 && /^[6-9]\d{9}$/.test(prompt.input.identifier.substring(0,10))){
+        type = "MobileAadhaar"
+      }
+
+      let data = JSON.stringify({
+        "EncryptedRequest": `{\"Types\":\"${type}\",\"Values\":\"${prompt.input.identifier}\",\"Token\":\"${this.configService.get("PM_KISSAN_TOKEN")}\"}`
+      });
+      
+      let config = {
+        method: 'post',
+        maxBodyLength: Infinity,
+        url: `${this.configService.get("PM_KISAN_BASE_URL")}/ChatbotUserDetails`,
+        headers: { 
+          'Content-Type': 'application/json', 
+          'Cookie': 'BIGipServerPMKISAN_exlink_80=3818190346.20480.0000'
+        },
+        data : data
+      };
+      res = await axios.request(config)
+      res = await res.data
+      res.d.output = JSON.parse(res.d.output)
+      res["status"] = res.d.output.Rsponce != "False" ? "OK" : "NOT_OK"
+    } catch {
+      res = {
+        status: "NOT_OK"
+      }
+    }
+    if(res.status == "OK") {
+      let data = res.d.output
+      await this.sendMessageBackToTS({
+        message: {
+          title: AADHAAR_GREETING_MESSAGE(
+            data.BeneficiaryName,
+            data.FatherName,
+            data.DOB,
+            data.Address,
+            data.DateOfRegistration
+          ),
+          choices: [],
+          media_url: null,
+          caption: null,
+          msg_type: "text",
+          conversationId: prompt.input.conversationId
+        },
+        to: prompt.input.from,
+        messageId: randomUUID(),
+      })
+    }
     await this.sendMessageBackToTS(resp);
     promptLogger(`Total query response time = ${new Date().getTime() - prompt.timestamp}`)
     if(new Date().getTime() - prompt.timestamp > 25000) errorRate+=1

@@ -80,11 +80,9 @@ export class UserController {
   @Get("/sendotp/:identifier")
   async getOtp(@Param("identifier") identifier: string) {
     if(/^[6-9]\d{9}$/.test(identifier)) {
-      return this.userService.sendOTP(identifier)
-    } else if(/^\d{12}$/.test(identifier) || identifier.length>4) {
-      return {
-        "status": "OK"
-      }
+      return this.userService.sendOTP(identifier,"Mobile")
+    } else if(identifier.length==14 && /^[6-9]\d{9}$/.test(identifier.substring(0,10))){
+      return this.userService.sendOTP(identifier,"MobileAadhaar")
     } else {
       return {
         "status": "NOT_OK",
@@ -95,8 +93,10 @@ export class UserController {
 
   @Post("/verifyotp")
   async verifyOtp(@Body() body: any ) {
-    if(/^[6-9]\d{9}$/.test(body.identifier) || /^\d{12}$/.test(body.identifier) || body.identifier.length>4) {
-      return this.userService.verifyOTP(body.identifier,body.otp)
+    if(/^[6-9]\d{9}$/.test(body.identifier)) {
+      return this.userService.verifyOTP(body.identifier,body.otp,"Mobile")
+    } else if(body.identifier.length==14 && /^[6-9]\d{9}$/.test(body.identifier.substring(0,10))){
+      return this.userService.verifyOTP(body.identifier,body.otp,"MobileAadhaar")
     } else {
       return {
         "status": "NOT_OK",

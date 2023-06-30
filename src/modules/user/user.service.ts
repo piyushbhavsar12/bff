@@ -170,13 +170,29 @@ export class UserService {
   }
 
   async sendOTP(
-    mobileNumber: string
+    mobileNumber: string,
+    type: string = 'Mobile'
   ): Promise<any> {
-    //call user service to send the OTP
     try {
-      return {
-        status: "OK"
-      }
+      let data = JSON.stringify({
+        "EncryptedRequest": `{\"Types\":\"${type}\",\"Values\":\"${mobileNumber}\",\"Token\":\"${this.configService.get("PM_KISSAN_TOKEN")}\"}`
+      });
+      
+      let config = {
+        method: 'post',
+        maxBodyLength: Infinity,
+        url: `${this.configService.get("PM_KISAN_BASE_URL")}/chatbototp`,
+        headers: { 
+          'Content-Type': 'application/json'
+        },
+        data : data
+      };
+
+      let response: any = await axios.request(config)
+      response = await response.data
+      response.d.output = JSON.parse(response.d.output)
+      response["status"] = response.d.output.Rsponce != "False" ? "OK" : "NOT_OK"
+      return response
     } catch (error) {
       return {
         status: "NOT_OK",
@@ -187,15 +203,31 @@ export class UserService {
 
   async verifyOTP(
     mobileNumber: string,
-    otp: string
+    otp: string,
+    type: string = 'Mobile'
   ): Promise<any> {
 
     try {
-      if(otp == "1234") {
-        return {
-          status: "OK"
-        }
-      }
+      let data = JSON.stringify({
+        "EncryptedRequest": `{\"Types\":\"${type}\",\"Values\":\"${mobileNumber}\",\"OTP\":\"${otp}\",\"Token\":\"${this.configService.get("PM_KISSAN_TOKEN")}\"}`
+      });
+      
+      let config = {
+        method: 'post',
+        maxBodyLength: Infinity,
+        url: `${this.configService.get("PM_KISAN_BASE_URL")}/ChatbotOTPVerified`,
+        headers: { 
+          'Content-Type': 'application/json', 
+          'Cookie': 'BIGipServerPMKISAN_exlink_80=3818190346.20480.0000'
+        },
+        data : data
+      };
+
+      let response: any = await axios.request(config)
+      response = await response.data
+      response.d.output = JSON.parse(response.d.output)
+      response["status"] = response.d.output.Rsponce != "False" ? "OK" : "NOT_OK"
+      return response
     } catch (error) {
       return {
         status: "NOT_OK",
