@@ -150,4 +150,18 @@ export class UserController {
       }
     }
   }
+
+  @Get("/getUserData/:identifier")
+  async getUserData(@Param("identifier") identifier: string) {
+    if(/^[6-9]\d{9}$/.test(identifier)) {
+      return this.userService.getUserData(identifier,"Mobile")
+    } else if(identifier.length==14 && /^[6-9]\d{9}$/.test(identifier.substring(0,10))){
+      return this.userService.getUserData(identifier,"MobileAadhaar")
+    } else {
+      return {
+        "status": "NOT_OK",
+        "error": "Please enter a valid Beneficiary ID/Aadhaar Number/Phone number"
+      }
+    }
+  }
 }

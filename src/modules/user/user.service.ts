@@ -235,4 +235,36 @@ export class UserService {
       }
     }
   }
+
+  async getUserData(
+    mobileNumber: string,
+    type: string = 'Mobile'
+  ): Promise<any> {
+    let res: any;
+    try {
+      let data = JSON.stringify({
+        "EncryptedRequest": `{\"Types\":\"${type}\",\"Values\":\"${mobileNumber}\",\"Token\":\"${this.configService.get("PM_KISSAN_TOKEN")}\"}`
+      });
+      
+      let config = {
+        method: 'post',
+        maxBodyLength: Infinity,
+        url: `${this.configService.get("PM_KISAN_BASE_URL")}/ChatbotUserDetails`,
+        headers: { 
+          'Content-Type': 'application/json', 
+          'Cookie': 'BIGipServerPMKISAN_exlink_80=3818190346.20480.0000'
+        },
+        data : data
+      };
+      res = await axios.request(config)
+      res = await res.data
+      res.d.output = JSON.parse(res.d.output)
+      res["status"] = res.d.output.Rsponce != "False" ? "OK" : "NOT_OK"
+    } catch {
+      res = {
+        status: "NOT_OK"
+      }
+    }
+    return res
+  }
 }
