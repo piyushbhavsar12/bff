@@ -190,10 +190,12 @@ export class UserService {
 
       let response: any = await axios.request(config)
       response = await response.data
+      console.log("sendOTP",response)
       response.d.output = JSON.parse(response.d.output)
       response["status"] = response.d.output.Rsponce != "False" ? "OK" : "NOT_OK"
       return response
     } catch (error) {
+      console.log(error)
       return {
         status: "NOT_OK",
         error: error.message
