@@ -1,162 +1,34 @@
-[
-    { 
-        "id": 1, 
-        "error": "Marked as dead", 
-        "message": "Dear farmer, you have not received your payment due to an unfortunate circumstance of a \"Death\" status being associated with your account. To revoke a death case, you are requested to complete your e-KYC through biometric or face authentication to continue receiving the benefits in the scheme. If this status is incorrect, we kindly request you to undergo e-KYC through biometric or face authentication to continue receiving the benefits in the scheme." 
-    },
-    { 
-        "id": 2, 
-        "error": "Name Correction Required",
-        "message": "Dear farmer, you have not received your payment as demo authentication for your Aadhaar has failed. To avail the benefits under PM KISAN, you are requested to visit the https://pmkisan.gov.in/EditAadharName_Pub.aspx  and correct your name. If you are not satisfied with the reason, please contact the PM KISAN Officer \"Rahul Sen\" on 88902138920 or you can also visit the Officer at Chittoor." 
-    },
-    { 
-        "id": 3, 
-        "error": "Income Tax Payee", 
-        "message": "Dear farmer, your payment has been stopped as you have been identified as a taxpayer. According to the guidelines of the PM KISAN scheme, individuals who are income tax payees are ineligible to avail the benefits of the scheme. If you are not satisfied with the reason, please contact the PM KISAN Officer \"Rahul Sen\" on 8890213892 or you can also visit the Officer at Chittoor." 
-    },
-    { 
-        "id": 4, 
-        "error": "Location Correction Required", 
-        "message": "Dear farmer, to receive benefits under PM KISAN scheme request you to kindly visit the nearest office, to provide the updated and accurate location details, ensuring that your information aligns with your current address." 
-    },
-    { 
-        "id": 5, 
-        "error": "Not a Landowner", 
-        "message": "Dear farmer, your payment has been stopped as you have been identified as a non-landowner and as per the PM KISAN scheme guidelines only land holding farmers are eligible to avail the benefits. To be eligible under PM KISAN, we kindly request you to visit the Officer at Chittoor along with your land documents and update your land ownership details." 
-    },
-    { 
-        "id": 6, 
-        "error": "Internal stopped by State Department", 
-        "message": "Dear farmer, you have not received your payment as your payment has been stopped by the State Nodal Officer. To resolve your issues please contact the PM KISAN Officer \"Rahul Sen\" on 8890213892 or you can also visit the Officer at Chittoor" 
-    },
-    { 
-        "id": 7, 
-        "error": "Benefit Surrender", 
-        "message": "Dear farmer, your payment has been stopped as you have surrendered your benefit.  If you are not satisfied with the reason, please contact the PM KISAN Officer \"Rahul Sen\" on 88902138920 or you can also visit the Officer at Chittoor." 
-    },
-    { 
-        "id": 8, 
-        "error": "Old district to new district transfer", 
-        "message": "Dear farmer, you have not received your payment as your location details are incorrect. By visiting the nearest office, you can provide the updated and accurate location details, ensuring that your information aligns with your current address." 
-    },
-    { 
-        "id": 9, 
-        "error": "Invalid Gender Value", 
-        "message": "Dear farmer, you have not received your payment as your gender information is invalid in PM KISAN.  you can rectify it by utilizing the <<Gender correction Module Link>> available on the PM KISAN portal. If you are not satisfied with the reason, please contact the PM KISAN Officer \"Rahul Sen\" on 88902138920 or you can also visit the Officer at Chittoor." 
-    },
-    { 
-        "id": 10, 
-        "error": "UID NEVER ENABLE FOR DBT", 
-        "message": "Dear farmer, you have not received your payment as your Aadhaar number is not enabled for DBT. To receive the benefit under PM KISAN scheme, you are requested to visit your bank and enable DBT for your bank account number which is seeded with your Aadhaar number. If you are not satisfied with the reason, please contact the PM KISAN Officer \"Rahul Sen\" on 88902138920 or you can also visit the Officer at Chittoor." 
-    },
-    { 
-        "id": 11, 
-        "error": "Aadhaar Number is not seeded in NPCI", 
-        "message": "Dear farmer, you have not received your payment as your Aadhaar Number is not seeded with your bank account. To receive the benefit under PM KISAN scheme, you are requested to visit your bank and enable DBT for your bank account number which is seeded with your Aadhaar number. If you are not satisfied with the reason, please contact the PM KISAN Officer \"Rahul Sen\" on 88902138920 or you can also visit the Officer at Chittoor." 
-    }
-    ,{ 
-        "id": 12, 
-        "error": "UID is Disable for DBT", 
-        "message": "Dear farmer, you have not received your payment as your Aadhaar Number is not seeded with your bank account. To receive the benefit under PM KISAN scheme, you are requested to visit your bank and enable DBT for your bank account number which is seeded with your Aadhaar number. If you are not satisfied with the reason, please contact the PM KISAN Officer \"Rahul Sen\" on 88902138920 or you can also visit the Officer at Chittoor." 
-    },
-    { 
-        "id": 13, 
-        "error": "UID is CANCELLED BY UIDAI", 
-        "message": "Dear farmer, you have not received your payment as your Aadhaar Number is not seeded with your bank account. To receive the benefit under PM KISAN scheme, you are requested to visit your bank and enable DBT for your bank account number which is seeded with your Aadhaar number. If you are not satisfied with the reason, please contact the PM KISAN Officer \"Rahul Sen\" on 88902138920 or you can also visit the Officer at Chittoor." 
-    },
-    { 
-        "id": 14, 
-        "error": "Institutional Land holder", 
-        "message": "Dear farmer, you have not received your payment as you have been marked as an institutional land holder. As per the PM KISAN guidelines, institutional land holders are not eligible to avail the benefits of PM KISAN.  If you are not satisfied with the reason, please contact the PM KISAN Officer \"Rahul Sen\" on 88902138920 or you can also visit the Officer at Chittoor." 
-    },
-    { 
-        "id": 15, 
-        "error": "Former Constitutional Post Holder", 
-        "message": "Dear farmer, you have not received your payment as you have been marked as an Former Constitutional Post Holder. As per the PM KISAN guidelines, Former Constitutional Post Holder are not eligible to avail the benefits of PM KISAN.  If you are not satisfied with the reason, please contact the PM KISAN Officer \"Rahul Sen\" on 88902138920 or you can also visit the Officer at Chittoor." 
-    },
-    { 
-        "id": 16, 
-        "error": "Constitutional Position Holder", 
-        "message": "Dear farmer, you have not received your payment as you have been marked as an Constitutional Position Holder. As per the PM KISAN guidelines, Constitutional Position Holder are not eligible to avail the benefits of PM KISAN.  If you are not satisfied with the reason, please contact the PM KISAN Officer \"Rahul Sen\" on 88902138920 or you can also visit the Officer at Chittoor." 
-    },
-    { 
-        "id": 17, 
-        "error": "Employees of State/Central/ Local Bodies/ PSU", 
-        "message": "Dear farmer, you have not received your payment as you have been marked as an Employees of State/Central/ Local Bodies/ PSU. As per the PM KISAN guidelines, Employees of State/Central/ Local Bodies/ PSU are not eligible to avail the benefits of PM KISAN.  If you are not satisfied with the reason, please contact the PM KISAN Officer \"Rahul Sen\" on 88902138920 or you can also visit the Officer at Chittoor." 
-    },
-    { 
-        "id": 18, 
-        "error": "Superannuated/Retired Pensioner", 
-        "message": "Dear farmer, you have not received your payment as you have been marked as an Superannuated/Retired Pensioner. As per the PM KISAN guidelines, Superannuated/Retired Pensioners are not eligible to avail the benefits of PM KISAN.  If you are not satisfied with the reason, please contact the PM KISAN Officer \"Rahul Sen\" on 88902138920 or you can also visit the Officer at Chittoor." 
-    },
-    { 
-        "id": 19, 
-        "error": "Registered Professional", 
-        "message": "Dear farmer, you have not received your payment as you have been marked as an Registered Professional. As per the PM KISAN guidelines, Registered Professionals are not eligible to avail the benefits of PM KISAN.  If you are not satisfied with the reason, please contact the PM KISAN Officer \"Rahul Sen\" on 88902138920 or you can also visit the Officer at Chittoor." 
-    },
-    { 
-        "id": 20, 
-        "error": "NRI", 
-        "message": "Dear farmer, you have not received your payment as you have been marked as an NRI. As per the PM KISAN guidelines, NRI are not eligible to avail the benefits of PM KISAN.  If you are not satisfied with the reason, please contact the PM KISAN Officer \"Rahul Sen\" on 88902138920 or you can also visit the Officer at Chittoor." 
-    },
-    { 
-        "id": 21, 
-        "error": "Beneficiary does not belongs to our state", 
-        "message": "Dear farmer, your payment has not been issued as it has been found that you do not belong to the State where you own the land. If you are not satisfied with the reason, please contact the PM KISAN Officer \"Rahul Sen\" on 88902138920 or you can also visit the Officer at Chittoor." 
-    },
-    { 
-        "id": 22, 
-        "error": "Land Ownership does not stand in his/her name.", 
-        "message": "Dear farmer, you have not received your payment as you have been marked as the land ownership does not stand in his/her name. As per the PM KISAN guidelines,  only agricultural land owners can avail the benefits of PM KISAN.  If you are not satisfied with the reason, please contact the PM KISAN Officer \"Rahul Sen\" on 88902138920 or you can also visit the Officer at Chittoor." 
-    },
-    { 
-        "id": 23, 
-        "error": "Head of the family already receives the benefit of the scheme.", 
-        "message": "Dear farmer, your payment has been stopped as you have been marked as Ineligible. It has been identified that the head of your family already receives the benefit of the scheme, which makes you ineligible to receive further benefits under the same scheme.If you are not satisfied with the reason, please contact the PM KISAN Officer \"Rahul Sen\" on 88902138920 or you can also visit the Officer at Chittoor." 
-    },
-    { 
-        "id": 24, 
-        "error": "Farmer got land less (due to sale purchase)", 
-        "message": "Dear farmer, Dear <<Ben Name>>, your payment has been stopped as you have been deemed ineligible for the PM KISAN scheme benefit. You have been identified as a farmer who got land less, which renders you ineligible for the scheme. If you are not satisfied with the reason, please contact the PM KISAN Officer \"Rahul Sen\" on 88902138920 or you can also visit the Officer at Chittoor." 
-    },
-    { 
-        "id": 25, 
-        "error": "Land use other than agriculture (If land use change other than agriculture)", 
-        "message": "Dear farmer, you have not received your payment as it has been found that your Land is not being used for agriculture.  As per the PM KISAN guidelines,  only agricultural land owners can avail the benefits of PM KISAN.   If you are not satisfied with the reason, please contact the PM KISAN Officer \"Rahul Sen\" on 88902138920 or you can also visit the Officer at Chittoor." 
-    },
-    { 
-        "id": 26, 
-        "error": "Untraceable Beneficiary", 
-        "message": "Dear farmer, you have not received your payment as you have been marked as untraceable. As per the PM KISAN guidelines, Constitutional Position Holder are not eligible to avail the benefits of PM KISAN.  If you are not satisfied with the reason, please contact the PM KISAN Officer \"Rahul Sen\" on 88902138920 or you can also visit the Officer at Chittoor." 
-    },
-    { 
-        "id": 27, 
-        "error": "Underage", 
-        "message": "Dear farmer, you have not received your payment as you are underage.  If you are not satisfied with the reason, please contact the PM KISAN Officer \"Rahul Sen\" on 88902138920 or you can also visit the Officer at Chittoor." 
-    },
-    { 
-        "id": 28, 
-        "error": "Land Owner After 01-02-2019", 
-        "message": "Dear farmer, you have not received your payment as you have become the owner of the land after 01.02.2029. As per the PM KISAN guidelines, agricultural land owners after 01.02.2019 are not eligible to avail the benefits of PM KISAN.  If you are not satisfied with the reason, please contact the PM KISAN Officer \"Rahul Sen\" on 88902138920 or you can also visit the Officer at Chittoor." 
-    },
-    { 
-        "id": 29, 
-        "error": "FTO not processed, Stop payment after RFT", 
-        "message": "Dear farmer, you have not received your payment as your payment has been stopped and your FTO has not been generated. If you are not satisfied with the reason, please contact the PM KISAN Officer \"Rahul Sen\" on 88902138920 or you can also visit the Officer at Chittoor." 
-    },
-    { 
-        "id": 30, 
-        "error": "FTO not processed, Aadhaar Not Authenticated", 
-        "message": "Dear farmer, your payment has not been processed as your FTO is pending due to the non-authentication of your Aadhaar number.If you are not satisfied with the reason, please contact the PM KISAN Officer \"Rahul Sen\" on 88902138920 or you can also visit the Officer at Chittoor." 
-    },
-    { 
-        "id": 31, 
-        "error": "FTO not processed, Aadhar is not seeded", 
-        "message": "Dear farmer, your payment has not been processed as your FTO is pending due to the non-seeding of your Aadhaar number. If you are not satisfied with the reason, please contact the PM KISAN Officer \"Rahul Sen\" on 88902138920 or you can also visit the Officer at Chittoor." 
-    },
-    { 
-        "id": 32, 
-        "error": "FTO not processed, Beneficiary is under re-validation with PFMS", 
-        "message": "Dear farmer, you have not received your payment as you are under re-validation by PFMS. If you are not satisfied with the reason, please contact the PM KISAN Officer \"Rahul Sen\" on 88902138920 or you can also visit the Officer at Chittoor." 
-    }
-]
+{
+    "Marked as dead": "Dear farmer, you have not received your payment due to an unfortunate circumstance of a \"Death\" status being associated with your account. To revoke a death case, you are requested to complete your e-KYC through biometric or face authentication to continue receiving the benefits in the scheme. If this status is incorrect, we kindly request you to undergo e-KYC through biometric or face authentication to continue receiving the benefits in the scheme.",
+    "Name Correction Required": "Dear farmer, you have not received your payment as demo authentication for your Aadhaar has failed. To avail the benefits under PM KISAN, you are requested to visit the https://pmkisan.gov.in/EditAadharName_Pub.aspx  and correct your name. If you are not satisfied with the reason, please contact the PM KISAN Officer \"Rahul Sen\" on 88902138920 or you can also visit the Officer at Chittoor.",
+    "Income Tax Payee": "Dear farmer, your payment has been stopped as you have been identified as a taxpayer. According to the guidelines of the PM KISAN scheme, individuals who are income tax payees are ineligible to avail the benefits of the scheme. If you are not satisfied with the reason, please contact the PM KISAN Officer \"Rahul Sen\" on 8890213892 or you can also visit the Officer at Chittoor.",
+    "Location Correction Required": "Dear farmer, to receive benefits under PM KISAN scheme request you to kindly visit the nearest office, to provide the updated and accurate location details, ensuring that your information aligns with your current address.",
+    "Not a Landowner": "Dear farmer, your payment has been stopped as you have been identified as a non-landowner and as per the PM KISAN scheme guidelines only land holding farmers are eligible to avail the benefits. To be eligible under PM KISAN, we kindly request you to visit the Officer at Chittoor along with your land documents and update your land ownership details.",
+    "Internal stopped by State Department": "Dear farmer, you have not received your payment as your payment has been stopped by the State Nodal Officer. To resolve your issues please contact the PM KISAN Officer \"Rahul Sen\" on 8890213892 or you can also visit the Officer at Chittoor",
+    "Benefit Surrender": "Dear farmer, your payment has been stopped as you have surrendered your benefit.  If you are not satisfied with the reason, please contact the PM KISAN Officer \"Rahul Sen\" on 88902138920 or you can also visit the Officer at Chittoor.",
+    "Old district to new district transfer": "Dear farmer, you have not received your payment as your location details are incorrect. By visiting the nearest office, you can provide the updated and accurate location details, ensuring that your information aligns with your current address.", 
+    "Invalid Gender Value": "Dear farmer, you have not received your payment as your gender information is invalid in PM KISAN.  you can rectify it by utilizing the <<Gender correction Module Link>> available on the PM KISAN portal. If you are not satisfied with the reason, please contact the PM KISAN Officer \"Rahul Sen\" on 88902138920 or you can also visit the Officer at Chittoor.", 
+    "UID NEVER ENABLE FOR DBT": "Dear farmer, you have not received your payment as your Aadhaar number is not enabled for DBT. To receive the benefit under PM KISAN scheme, you are requested to visit your bank and enable DBT for your bank account number which is seeded with your Aadhaar number. If you are not satisfied with the reason, please contact the PM KISAN Officer \"Rahul Sen\" on 88902138920 or you can also visit the Officer at Chittoor.",
+    "Aadhaar Number is not seeded in NPCI": "Dear farmer, you have not received your payment as your Aadhaar Number is not seeded with your bank account. To receive the benefit under PM KISAN scheme, you are requested to visit your bank and enable DBT for your bank account number which is seeded with your Aadhaar number. If you are not satisfied with the reason, please contact the PM KISAN Officer \"Rahul Sen\" on 88902138920 or you can also visit the Officer at Chittoor.",
+    "UID is Disable for DBT": "Dear farmer, you have not received your payment as your Aadhaar Number is not seeded with your bank account. To receive the benefit under PM KISAN scheme, you are requested to visit your bank and enable DBT for your bank account number which is seeded with your Aadhaar number. If you are not satisfied with the reason, please contact the PM KISAN Officer \"Rahul Sen\" on 88902138920 or you can also visit the Officer at Chittoor.",
+    "UID is CANCELLED BY UIDAI": "Dear farmer, you have not received your payment as your Aadhaar Number is not seeded with your bank account. To receive the benefit under PM KISAN scheme, you are requested to visit your bank and enable DBT for your bank account number which is seeded with your Aadhaar number. If you are not satisfied with the reason, please contact the PM KISAN Officer \"Rahul Sen\" on 88902138920 or you can also visit the Officer at Chittoor.",
+    "Institutional Land holder": "Dear farmer, you have not received your payment as you have been marked as an institutional land holder. As per the PM KISAN guidelines, institutional land holders are not eligible to avail the benefits of PM KISAN.  If you are not satisfied with the reason, please contact the PM KISAN Officer \"Rahul Sen\" on 88902138920 or you can also visit the Officer at Chittoor.",
+    "Former Constitutional Post Holder": "Dear farmer, you have not received your payment as you have been marked as an Former Constitutional Post Holder. As per the PM KISAN guidelines, Former Constitutional Post Holder are not eligible to avail the benefits of PM KISAN.  If you are not satisfied with the reason, please contact the PM KISAN Officer \"Rahul Sen\" on 88902138920 or you can also visit the Officer at Chittoor.",
+    "Constitutional Position Holder": "Dear farmer, you have not received your payment as you have been marked as an Constitutional Position Holder. As per the PM KISAN guidelines, Constitutional Position Holder are not eligible to avail the benefits of PM KISAN.  If you are not satisfied with the reason, please contact the PM KISAN Officer \"Rahul Sen\" on 88902138920 or you can also visit the Officer at Chittoor.",
+    "Employees of State/Central/ Local Bodies/ PSU": "Dear farmer, you have not received your payment as you have been marked as an Employees of State/Central/ Local Bodies/ PSU. As per the PM KISAN guidelines, Employees of State/Central/ Local Bodies/ PSU are not eligible to avail the benefits of PM KISAN.  If you are not satisfied with the reason, please contact the PM KISAN Officer \"Rahul Sen\" on 88902138920 or you can also visit the Officer at Chittoor.",
+    "Superannuated/Retired Pensioner": "Dear farmer, you have not received your payment as you have been marked as an Superannuated/Retired Pensioner. As per the PM KISAN guidelines, Superannuated/Retired Pensioners are not eligible to avail the benefits of PM KISAN.  If you are not satisfied with the reason, please contact the PM KISAN Officer \"Rahul Sen\" on 88902138920 or you can also visit the Officer at Chittoor.",
+    "Registered Professional": "Dear farmer, you have not received your payment as you have been marked as an Registered Professional. As per the PM KISAN guidelines, Registered Professionals are not eligible to avail the benefits of PM KISAN.  If you are not satisfied with the reason, please contact the PM KISAN Officer \"Rahul Sen\" on 88902138920 or you can also visit the Officer at Chittoor.",
+    "NRI": "Dear farmer, you have not received your payment as you have been marked as an NRI. As per the PM KISAN guidelines, NRI are not eligible to avail the benefits of PM KISAN.  If you are not satisfied with the reason, please contact the PM KISAN Officer \"Rahul Sen\" on 88902138920 or you can also visit the Officer at Chittoor.", 
+    "Beneficiary does not belongs to our state": "Dear farmer, your payment has not been issued as it has been found that you do not belong to the State where you own the land. If you are not satisfied with the reason, please contact the PM KISAN Officer \"Rahul Sen\" on 88902138920 or you can also visit the Officer at Chittoor.",
+    "Land Ownership does not stand in his/her name.": "Dear farmer, you have not received your payment as you have been marked as the land ownership does not stand in his/her name. As per the PM KISAN guidelines,  only agricultural land owners can avail the benefits of PM KISAN.  If you are not satisfied with the reason, please contact the PM KISAN Officer \"Rahul Sen\" on 88902138920 or you can also visit the Officer at Chittoor.",
+    "Head of the family already receives the benefit of the scheme.": "Dear farmer, your payment has been stopped as you have been marked as Ineligible. It has been identified that the head of your family already receives the benefit of the scheme, which makes you ineligible to receive further benefits under the same scheme.If you are not satisfied with the reason, please contact the PM KISAN Officer \"Rahul Sen\" on 88902138920 or you can also visit the Officer at Chittoor.",
+    "Farmer got land less (due to sale purchase)": "Dear farmer, Dear <<Ben Name>>, your payment has been stopped as you have been deemed ineligible for the PM KISAN scheme benefit. You have been identified as a farmer who got land less, which renders you ineligible for the scheme. If you are not satisfied with the reason, please contact the PM KISAN Officer \"Rahul Sen\" on 88902138920 or you can also visit the Officer at Chittoor.",
+    "Land use other than agriculture (If land use change other than agriculture)": "Dear farmer, you have not received your payment as it has been found that your Land is not being used for agriculture.  As per the PM KISAN guidelines,  only agricultural land owners can avail the benefits of PM KISAN.   If you are not satisfied with the reason, please contact the PM KISAN Officer \"Rahul Sen\" on 88902138920 or you can also visit the Officer at Chittoor.",
+    "Untraceable Beneficiary": "Dear farmer, you have not received your payment as you have been marked as untraceable. As per the PM KISAN guidelines, Constitutional Position Holder are not eligible to avail the benefits of PM KISAN.  If you are not satisfied with the reason, please contact the PM KISAN Officer \"Rahul Sen\" on 88902138920 or you can also visit the Officer at Chittoor.",
+    "Underage": "Dear farmer, you have not received your payment as you are underage.  If you are not satisfied with the reason, please contact the PM KISAN Officer \"Rahul Sen\" on 88902138920 or you can also visit the Officer at Chittoor.",
+    "Land Owner After 01-02-2019": "Dear farmer, you have not received your payment as you have become the owner of the land after 01.02.2029. As per the PM KISAN guidelines, agricultural land owners after 01.02.2019 are not eligible to avail the benefits of PM KISAN.  If you are not satisfied with the reason, please contact the PM KISAN Officer \"Rahul Sen\" on 88902138920 or you can also visit the Officer at Chittoor.",
+    "FTO not processed, Stop payment after RFT": "Dear farmer, you have not received your payment as your payment has been stopped and your FTO has not been generated. If you are not satisfied with the reason, please contact the PM KISAN Officer \"Rahul Sen\" on 88902138920 or you can also visit the Officer at Chittoor.",
+    "FTO not processed, Aadhaar Not Authenticated": "Dear farmer, your payment has not been processed as your FTO is pending due to the non-authentication of your Aadhaar number.If you are not satisfied with the reason, please contact the PM KISAN Officer \"Rahul Sen\" on 88902138920 or you can also visit the Officer at Chittoor.",
+    "FTO not processed, Aadhar is not seeded": "Dear farmer, your payment has not been processed as your FTO is pending due to the non-seeding of your Aadhaar number. If you are not satisfied with the reason, please contact the PM KISAN Officer \"Rahul Sen\" on 88902138920 or you can also visit the Officer at Chittoor.",
+    "FTO not processed, Beneficiary is under re-validation with PFMS": "Dear farmer, you have not received your payment as you are under re-validation by PFMS. If you are not satisfied with the reason, please contact the PM KISAN Officer \"Rahul Sen\" on 88902138920 or you can also visit the Officer at Chittoor." 
+}

@@ -15,15 +15,15 @@ export const fetchWithAlert = async (
         const end = Date.now();
         const responseTime = end - start;
         if (responseTime > alertResponseTime) {
-            sendEmail(
-                JSON.parse(process.env.SENDGRID_ALERT_RECEIVERS),
-                "Delay in Ai-tools response",
-                AI_TOOLS_DELAY_ALERT(
-                    responseTime,
-                    url,
-                    options
-                )
-            )
+            // sendEmail(
+            //     JSON.parse(process.env.SENDGRID_ALERT_RECEIVERS),
+            //     "Delay in Ai-tools response",
+            //     AI_TOOLS_DELAY_ALERT(
+            //         responseTime,
+            //         url,
+            //         options
+            //     )
+            // )
             sendDiscordAlert(
                 "Delay in Ai-tools response",
                 AI_TOOLS_DELAY_ALERT(
@@ -36,15 +36,15 @@ export const fetchWithAlert = async (
         }
         return response;
     } catch(error){
-        sendEmail(
-            JSON.parse(process.env.SENDGRID_ALERT_RECEIVERS),
-            "Ai-tools request failure",
-            AI_TOOLS_ERROR(
-                url,
-                options,
-                error
-            )
-        )
+        // sendEmail(
+        //     JSON.parse(process.env.SENDGRID_ALERT_RECEIVERS),
+        //     "Ai-tools request failure",
+        //     AI_TOOLS_ERROR(
+        //         url,
+        //         options,
+        //         error
+        //     )
+        // )
         sendDiscordAlert(
             "Ai-tools request failure",
             AI_TOOLS_ERROR(

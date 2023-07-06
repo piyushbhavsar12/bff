@@ -9,7 +9,6 @@ import { ConfigModule, ConfigService } from "@nestjs/config";
 import { EmbeddingsModule } from "./modules/embeddings/embeddings.module";
 import { UserModule } from "./modules/user/user.module";
 import { FAQModule } from "./modules/faq/faq.module";
-import { TelemetryService } from "./global-services/telemetry.service";
 import { EmbeddingsService } from "./modules/embeddings/embeddings.service";
 import { PromptHistoryService } from "./modules/prompt-history/prompt-history.service";
 import { APP_PIPE } from "@nestjs/core";
@@ -30,7 +29,6 @@ import { CustomLogger } from "./common/logger";
     AppService,
     PrismaService,
     ConfigService,
-    TelemetryService,
     EmbeddingsService,
     PromptHistoryService,
     {

@@ -17,11 +17,11 @@ import { INVALID_REQUEST_ERROR } from '../../common/constants';
           const request = context.switchToHttp().getRequest();
           const emailReceivers = JSON.parse(process.env.SENDGRID_ALERT_RECEIVERS);
           // Send email notification
-          sendEmail(
-            emailReceivers,
-            'Request failure',
-            INVALID_REQUEST_ERROR(request,error),
-          );
+          // sendEmail(
+          //   emailReceivers,
+          //   'Request failure',
+          //   INVALID_REQUEST_ERROR(request,error),
+          // );
           sendDiscordAlert(
             'Request failure',
             INVALID_REQUEST_ERROR(request,error),

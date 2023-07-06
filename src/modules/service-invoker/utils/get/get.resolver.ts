@@ -2,7 +2,7 @@ import fetch from "isomorphic-fetch";
 import { Injectable } from "@nestjs/common";
 import Ajv from "ajv";
 import { ConfigService } from "@nestjs/config";
-import { TelemetryService } from "../../../../global-services/telemetry.service";
+// import { TelemetryService } from "../../../../global-services/telemetry.service";
 import {
   ErrorType,
   GetRequestConfig,
@@ -15,7 +15,7 @@ export class GetRequestResolverService {
   logger: CustomLogger;
   constructor(
     private configService: ConfigService,
-    private telemetryService: TelemetryService
+    // private telemetryService: TelemetryService
   ) {
     this.logger = new CustomLogger("HTTP-GET-ResolverService");
   }
@@ -112,14 +112,14 @@ export class GetRequestResolverService {
         return response.json();
       })
       .catch(async (e) => {
-        await this.telemetryService.client.capture({
-          distinctId: "NestJS-Local",
-          event: "Failed to make GET request to federated service",
-          properties: {
-            error,
-            errorNotificationWebhook,
-          },
-        });
+        // await this.telemetryService.client.capture({
+        //   distinctId: "NestJS-Local",
+        //   event: "Failed to make GET request to federated service",
+        //   properties: {
+        //     error,
+        //     errorNotificationWebhook,
+        //   },
+        // });
         return {
           error: e,
         };

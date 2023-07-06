@@ -3,7 +3,7 @@ import { GQLResolverService } from "./utils/gql/gql.resolver";
 import { GetRequestResolverService } from "./utils/get/get.resolver";
 import { PostRequestResolverService } from "./utils/post/post.resolver";
 import { ConfigService } from "@nestjs/config";
-import { TelemetryService } from "../../global-services/telemetry.service";
+// import { TelemetryService } from "../../global-services/telemetry.service";
 import { ServiceInvokerService } from "./service-invoker.service";
 
 @Module({
@@ -11,7 +11,7 @@ import { ServiceInvokerService } from "./service-invoker.service";
     ServiceInvokerService,
     GQLResolverService,
     ConfigService,
-    TelemetryService,
+    // TelemetryService,
     GetRequestResolverService,
     PostRequestResolverService,
   ],

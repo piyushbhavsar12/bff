@@ -82,7 +82,7 @@ export class UserController {
     if(/^[6-9]\d{9}$/.test(identifier)) {
       return this.userService.sendOTP(identifier,"Mobile")
     } else if(identifier.length==14 && /^[6-9]\d{9}$/.test(identifier.substring(0,10))){
-      return this.userService.sendOTP(identifier,"MobileAadhaar")
+      return this.userService.sendOTP(identifier,"MobileAadhar")
     } else {
       return {
         "status": "NOT_OK",
@@ -96,7 +96,7 @@ export class UserController {
     if(/^[6-9]\d{9}$/.test(body.identifier)) {
       return this.userService.verifyOTP(body.identifier,body.otp,"Mobile")
     } else if(body.identifier.length==14 && /^[6-9]\d{9}$/.test(body.identifier.substring(0,10))){
-      return this.userService.verifyOTP(body.identifier,body.otp,"MobileAadhaar")
+      return this.userService.verifyOTP(body.identifier,body.otp,"MobileAadhar")
     } else {
       return {
         "status": "NOT_OK",
@@ -156,7 +156,7 @@ export class UserController {
     if(/^[6-9]\d{9}$/.test(identifier)) {
       return this.userService.getUserData(identifier,"Mobile")
     } else if(identifier.length==14 && /^[6-9]\d{9}$/.test(identifier.substring(0,10))){
-      return this.userService.getUserData(identifier,"MobileAadhaar")
+      return this.userService.getUserData(identifier,"MobileAadhar")
     } else {
       return {
         "status": "NOT_OK",

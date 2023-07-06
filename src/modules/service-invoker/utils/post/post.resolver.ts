@@ -2,7 +2,7 @@ import fetch from "isomorphic-fetch";
 import { Injectable } from "@nestjs/common";
 import Ajv from "ajv";
 import { ConfigService } from "@nestjs/config";
-import { TelemetryService } from "../../../../global-services/telemetry.service";
+// import { TelemetryService } from "../../../../global-services/telemetry.service";
 import {
   ErrorType,
   PostRequestConfig,
@@ -13,7 +13,7 @@ import {
 export class PostRequestResolverService {
   constructor(
     private configService: ConfigService,
-    private telemetryService: TelemetryService
+    // private telemetryService: TelemetryService
   ) {}
 
   async verify(postRequestConfig: PostRequestConfig, user: string) {
@@ -107,15 +107,15 @@ export class PostRequestResolverService {
         return response.json();
       })
       .catch(async (e) => {
-        await this.telemetryService.client.capture({
-          distinctId: "NestJS-Local",
-          event: "Failed to make POST request to federated service",
-          properties: {
-            error,
-            user,
-            errorNotificationWebhook,
-          },
-        });
+        // await this.telemetryService.client.capture({
+        //   distinctId: "NestJS-Local",
+        //   event: "Failed to make POST request to federated service",
+        //   properties: {
+        //     error,
+        //     user,
+        //     errorNotificationWebhook,
+        //   },
+        // });
         return {
           error: e,
         };

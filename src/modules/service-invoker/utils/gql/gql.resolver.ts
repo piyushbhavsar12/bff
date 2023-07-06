@@ -10,14 +10,14 @@ import {
 
 import { Injectable, Scope } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
-import { TelemetryService } from "../../../../global-services/telemetry.service";
+// import { TelemetryService } from "../../../../global-services/telemetry.service";
 import { ErrorType, GqlConfig, GqlResolverError } from "./../../types";
 
 @Injectable()
 export class GQLResolverService {
   constructor(
     private configService: ConfigService,
-    private telemetryService: TelemetryService
+    // private telemetryService: TelemetryService
   ) {}
 
   async verify(gqlConfig: GqlConfig, user: string) {
@@ -120,15 +120,15 @@ export class GQLResolverService {
         return response.json();
       })
       .catch(async (e) => {
-        await this.telemetryService.client.capture({
-          distinctId: "NestJS-Local",
-          event: "Failed to notify federated service",
-          properties: {
-            error,
-            user,
-            errorNotificationWebhook,
-          },
-        });
+        // await this.telemetryService.client.capture({
+        //   distinctId: "NestJS-Local",
+        //   event: "Failed to notify federated service",
+        //   properties: {
+        //     error,
+        //     user,
+        //     errorNotificationWebhook,
+        //   },
+        // });
         return {
           error: e,
         };

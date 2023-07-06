@@ -55,6 +55,7 @@ export interface ResponseForTS {
     caption: string;
     msg_type: string;
     conversationId: string;
+    split?: boolean;
   };
   to: string;
   messageId: string;
@@ -72,115 +73,115 @@ export class AppService {
     // AUTH_HEADER = this.configService.get("AUTH_HEADER");
     this.logger = new CustomLogger("AppService");
   }
-  async translate(
-    source: Language,
-    target: Language,
-    text: string,
-    prompt: Prompt
-  ): Promise<string> {
-    var myHeaders = new Headers();
-    myHeaders.append("Content-Type", "application/json");
-    myHeaders.append(
-      "Authorization",
-      this.configService.get("AI_TOOLS_AUTH_HEADER")
-    );
+  // async translate(
+  //   source: Language,
+  //   target: Language,
+  //   text: string,
+  //   prompt: Prompt
+  // ): Promise<string> {
+  //   var myHeaders = new Headers();
+  //   myHeaders.append("Content-Type", "application/json");
+  //   myHeaders.append(
+  //     "Authorization",
+  //     this.configService.get("AI_TOOLS_AUTH_HEADER")
+  //   );
 
-    var raw = JSON.stringify({
-      source_language: source,
-      target_language: target,
-      text: text.replace("\n","."),
-    });
+  //   var raw = JSON.stringify({
+  //     source_language: source,
+  //     target_language: target,
+  //     text: text.replace("\n","."),
+  //   });
 
-    if(raw.indexOf('"unk\"') !== -1) {
-      sendEmail(
-        JSON.parse(this.configService.get("SENDGRID_ALERT_RECEIVERS")),
-        "Error while detecting language",
-        `
-        Environment: ${this.configService.get("ENVIRONMENT")}
-        userId: ${prompt.input.userId}
-        input text: ${text}
-        source_language: ${source}
-        target_language: ${target}
-        `
-      )
-      sendDiscordAlert(
-        "Error while detecting language",
-        `
-        Environment: ${this.configService.get("ENVIRONMENT")}
-        userId: ${prompt.input.userId}
-        input text: ${text}
-        source_language: ${source}
-        target_language: ${target}
-        `,
-        16711680
-      )
-    }
+  //   if(raw.indexOf('"unk\"') !== -1) {
+  //     // sendEmail(
+  //     //   JSON.parse(this.configService.get("SENDGRID_ALERT_RECEIVERS")),
+  //     //   "Error while detecting language",
+  //     //   `
+  //     //   Environment: ${this.configService.get("ENVIRONMENT")}
+  //     //   userId: ${prompt.input.userId}
+  //     //   input text: ${text}
+  //     //   source_language: ${source}
+  //     //   target_language: ${target}
+  //     //   `
+  //     // )
+  //     sendDiscordAlert(
+  //       "Error while detecting language",
+  //       `
+  //       Environment: ${this.configService.get("ENVIRONMENT")}
+  //       userId: ${prompt.input.userId}
+  //       input text: ${text}
+  //       source_language: ${source}
+  //       target_language: ${target}
+  //       `,
+  //       16711680
+  //     )
+  //   }
 
-    var requestOptions = {
-      method: "POST",
-      headers: myHeaders,
-      body: raw.replace('"unk\"','"or\"'),
-    };
+  //   var requestOptions = {
+  //     method: "POST",
+  //     headers: myHeaders,
+  //     body: raw.replace('"unk\"','"or\"'),
+  //   };
 
-    const translated = await fetch(
-      `${this.configService.get(
-        "AI_TOOLS_BASE_URL"
-      )}/text_translation/azure/remote`,
-      requestOptions
-    )
-      .then((response) => response.json())
-      .then((result) => result["translated"] as string)
-      .catch((error) => this.logger.logWithCustomFields({
-        messageId: prompt.input.messageId,
-        userId: prompt.input.userId
-      },"error")("error", error));
+  //   const translated = await fetch(
+  //     `${this.configService.get(
+  //       "AI_TOOLS_BASE_URL"
+  //     )}/text_translation/azure/remote`,
+  //     requestOptions
+  //   )
+  //     .then((response) => response.json())
+  //     .then((result) => result["translated"] as string)
+  //     .catch((error) => this.logger.logWithCustomFields({
+  //       messageId: prompt.input.messageId,
+  //       userId: prompt.input.userId
+  //     },"error")("error", error));
 
-    return translated ? translated : "";
-  }
+  //   return translated ? translated : "";
+  // }
 
-  async detectLanguage(prompt: Prompt): Promise<Prompt> {
-    var myHeaders = new Headers();
-    myHeaders.append("Content-Type", "application/json");
-    myHeaders.append(
-      "Authorization",
-      this.configService.get("AI_TOOLS_AUTH_HEADER")
-    );
+  // async detectLanguage(prompt: Prompt): Promise<Prompt> {
+  //   var myHeaders = new Headers();
+  //   myHeaders.append("Content-Type", "application/json");
+  //   myHeaders.append(
+  //     "Authorization",
+  //     this.configService.get("AI_TOOLS_AUTH_HEADER")
+  //   );
 
-    var raw = JSON.stringify({
-      text: prompt.input.body?.replace("?","")?.trim(),
-    });
+  //   var raw = JSON.stringify({
+  //     text: prompt.input.body?.replace("?","")?.trim(),
+  //   });
 
-    var requestOptions = {
-      method: "POST",
-      headers: myHeaders,
-      body: raw,
-    };
+  //   var requestOptions = {
+  //     method: "POST",
+  //     headers: myHeaders,
+  //     body: raw,
+  //   };
 
-    const language = await fetch(
-      `${this.configService.get(
-        "AI_TOOLS_BASE_URL"
-      )}/text_lang_detection/bhashini/remote`,
-      requestOptions
-    )
-      .then((response) => response.json())
-      .then((result) =>
-        result["language"] ? (result["language"] as Language) : null
-      )
-      .catch((error) => {
-        this.logger.logWithCustomFields({
-          messageId: prompt.input.messageId,
-          userId: prompt.input.userId
-        },"error")("error", error)
-        if(isMostlyEnglish(prompt.input.body?.replace("?","")?.trim())){
-          return Language.en
-        } else {
-          return 'unk'
-        }
-    });
+  //   const language = await fetch(
+  //     `${this.configService.get(
+  //       "AI_TOOLS_BASE_URL"
+  //     )}/text_lang_detection/bhashini/remote`,
+  //     requestOptions
+  //   )
+  //     .then((response) => response.json())
+  //     .then((result) =>
+  //       result["language"] ? (result["language"] as Language) : null
+  //     )
+  //     .catch((error) => {
+  //       this.logger.logWithCustomFields({
+  //         messageId: prompt.input.messageId,
+  //         userId: prompt.input.userId
+  //       },"error")("error", error)
+  //       if(isMostlyEnglish(prompt.input.body?.replace("?","")?.trim())){
+  //         return Language.en
+  //       } else {
+  //         return 'unk'
+  //       }
+  //   });
 
-    prompt.inputLanguage = language as Language;
-    return prompt;
-  }
+  //   prompt.inputLanguage = language as Language;
+  //   return prompt;
+  // }
 
   async similaritySearch(text: String): Promise<Document[]> {
     var myHeaders = new Headers();
@@ -337,60 +338,61 @@ export class AppService {
     },"verbose")
     promptLogger("CP-1");
     // Detect language of incoming prompt
-    prompt = await this.detectLanguage(prompt);
-    if(!prompt || !prompt.inputLanguage) {
-      await this.sendError(
-        UNABLE_TO_DETECT_LANGUAGE,
-        UNABLE_TO_DETECT_LANGUAGE,
-        prompt,
-        null,
-        true,
-        TEXT_DETECTION_ERROR(
-          prompt.input.userId,
-          prompt.input.body,
-          prompt.inputLanguage
-        )
-      )
-    }
+    prompt.inputLanguage = Language.en;
+    // prompt = await this.detectLanguage(prompt);
+    // if(!prompt || !prompt.inputLanguage) {
+    //   await this.sendError(
+    //     UNABLE_TO_DETECT_LANGUAGE,
+    //     UNABLE_TO_DETECT_LANGUAGE,
+    //     prompt,
+    //     null,
+    //     true,
+    //     TEXT_DETECTION_ERROR(
+    //       prompt.input.userId,
+    //       prompt.input.body,
+    //       prompt.inputLanguage
+    //     )
+    //   )
+    // }
 
     promptLogger("CP-2");
 
     // Translate incoming prompt from indic to en
-    if (prompt.inputLanguage === Language.en) {
-      prompt.inputTextInEnglish = prompt.input.body;
-    } else {
-      prompt.inputTextInEnglish = await this.translate(
-        prompt.inputLanguage,
-        Language.en,
-        prompt.input.body,
-        prompt
-      );
-      if(!prompt.inputTextInEnglish) {
-        await this.sendError(
-          REPHRASE_YOUR_QUESTION('en'),
-          REPHRASE_YOUR_QUESTION(prompt.inputLanguage),
-          prompt,
-          null,
-          true,
-          TEXT_TRANSLATION_ERROR(
-            prompt.input.userId,
-            prompt.input.body,
-            prompt.inputLanguage,
-            Language.en
-          )
-        )
-      }
-    }
+    // if (prompt.inputLanguage === Language.en) {
+    prompt.inputTextInEnglish = prompt.input.body;
+    // } else {
+    //   prompt.inputTextInEnglish = await this.translate(
+    //     prompt.inputLanguage,
+    //     Language.en,
+    //     prompt.input.body,
+    //     prompt
+    //   );
+    //   if(!prompt.inputTextInEnglish) {
+    //     await this.sendError(
+    //       REPHRASE_YOUR_QUESTION('en'),
+    //       REPHRASE_YOUR_QUESTION(prompt.inputLanguage),
+    //       prompt,
+    //       null,
+    //       true,
+    //       TEXT_TRANSLATION_ERROR(
+    //         prompt.input.userId,
+    //         prompt.input.body,
+    //         prompt.inputLanguage,
+    //         Language.en
+    //       )
+    //     )
+    //   }
+    // }
 
-    if(/contact/i.test(prompt.inputTextInEnglish)){
-      await this.sendError(
-        CONTACT_AMAKRUSHI_HELPLINE('en'),
-        CONTACT_AMAKRUSHI_HELPLINE(prompt.inputLanguage),
-        prompt,
-        null
-      )
-      return
-    }
+    // if(/contact/i.test(prompt.inputTextInEnglish)){
+    //   await this.sendError(
+    //     CONTACT_AMAKRUSHI_HELPLINE('en'),
+    //     CONTACT_AMAKRUSHI_HELPLINE(prompt.inputLanguage),
+    //     prompt,
+    //     null
+    //   )
+    //   return
+    // }
 
     promptLogger("CP-3", prompt);
     // Get the concept from user chatHistory
@@ -632,48 +634,89 @@ export class AppService {
     //   if(new Date().getTime() - finalResponseStartTime > 15000) errorRate += 2
     // }
     
-    let mockJSON = {
-      9999999990 : 0,
-      9999999991 : 1,
-      9999999992 :  2,
-      111111111110: 3,
-      111111111111: 4,
-      AP111111110: 6,
-      AP111111111: 7
+    // let mockJSON = {
+    //   9999999990 : 0,
+    //   9999999991 : 1,
+    //   9999999992 :  2,
+    //   111111111110: 3,
+    //   111111111111: 4,
+    //   AP111111110: 6,
+    //   AP111111111: 7
+    // }
+    // let randomError: any = {};
+    // try {
+    //   randomError =  PMKissanProtalErrors[mockJSON[`${prompt.input.identifier}`]]
+    //   if(!randomError) randomError = PMKissanProtalErrors[Math.floor(Math.random() * PMKissanProtalErrors.length)]
+    // } catch (e) {
+    //   randomError = PMKissanProtalErrors[Math.floor(Math.random() * PMKissanProtalErrors.length)]
+    // }
+  
+    let type='Mobile'
+    if(/^[6-9]\d{9}$/.test(prompt.input.identifier)) {
+      type='Mobile'
+    } else if(prompt.input.identifier.length==14 && /^[6-9]\d{9}$/.test(prompt.input.identifier.substring(0,10))){
+      type='MobileAdhaar'
     }
-    let randomError: any = {};
+    let userErrors = [];
     try {
-      randomError =  PMKissanProtalErrors[mockJSON[`${prompt.input.identifier}`]]
-      if(!randomError) randomError = PMKissanProtalErrors[Math.floor(Math.random() * PMKissanProtalErrors.length)]
-    } catch (e) {
-      randomError = PMKissanProtalErrors[Math.floor(Math.random() * PMKissanProtalErrors.length)]
-    }
-    chatGPT3FinalResponse = randomError.message
-    const endTime = performance.now();
+      let data = JSON.stringify({
+        "EncryptedRequest": `{\"Types\":\"${type}",\"Values\":\"${prompt.input.identifier}\",\"Token\":\"${this.configService.get("PM_KISSAN_TOKEN")}\"}`
+      });
+      
+      let config = {
+        method: 'post',
+        maxBodyLength: Infinity,
+        url: `${this.configService.get("PM_KISAN_BASE_URL")}/ChatbotBeneficiaryStatus`,
+        headers: { 
+          'Content-Type': 'application/json'
+        },
+        data : data
+      };
 
-    if (prompt.inputLanguage !== Language.en) {
-      responseInInputLanguge = await this.translate(
-        Language.en,
-        prompt.inputLanguage,
-        chatGPT3FinalResponse,
-        prompt
-      );
-      if(!responseInInputLanguge) {
-        await this.sendError(
-          REPHRASE_YOUR_QUESTION('en'),
-          REPHRASE_YOUR_QUESTION(prompt.inputLanguage),
-          prompt,
-          coreferencedPrompt,
-          true,
-          TEXT_TRANSLATION_ERROR(
-            prompt.input.userId,
-            prompt.input.body,
-            prompt.inputLanguage,
-            Language.en
-          )
-        )
+      let errors: any = await axios.request(config)
+      errors = await errors.data
+      console.log("related issues",errors)
+      errors = JSON.parse(errors.d.output)
+      if(errors.Rsponce == "True"){
+        Object.entries(errors).forEach(([key, value]) => {
+          if(key!="Rsponce" && key != "Message"){
+            if(value){
+              console.log(`ERRORVALUE: ${key} ${value}`);
+              userErrors.push(PMKissanProtalErrors[`${value}`])
+            }
+          }
+        });
       }
+    } catch (error) {
+      console.log(error)
     }
+
+    const endTime = performance.now();
+    chatGPT3FinalResponse = userErrors.join("\n")
+
+    // if (prompt.inputLanguage !== Language.en) {
+    //   responseInInputLanguge = await this.translate(
+    //     Language.en,
+    //     prompt.inputLanguage,
+    //     chatGPT3FinalResponse,
+    //     prompt
+    //   );
+    //   if(!responseInInputLanguge) {
+    //     await this.sendError(
+    //       REPHRASE_YOUR_QUESTION('en'),
+    //       REPHRASE_YOUR_QUESTION(prompt.inputLanguage),
+    //       prompt,
+    //       coreferencedPrompt,
+    //       true,
+    //       TEXT_TRANSLATION_ERROR(
+    //         prompt.input.userId,
+    //         prompt.input.body,
+    //         prompt.inputLanguage,
+    //         Language.en
+    //       )
+    //     )
+    //   }
+    // }
 
     await this.promptHistoryService.createOrUpdate({
       id: olderSimilarQuestionId,
@@ -684,26 +727,14 @@ export class AppService {
       queryId: prompt.input.messageId
     });
     promptLogger("response", responseInInputLanguge || chatGPT3FinalResponse)
-    const resp: ResponseForTS = {
-      message: {
-        title: responseInInputLanguge || chatGPT3FinalResponse,
-        choices: [],
-        media_url: null,
-        caption: null,
-        msg_type: "text",
-        conversationId: prompt.input.conversationId
-      },
-      to: prompt.input.from,
-      messageId: prompt.input.messageId,
-    };
-    
+  
     let res: any;
     try {
       let type = "Mobile";
       if(/^[6-9]\d{9}$/.test(prompt.input.identifier)) {
         type = "Mobile"
       } else if(prompt.input.identifier.length==14 && /^[6-9]\d{9}$/.test(prompt.input.identifier.substring(0,10))){
-        type = "MobileAadhaar"
+        type = "MobileAadhar"
       }
 
       let data = JSON.stringify({
@@ -744,13 +775,31 @@ export class AppService {
           media_url: null,
           caption: null,
           msg_type: "text",
-          conversationId: prompt.input.conversationId
+          conversationId: prompt.input.conversationId,
+          split: true
         },
         to: prompt.input.from,
         messageId: randomUUID(),
       })
     }
-    await this.sendMessageBackToTS(resp);
+    const delay = ms => new Promise(resolve => setTimeout(resolve, ms))
+    await delay(5000)
+    for(let i=0;i<userErrors.length;i++){
+      let error = userErrors[i]
+      const resp: ResponseForTS = {
+        message: {
+          title: error,
+          choices: [],
+          media_url: null,
+          caption: null,
+          msg_type: "text",
+          conversationId: prompt.input.conversationId
+        },
+        to: prompt.input.from,
+        messageId: randomUUID(),
+      };
+      await this.sendMessageBackToTS(resp);
+    }
     promptLogger(`Total query response time = ${new Date().getTime() - prompt.timestamp}`)
     if(new Date().getTime() - prompt.timestamp > 25000) errorRate+=1
     await this.prisma.query.create({
@@ -812,7 +861,7 @@ export class AppService {
     console.log(totalErrorRate,totalQueries)
     const averageErrorRate = totalErrorRate / totalQueries;
     const response = {
-      status: (averageErrorRate || 0) > (this.configService.get("ERROR_RATE_THRESHOLD")) ? "SERVER DOWN" : "OK",
+      status: (averageErrorRate || 0) > (this.configService.get("ERROR_RATE_THRESHOLD") || 5) ? "SERVER DOWN" : "OK",
       averageErrorRate: averageErrorRate || 0,
       timeFrame: `${minutes} minutes`,
       version: this.configService.get("SERVER_RELEASE_VERSION")?.slice(0.7)
