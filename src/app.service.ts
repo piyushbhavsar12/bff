@@ -658,6 +658,8 @@ export class AppService {
       type='MobileAadhar'
     } else if(prompt.input.identifier.length==12 && /^\d+$/.test(prompt.input.identifier)){
       type = "Aadhar"
+    } else if(prompt.input.identifier.length == 11) { 
+      type = "Ben_id"
     }
     console.log("ChatbotBeneficiaryStatus")
     console.log("using...",prompt.input.identifier, type)
@@ -743,6 +745,8 @@ export class AppService {
         type = "MobileAadhar"
       } else if(prompt.input.identifier.length==12 && /^\d+$/.test(prompt.input.identifier)){
         type = "Aadhar"
+      } else if(prompt.input.identifier.length == 11) { 
+        type = "Ben_id"
       }
       console.log("user datails")
       console.log("using...",prompt.input.identifier, type)

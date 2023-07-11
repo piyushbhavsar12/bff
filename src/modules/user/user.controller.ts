@@ -85,6 +85,8 @@ export class UserController {
       return this.userService.sendOTP(identifier,"MobileAadhar")
     } else if(identifier.length==12 && /^\d+$/.test(identifier)){
       return this.userService.sendOTP(identifier,"Aadhar")
+    } else if(identifier.length == 11) { 
+      return this.userService.sendOTP(identifier,"Ben_id")
     } else {
       return {
         "status": "NOT_OK",
@@ -101,7 +103,9 @@ export class UserController {
       return this.userService.verifyOTP(body.identifier,body.otp,"MobileAadhar")
     } else if(body.identifier.length==12 && /^\d+$/.test(body.identifier)){
       return this.userService.verifyOTP(body.identifier,body.otp,"Aadhar")
-    } else {
+    } else if(body.identifier.length == 11) { 
+      return this.userService.verifyOTP(body.identifier,body.otp,"Ben_id")
+    }else {
       return {
         "status": "NOT_OK",
         "error": "Please enter a valid Beneficiary ID/Aadhaar Number/Phone number"
@@ -163,7 +167,9 @@ export class UserController {
       return this.userService.getUserData(identifier,"MobileAadhar")
     } else if(identifier.length==12 && /^\d+$/.test(identifier)){
       return this.userService.getUserData(identifier,"Aadhar")
-    } else {
+    } else if(identifier.length == 11) { 
+      return this.userService.getUserData(identifier,"Ben_id")
+    }else {
       return {
         "status": "NOT_OK",
         "error": "Please enter a valid Beneficiary ID/Aadhaar Number/Phone number"
