@@ -100,7 +100,7 @@ export class UserController {
     } else if(body.identifier.length==14 && /^[6-9]\d{9}$/.test(body.identifier.substring(0,10))){
       return this.userService.verifyOTP(body.identifier,body.otp,"MobileAadhar")
     } else if(body.identifier.length==12 && /^\d+$/.test(body.identifier)){
-      return this.userService.verifyOTP(body.identifier,"Aadhar")
+      return this.userService.verifyOTP(body.identifier,body.otp,"Aadhar")
     } else {
       return {
         "status": "NOT_OK",
