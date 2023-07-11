@@ -655,7 +655,7 @@ export class AppService {
     if(/^[6-9]\d{9}$/.test(prompt.input.identifier)) {
       type='Mobile'
     } else if(prompt.input.identifier.length==14 && /^[6-9]\d{9}$/.test(prompt.input.identifier.substring(0,10))){
-      type='MobileAdhaar'
+      type='MobileAadhar'
     } else if(prompt.input.identifier.length==12 && /^\d+$/.test(prompt.input.identifier)){
       type = "Aadhar"
     }
