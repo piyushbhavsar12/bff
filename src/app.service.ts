@@ -666,6 +666,7 @@ export class AppService {
       let data = JSON.stringify({
         "EncryptedRequest": `{\"Types\":\"${type}",\"Values\":\"${prompt.input.identifier}\",\"Token\":\"${this.configService.get("PM_KISSAN_TOKEN")}\"}`
       });
+      console.log("body", data)
       
       let config = {
         method: 'post',
@@ -692,6 +693,7 @@ export class AppService {
         });
       }
     } catch (error) {
+      console.log("ChatbotBeneficiaryStatus error")
       console.log(error)
     }
 
