@@ -659,6 +659,8 @@ export class AppService {
     } else if(prompt.input.identifier.length==12 && /^\d+$/.test(prompt.input.identifier)){
       type = "Aadhar"
     }
+    console.log("ChatbotBeneficiaryStatus")
+    console.log("using...",prompt.input.identifier, type)
     let userErrors = [];
     try {
       let data = JSON.stringify({
@@ -740,6 +742,8 @@ export class AppService {
       } else if(prompt.input.identifier.length==12 && /^\d+$/.test(prompt.input.identifier)){
         type = "Aadhar"
       }
+      console.log("user datails")
+      console.log("using...",prompt.input.identifier, type)
 
       let data = JSON.stringify({
         "EncryptedRequest": `{\"Types\":\"${type}\",\"Values\":\"${prompt.input.identifier}\",\"Token\":\"${this.configService.get("PM_KISSAN_TOKEN")}\"}`
