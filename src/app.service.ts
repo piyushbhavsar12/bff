@@ -656,6 +656,8 @@ export class AppService {
       type='Mobile'
     } else if(prompt.input.identifier.length==14 && /^[6-9]\d{9}$/.test(prompt.input.identifier.substring(0,10))){
       type='MobileAdhaar'
+    } else if(prompt.input.identifier.length==12 && /^\d+$/.test(prompt.input.identifier)){
+      type = "Aadhar"
     }
     let userErrors = [];
     try {
@@ -735,6 +737,8 @@ export class AppService {
         type = "Mobile"
       } else if(prompt.input.identifier.length==14 && /^[6-9]\d{9}$/.test(prompt.input.identifier.substring(0,10))){
         type = "MobileAadhar"
+      } else if(prompt.input.identifier.length==12 && /^\d+$/.test(prompt.input.identifier)){
+        type = "Aadhar"
       }
 
       let data = JSON.stringify({
