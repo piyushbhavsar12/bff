@@ -91,7 +91,7 @@ export const AADHAAR_GREETING_MESSAGE = (
     DateOfRegistration
 ) => `Hi ${BeneficiaryName},
 Name: ${BeneficiaryName}
-Father's Name: ${FatherName}
+Father Name: ${FatherName}
 Date Of Birth: ${DOB}
 Address: ${Address}
 Registration Date: ${DateOfRegistration}
