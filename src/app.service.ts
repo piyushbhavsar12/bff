@@ -783,7 +783,8 @@ export class AppService {
             data.FatherName,
             data.DOB,
             data.Address,
-            data.DateOfRegistration
+            data.DateOfRegistration,
+            data.LatestInstallmentPaid
           ),
           choices: [],
           media_url: null,

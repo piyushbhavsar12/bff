@@ -88,11 +88,13 @@ export const AADHAAR_GREETING_MESSAGE = (
     FatherName,
     DOB,
     Address,
-    DateOfRegistration
+    DateOfRegistration,
+    LatestInstallmentPaid
 ) => `Hi ${BeneficiaryName},
 Name: ${BeneficiaryName}
 Father Name: ${FatherName}
 Date Of Birth: ${DOB}
 Address: ${Address}
 Registration Date: ${DateOfRegistration}
+Latest payment installment: ${LatestInstallmentPaid}
 `
