@@ -262,8 +262,7 @@ export const promptServices = {
         console.log("ChatbotBeneficiaryStatus error")
         console.log(error)
         }
-        return `${userDetails}
-${userErrors.join("\n")}`
+        return `${userDetails}${userErrors.join("\n")}`
         
     }
 }
