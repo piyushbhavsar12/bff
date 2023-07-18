@@ -79,28 +79,12 @@ export class AiToolsService {
       text: text.replace("\n","."),
     });
 
-
     var requestOptions = {
       method: "POST",
       headers: myHeaders,
       body: raw.replace('"unk\"','"or\"'),
     };
-    let translateURL = 'text_translation/azure/remote';
-    // if(userMobile && flagsmith) {
-    //   const flags = await flagsmith.getIdentityFlags('9550360277');
-    //   var translationService = flags.getFeatureValue('translation_service');
-    //   switch(translationService){
-    //     case 'bhashini':
-    //       translateURL = 'text_translation/bhashini/remote'
-    //       break
-    //     case 'azure':
-    //       translateURL = 'text_translation/azure/remote';
-    //       break
-    //     default:
-    //       translateURL = 'text_translation/azure/remote';
-    //       break;
-    //   }
-    // }
+    let translateURL = 'text_translation/bhashini/remote';
     translateURL = `${this.configService.get("AI_TOOLS_BASE_URL")}/${translateURL}`
     try {
       let response = await fetch(

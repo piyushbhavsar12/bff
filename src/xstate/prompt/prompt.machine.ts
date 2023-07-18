@@ -328,7 +328,8 @@ export const botFlowMachine = createMachine(
       userData: null,
       error: '',
       currentState: "getUserQuestion",
-      type: ''
+      type: '',
+      inputLanguage: ''
     },
     states: {
       getUserQuestion: {

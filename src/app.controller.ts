@@ -104,7 +104,18 @@ export class AppController {
     let botFlowService = conversationMap.get(conversationId);
     if (!botFlowService) {
       // Create a new bot flow service for a new conversation
-      const newBotFlowService = interpret(botFlowMachine).start();
+      const newBotFlowService = interpret(botFlowMachine.withContext({
+        query: '',
+        queryType: '',
+        response: '',
+        userAadhaarNumber: '',
+        otp: '',
+        userData: null,
+        error: '',
+        currentState: "getUserQuestion",
+        type: '',
+        inputLanguage: prompt.inputLanguage
+      })).start();
       conversationMap.set(conversationId, newBotFlowService);
       botFlowService = newBotFlowService;
     }
@@ -131,14 +142,16 @@ export class AppController {
       result.text = null,
       result.error = botFlowService.getSnapshot().context.error
     }
-    console.log(prompt.inputLanguage)
+    prompt.inputLanguage = botFlowService.getSnapshot().context.inputLanguage
     if(prompt.inputLanguage != Language.en) {
       try {
         let response = await this.aiToolsService.translate(
           Language.en,
-          promptDto.inputLanguage as Language,
+          prompt.inputLanguage as Language,
           result.text
         )
+        if(response["error"])
+        result.error = "unable to translate given language"
         result.text = response["translated"]
       } catch(error){
         console.log(error)
