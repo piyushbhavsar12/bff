@@ -65,11 +65,11 @@ export class AppController {
 
   @UseInterceptors(AlertInterceptor)
   @Post("/prompt")
-  async prompt(@Body() promptDto: any): Promise<any> {
+  async prompt(@Body() promptDto: any, @Headers() headers): Promise<any> {
+    const userId = headers["user-id"]
     let prompt: Prompt = {
       input: promptDto
     }
-    const conversationId = promptDto.conversationId;
     let userInput = promptDto.text;
 
     if(promptDto.text){
@@ -101,7 +101,7 @@ export class AppController {
       prompt.inputTextInEnglish = userInput
     }
 
-    let botFlowService = conversationMap.get(conversationId);
+    let botFlowService = conversationMap.get(userId);
     if (!botFlowService) {
       // Create a new bot flow service for a new conversation
       const newBotFlowService = interpret(botFlowMachine.withContext({
@@ -116,7 +116,7 @@ export class AppController {
         type: '',
         inputLanguage: prompt.inputLanguage
       })).start();
-      conversationMap.set(conversationId, newBotFlowService);
+      conversationMap.set(userId, newBotFlowService);
       botFlowService = newBotFlowService;
     }
 
@@ -138,7 +138,7 @@ export class AppController {
       error: null
     }
     if(botFlowService.getSnapshot().context.error){
-      conversationMap.delete(conversationId)
+      conversationMap.delete(userId)
       result.text = null,
       result.error = botFlowService.getSnapshot().context.error
     }

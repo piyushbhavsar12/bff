@@ -189,9 +189,10 @@ export const promptServices = {
         }else {
             return Promise.reject(new Error('Please enter a valid Beneficiary ID/Aadhaar Number/Phone number'));
         }
-        if(res){
-            console.log("returning..",res)
+        if(res && res["status"]=="OK"){
             return res;
+        } else {
+            return Promise.reject(new Error('Invalid OTP'));
         }
     },
 
