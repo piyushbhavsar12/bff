@@ -4,6 +4,7 @@ import { query } from '@prisma/client';
 import { AuthGuard } from '../../common/auth-gaurd';
 import { ConfigService } from '@nestjs/config';
 import { CustomLogger } from 'src/common/logger';
+import { v4 as uuid } from 'uuid';
 
 @Controller('user')
 export class UserController {
@@ -175,5 +176,19 @@ export class UserController {
         "error": "Please enter a valid Beneficiary ID/Aadhaar Number/Phone number"
       }
     }
+  }
+
+  @Post('/generateUserId/:identifier')
+  async generateUserId(@Param("identifier") identifier: string) {
+    const stringToUuid = (str: any) => {
+      str = str.replace('-', '');
+      return 'xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx'.replace(
+        /[x]/g,
+        function (c, p) {
+          return str[p % str.length];
+        }
+      );
+    };
+    return stringToUuid(identifier)
   }
 }

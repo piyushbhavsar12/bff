@@ -21,91 +21,39 @@ model query {
   response              String
   queryInEnglish        String
   responseInEnglish     String
-  conversationId        String?   @default(uuid()) @db.Uuid
   userId                String    @db.Uuid
-  workflowId            Int?
   reaction              Int       @default(0) @db.SmallInt
+  workflowId            Int?      @unique
   workflow              workflow? @relation(fields: [workflowId], references: [id])
+  conversationId        String    @db.Uuid
+  conversation          conversation @relation(fields: [conversationId], references: [id])
   isConversationDeleted Boolean @default(false)
-  coreferencedPrompt    String?
-  error                 String?
-  errorRate             Int       @default(0)
-  responseType          String?
-
-  @@unique([userId, createdAt])
-  @@unique([userId, createdAt, conversationId])
-}
-
-model feedback {
-  createdAt   DateTime @default(now()) @db.Timestamptz(3)
-  updatedAt   DateTime @updatedAt
-  id          Int      @id @default(autoincrement())
-  review      String?
-  rating      Int?
-  phoneNumber String
-  userId      String   @db.Uuid
 
   @@unique([userId, createdAt])
 }
 
-model document {
-  createdAt DateTime               @default(now()) @db.Timestamptz(3)
-  updatedAt DateTime               @updatedAt
-  id        Int                    @id @unique
-  userId    String?                @db.Uuid
-  tags      String
-  content   String
-  embedding Unsupported("vector")?
-}
-
-model faq {
-  createdAt          DateTime @default(now()) @db.Timestamptz(3)
-  updatedAt          DateTime @updatedAt
-  id                 Int      @id @default(autoincrement())
-  questionInEnglish  String?
-  answerInEnglish    String?
-  question           String?
-  answer             String?
-}
-
-model prompt {
-  createdAt                 DateTime @default(now()) @db.Timestamptz(3)
-  updatedAt                 DateTime @updatedAt
-  id                        Int      @id @default(autoincrement())
-  prompt                    String
-  description               String?
-  languageModel             String?
-  version                   Int
-  contextIndependence       Boolean
-  modelAgnosticInstructions String?
-  author                    String
-  testing                   Boolean
-  additional_notes          String
+model conversation {
+  id                    String    @default(uuid()) @db.Uuid
+  createdAt             DateTime  @default(now()) @db.Timestamptz(3)
+  updatedAt             DateTime  @updatedAt
+  userId                String    @db.Uuid
+  query                 query[]
+  workflowId            Int?      @unique
+  workflow              workflow? @relation(fields: [workflowId], references: [id])
+  context               Json    
+  @@unique([id])
 }
 
 model workflow {
-  createdAt DateTime @default(now()) @db.Timestamptz(3)
-  updatedAt DateTime @updatedAt
-  id        Int      @id @default(autoincrement())
-  userId    String   @db.Uuid
-  content   Json
-  query     query[]
-}
-
-model prompt_history {
-  id                Int                    @id @default(autoincrement())
-  createdAt         DateTime               @default(now()) @db.Timestamptz(3)
-  updatedAt         DateTime               @updatedAt
-  deletedAt         DateTime?              @db.Timestamptz(3)
-  responseTime      Int
-  queryInEnglish    String
-  responseInEnglish String
-  timesUsed         Int
-  metadata          Json?
-  embedding         Unsupported("vector")?
-  queryId           String?  @db.Uuid
-
-  @@unique([queryInEnglish])
+  createdAt      DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt      DateTime @updatedAt
+  id             Int      @id @default(autoincrement())
+  userId         String   @db.Uuid
+  content        Json
+  queryId        String?
+  query          query?
+  conversationId String?
+  conversation   conversation?
 }
 
 model config {
@@ -116,30 +64,4 @@ model config {
   data      Json
   question  String
   answer    String
-}
-
-model similarity_search_response {
-  id             Int      @id @default(autoincrement())
-  documentId     Int
-  content        String
-  tags           String
-  similarity     Float
-  queryId        String  @db.Uuid
-}
-
-model conversationFeedback {
-  createdAt        DateTime @default(now()) @db.Timestamptz(3)
-  updatedAt        DateTime @updatedAt
-  id               Int      @id @default(autoincrement())
-  rating           Int?
-  review           String?
-  conversationId   String  @db.Uuid
-
-  @@unique([conversationId])
-}
-
-model OdiaEnglish {
-  index               Int      @id @default(autoincrement())
-  odiaWord            String
-  correctTranslation  String
 }

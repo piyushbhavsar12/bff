@@ -90,12 +90,6 @@ export class UserService {
           this.logger.error(error)
           message['mobileNumber'] = null
         }
-        //get conversation feedbacks
-        message['feedback'] = await this.prisma.conversationFeedback.findUnique({
-          where:{
-            conversationId: message.conversationId
-          }
-        })
         return message
       }))
 
