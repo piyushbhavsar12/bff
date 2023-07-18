@@ -168,7 +168,9 @@ export const promptServices = {
         } else {
             return Promise.reject(new Error('Please enter a valid Beneficiary ID/Aadhaar Number/Phone number'));
         }
-        if(res){
+        if(res) {
+            if(res.d.output.Message == `No Record Found for this (${userIdentifier}) Aadhar/Ben_id/Mobile.`)
+            return Promise.reject(new Error(res.d.output.Message));
             return Promise.resolve(res);
         }
     },
