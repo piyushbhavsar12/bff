@@ -1,11 +1,10 @@
-import { Controller, Get, Post, Headers, Body, UseInterceptors, Param } from "@nestjs/common";
+import { Controller, Get, Post, Headers, Body, UseInterceptors, Param, UnsupportedMediaTypeException } from "@nestjs/common";
 import { AppService, Prompt } from "./app.service";
 import { AlertInterceptor } from "./modules/alerts/alerts.interceptor";
 import { IsNotEmpty,IsUUID, IsOptional } from 'class-validator';
 import { interpret } from "xstate";
-import { PromptContext, botFlowMachine, inputMessageProcessor, promptMachine } from "./xstate/prompt/prompt.machine";
+import { botFlowMachine } from "./xstate/prompt/prompt.machine";
 import { Language } from "./language";
-import { AADHAAR_GREETING_MESSAGE } from "./common/constants";
 import { ConfigService } from "@nestjs/config";
 import { AiToolsService } from "./modules/aiTools/ai-tools.service";
 
@@ -77,12 +76,22 @@ export class AppController {
         prompt.inputLanguage = Language.en
       } else {
         let response = await this.aiToolsService.detectLanguage(userInput)
-        console.log("detect language", response)
         prompt.inputLanguage = response["language"] as Language
       }
     } else if (promptDto.media){
-      userInput = "where is my money?"
-      prompt.inputLanguage = promptDto.inputLanguage as Language
+      if(promptDto.media.category=="base64audio" && promptDto.media.text){
+        prompt.inputLanguage = promptDto.inputLanguage as Language
+        let response = await this.aiToolsService.speechToText(promptDto.media.text,prompt.inputLanguage)
+        userInput = response["data"]["source"]
+        console.log(userInput)
+      } else {
+        return {
+          text: "",
+          media: promptDto.media,
+          mediaCaption: "",
+          error: "Unsupported media"
+        }
+      }
     }
 
     if(prompt.inputLanguage != Language.en) {

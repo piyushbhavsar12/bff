@@ -105,6 +105,85 @@ export class AiToolsService {
     }
   }
 
+  async speechToText(base64audio,inputLanguage){
+    try{
+      let modelId;
+      switch(inputLanguage){
+        case 'en':
+          modelId = this.configService.get("STT_MODEL_ID_EN")
+          break;
+        case 'hi':
+          modelId = this.configService.get("STT_MODEL_ID_HI")
+          break;
+        case 'bn':
+          modelId = this.configService.get("STT_MODEL_ID_BN")
+          break;
+        case 'ta':
+          modelId = this.configService.get("STT_MODEL_ID_TA")
+          break;
+        case 'te':
+          modelId = this.configService.get("STT_MODEL_ID_TE")
+          break;
+        default:
+          modelId = this.configService.get("STT_MODEL_ID_EN")
+      }
+
+      let body = {
+        modelId,
+        task: "asr",
+        audioContent: base64audio,
+        source: inputLanguage,
+        userId: null
+      }
+      let response = await fetch(this.configService.get("ULCA_STT_BASE_URL"), {
+        "headers": {
+          "accept": "*/*",
+          "accept-language": "en-GB,en-US;q=0.9,en;q=0.8",
+          "cache-control": "no-cache",
+          "content-type": "application/json",
+        },
+        "body": JSON.stringify(body),
+        "method": "POST",
+        "mode": "cors",
+        "credentials": "omit"
+      });
+      response = await response.json()
+      return response
+    } catch(error){
+      console.log(error)
+      return {
+        error
+      }
+    }
+  }
+
+  async textClassification(text: string) {
+    try{
+      var myHeaders = new Headers();
+      myHeaders.append("Content-Type", "application/json");
+      myHeaders.append(
+        "Authorization",
+        this.configService.get("AI_TOOLS_AUTH_HEADER")
+      );
+      let body = {
+        text
+      }
+      let response = await fetch( `${this.configService.get("AI_TOOLS_BASE_URL")}/text_classification/grievance_recognition/local`, {
+        headers: myHeaders,
+        "body": JSON.stringify(body),
+        "method": "POST",
+        "mode": "cors",
+        "credentials": "omit"
+      });
+      response = await response.json()
+      return response
+    } catch(error){
+      return {
+        error
+      }
+    }
+  }
+
   async llm(prompt: any): Promise<{ response: string; allContent: any; error: any }> {
     var myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/json");
