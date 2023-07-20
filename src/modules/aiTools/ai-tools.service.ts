@@ -37,7 +37,7 @@ export class AiToolsService {
         let response = await fetch(
             `${this.configService.get(
               "AI_TOOLS_BASE_URL"
-            )}/text_lang_detection/bhashini/remote`,
+            )}/text_lang_detection/bhashini/remote/`,
             requestOptions
         )
         response = await response.json()
@@ -84,7 +84,7 @@ export class AiToolsService {
       headers: myHeaders,
       body: raw.replace('"unk\"','"or\"'),
     };
-    let translateURL = 'text_translation/bhashini/remote';
+    let translateURL = 'text_translation/bhashini/remote/';
     translateURL = `${this.configService.get("AI_TOOLS_BASE_URL")}/${translateURL}`
     try {
       let response = await fetch(
@@ -168,16 +168,17 @@ export class AiToolsService {
       let body = {
         text
       }
-      let response = await fetch( `${this.configService.get("AI_TOOLS_BASE_URL")}/text_classification/grievance_recognition/local`, {
+      let response: any = await fetch(`${this.configService.get("AI_TOOLS_BASE_URL")}/text_classification/grievance_recognition/local/`, {
         headers: myHeaders,
         "body": JSON.stringify(body),
         "method": "POST",
         "mode": "cors",
         "credentials": "omit"
       });
-      response = await response.json()
+      response = await response.text()
       return response
     } catch(error){
+      console.log(error)
       return {
         error
       }

@@ -1,11 +1,9 @@
-import { assign, interpret, send, sendTo } from 'xstate';
-import { PromptContext, inputMessageProcessor } from './prompt.machine'
+import { assign, sendTo } from 'xstate';
 import { randomUUID } from 'crypto';
-import { Prompt } from 'src/app.service';
 
 export const promptActions = {
 
-  updateContext: assign<PromptContext,any>((context, event) => {
+  updateContext: assign<any,any>((context, event) => {
     try {
       let ret = {
         ...context,
@@ -28,7 +26,7 @@ export const promptActions = {
     }
   }),
 
-  setStartTimeForCompleteFlow: assign<PromptContext, any>((context, _) => {
+  setStartTimeForCompleteFlow: assign<any, any>((context, _) => {
     return {
       ...context,
       prompt: {
@@ -38,14 +36,14 @@ export const promptActions = {
     }
   }),
 
-  setStartTime: assign<PromptContext, any>((context, _) => {
+  setStartTime: assign<any, any>((context, _) => {
     return {
       ...context,
       currentStateStartTime: Date.now()
     }
   }),
 
-  updateContextWithError: assign<PromptContext, any>((context, event) => {
+  updateContextWithError: assign<any, any>((context, event) => {
     return {
       ...context,
       prompt: {

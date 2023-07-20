@@ -57,10 +57,19 @@ export const promptServices = {
         }
     },
 
-    classifyQuery: async (context) => {
-        console.log("classifyQuery")
-        return {
-            class: "Money Related"
+    questionClassifier: async (context) => {
+        console.log("questionClassifier")
+        try{
+            let response: any = await aiToolsService.textClassification(context.query)
+            if (response.error) throw new Error("Something went wrong, please try again.")
+            if (response == "LABEL_2"){
+                throw new Error("Please enter a question related to PM Kisan portal:")
+            }
+            if (response=="LABEL_1") return "payment"
+            if (response=="LABEL_0") return "aadhaar"
+            return response;
+        } catch (error){
+            return Promise.reject(error)
         }
     },
 
@@ -151,28 +160,33 @@ export const promptServices = {
     },
 
     validateAadhaarNumber: async (context, event) => {
-        console.log("validating user identifier")
-        const userIdentifier = context.userAadhaarNumber;
-        console.log("userIdentifier",userIdentifier)
-        console.log(userIdentifier.length)
-        console.log(/^[6-9]\d{9}$/.test(userIdentifier.substring(0,10)))
-        let res;
-        if(/^[6-9]\d{9}$/.test(userIdentifier)) {
-            res = await userService.sendOTP(userIdentifier,"Mobile")
-        } else if(userIdentifier.length==14 && /^[6-9]\d{9}$/.test(userIdentifier.substring(0,10))){
-            res = await userService.sendOTP(userIdentifier,"MobileAadhar")
-        } else if(userIdentifier.length==12 && /^\d+$/.test(userIdentifier)){
-            res = await userService.sendOTP(userIdentifier,"Aadhar")
-        } else if(userIdentifier.length == 11) { 
-            res = await userService.sendOTP(userIdentifier,"Ben_id")
-        } else {
-            return Promise.reject(new Error('Please enter a valid Beneficiary ID/Aadhaar Number/Phone number'));
+        try{
+            console.log("validating user identifier")
+            const userIdentifier = context.userAadhaarNumber;
+            console.log("userIdentifier",userIdentifier)
+            console.log(userIdentifier.length)
+            console.log(/^[6-9]\d{9}$/.test(userIdentifier.substring(0,10)))
+            let res;
+            if(/^[6-9]\d{9}$/.test(userIdentifier)) {
+                res = await userService.sendOTP(userIdentifier,"Mobile")
+            } else if(userIdentifier.length==14 && /^[6-9]\d{9}$/.test(userIdentifier.substring(0,10))){
+                res = await userService.sendOTP(userIdentifier,"MobileAadhar")
+            } else if(userIdentifier.length==12 && /^\d+$/.test(userIdentifier)){
+                res = await userService.sendOTP(userIdentifier,"Aadhar")
+            } else if(userIdentifier.length == 11) { 
+                res = await userService.sendOTP(userIdentifier,"Ben_id")
+            } else {
+                return Promise.resolve('Please enter a valid Beneficiary ID/Aadhaar Number/Phone number');
+            }
+            if(res) {
+                return Promise.resolve(res.d.output.Message);
+            }
+            throw new Error('Something went wrong.')
+        } catch (error) {
+            console.log(error)
+            return Promise.reject(new Error('Something went wrong.'))
         }
-        if(res) {
-            if(res.d.output.Message == `No Record Found for this (${userIdentifier}) Aadhar/Ben_id/Mobile.`)
-            return Promise.reject(new Error(res.d.output.Message));
-            return Promise.resolve(res);
-        }
+        
     },
 
     validateOTP: async (context, event) => {
@@ -188,13 +202,13 @@ export const promptServices = {
             res = await userService.verifyOTP(userIdentifier,otp,"Aadhar")
         } else if(userIdentifier.length == 11) { 
             res = await userService.verifyOTP(userIdentifier,otp,"Ben_id")
-        }else {
-            return Promise.reject(new Error('Please enter a valid Beneficiary ID/Aadhaar Number/Phone number'));
-        }
-        if(res && res["status"]=="OK"){
-            return res;
         } else {
-            return Promise.reject(new Error('Invalid OTP'));
+            return Promise.reject(new Error('Something went wrong, Please try again by asking your question.'));
+        }
+        if(res){
+            return Promise.resolve(res.d.output.Message);
+        } else {
+            return Promise.reject(new Error('Something went wrong, Please try again by asking your question.'));
         }
     },
 
@@ -251,9 +265,9 @@ export const promptServices = {
         if(errors.Rsponce == "True"){
             Object.entries(errors).forEach(([key, value]) => {
             if(key!="Rsponce" && key != "Message"){
-                if(value){
-                console.log(`ERRORVALUE: ${key} ${value}`);
-                userErrors.push(PMKissanProtalErrors[`${value}`])
+                if(value && PMKissanProtalErrors[`${value}`]["types"].indexOf(context.queryType)!=-1){
+                    console.log(`ERRORVALUE: ${key} ${value}`);
+                    userErrors.push(PMKissanProtalErrors[`${value}`]["text"])
                 }
             }
             });

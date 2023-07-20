@@ -1,322 +1,14 @@
 // @ts-nocheck
-import { assign, createMachine } from 'xstate';
+import { actions, assign, createMachine } from 'xstate';
 import { promptServices } from './prompt.service';
 import { PromptDto } from '../../app.controller';
 import { Language } from '../../language';
 import { promptActions } from './prompt.actions';
 import { promptGuards } from './prompt.gaurds';
 
-export interface PromptContext {
-  prompt: {
-    input: PromptDto;
-    output?: any;
-    outputInEnglish?: any;
-    inputLanguage?: Language;
-    inputTextInEnglish?: string;
-    maxTokens?: number;
-    outputLanguage?: Language;
-    similarDocs?: any;
-
-    // More output metadata
-    timeTaken?: number;
-    timestamp?: number;
-    responseType?: string;
-    userHistory?: any[];
-    getUserStatusFromPMKisan?: string;
-    similarQuestion?: any[];
-    errorRate?: number;
-    class?: string;
-    response?: any;
-  };
-  currentStateStartTime?: any;
-  workflow?: Array<{
-    state?: string;
-    description?: string;
-    input?: any;
-    output?: any;
-    timeTaken?: string;
-  }>,
-  currentState?: string;
-  propertiesToBeUpdate?: any;
-  // other context properties
-}
-
-export const promptMachine = createMachine<PromptContext>({
-  /** @xstate-layout N4IgpgJg5mDOIC5QAcBOB7AtsgLgBQwGM5YBLAOygDoLkBXHAYgnXLBvIDd0BrdtLLgLpisMpQ70cCCt0IBDHKVYBtAAwBddRsQp0ZJa10gAHogC0AZgDsANioAWAKxObahx4CMdzwBoQAJ6Ilpb2TrYATGqe0U7WdrbOAL5J-gLY+EQkFNS0DMys7LK8-BgZwqLiueRSMlwiisrk2iqeOkggyPqkhuTGZgiettZU1p4RDmrRAJwAHIme0w7+QQiW3lSeHpYR1k7uETFODilpZUJZYjmS+WCoGKhUyAA2igBm6KiYT+eZItkSPLSYoKXotTTGLoGJr9CyzQ6bJwRWZqCJLcZOWZ+QKIRbTKiJNHWabokKzPanTq-CoA6iEVicO44ADKyDA8kIAAsACroblgExMFhsKiwHCKUqCP6Va70rhM1nsrm8-mC7SQ7q9WEIczE-F2SwktS2WzrWxxFaIBzWNSOY3zCKhSxqY62SnpC7-K4SOWM1Astkcnl8gVCwqi8U4SXlS5VKi+hWB5UhtVtDXQowdAZIsLTVHjTyzELTU2WhBOaYjaauawROu2ea193U2PXCBgKOEHAAGXklDo8hgBRFxT4PylNO91HbnZ7fagA5gdTkjVUmnVHShPRhWdxDns00Os3hDnrKMsZcPESoWOPtbU1g89ebE9bEhnYC7vf7g7Aw6K9Rjh60q0lQH5fvOi5gMuDRguuaabpqO6gAM5hOJ4TibI6JrDLMDh4XhZazJWdp7NYzrHpYlEvjGXpxuBc4-kOdwPE8rw4B8XzjrRMrvh2n6MQuv4waCTTgu0egZn0u46jYB7Og4oS2FMylok4ZbWOSjhLHsxo7HsEw0Z6vHUDgqB9rA7FgAAkjU+TCgB3BAS2dHXGZFlWbZtQgquzTrhCiFSdq5iKba3gOJ4kWnpY+GzOpOKDPhIz6Q+tgYaETapFSr6uRI7nkJZEpefZ4ajtGxmgflhVRsVwL1KJa5aAhknbpmKG4iSVBIjFWxTDM8xllstaOHY4SaQ4h54UZIFTlQVWeXZTAsZ8bHvJ83zAZOcbzUVi0ib54npq10ntbJtj4hE+yPnh0yLJMhEJZ4OwOFQaghHsGHhFihzTVtsqvFcbwBAAinQdwBP+HBOeVM1xoQANkEDoPg-tcFaAFLVajJ5h5qM1oluEkXxLMg3zJ4WExHh5qGtaTi-W+dII6QSNg6gEPLY8LxrVxm0M-GTMsyjPloxumPIaYFg2vYylPtMMXneSyyPWMIypSWPiTXW9O5dQMA4AAqrAdzMpGdCwAAYmUeAALIANKkLAfaQ2V3EVbNeuG8bpsW1bdsO32qNif5EmdEhbUSzqMSWJsWLod4KJpeE8WrHWw3IsSsdvSWNjayZVAe0bqAm4oZuW1gNv2475CMBzq0cetruw9cBdeyXPvl37VeB41ouh0F2MfY4oSKcS0TmvhZaHJdXV1nmj5DJYFa55V5kFVZADyDBSM7gEw39eWr9VYCbzg3n1QdwdHVjp3mFi+KnnFjoYbdHhKynJq2udGGPg+SJzCcWVeY6zmofDeW8Sojl3o3feplQEShPmfFcItmp92OsFSK9gJrOBii4c6HhiSTz2PYKi-8dg7H2O4Zes0dpRgQbce4K0ub1x5i5PONDj7gLqkgoO6MQ5bmvhHXUhZXr3VPOPQ0QxJ7KVtMeVwNghqjSoXGMUnwwAAEFyAQGZGATR1sSC-h3tDaBfMVGoHUZo7Ruj9FLmFjw3u-DxaoSeteCIiQXQYN2AcEmCUyGzCoJWSYNpqzKUiEo64pjzFaJ0RAPRYgDG1yYZxDarDQIRI0VEqxcSbHnxFhjVBAjULzyoIvEINhFJy3QtMSe6sCQklcT1JYqI6aAJSbNTkfYIDPDAAAUQYagQxJRjHAPaZorpvSHjdz8rwq+jiLAxHcP408agUR9UupWMsMViKOBRJpROIRFgpCyuQdA7Z4CblaVUGZ4cnEumvEsKIKyphrOsGWc02ynkPgwss1wYTASLSuSdQRpoqB1nqYcCKkV9jJ1xEifxKysS0ymNWX5dIGSJiVMGVUOAAXaiiNHU8tYkoohLC6C8CVrQvVrI6CY55vB5maWcHKecGLfiEjAHF2NIX+MXpWMYiRyIxGxKscimCdKHgbK4PMlgUUgI8rtKQHKb7DBnpiKiBK1C8rfriZE9g3o2EXliKiFEZXw3kIDEGrNVhi2uRYE0owdjEvwg-Eeg1hj4jViaEV6FQktKZaBFuRdvZl0wBXf2gKHE2sjpFLqiQbqPgFeQyeD58SLHtK4Y49LpW+p4ivOVtDOGKsEeRV6V4hiKUignF5CVLqhAJKNYiJpjhTWzW7ZROBVHpMsTE6xYBC2oRLHafcSIsRpVrNChAaJzqvUik9YkrhkQuhlSMzpPS+l9osHMeweEnx1jwirbxqwHVbpwfMd689rAyocuunUkwh4VmNI2446wMIbOtMlbwl0JjkJ+YcoAA */
-    id: 'promptProcessing',
-    predictableActionArguments: true,
-    initial: 'input',
-    context: {
-      prompt: null,
-      workflow: [],
-      currentState: 'input'
-    },
-    states: {
-      input: {
-        entry: ['setStartTimeForCompleteFlow','setStartTime'],
-        invoke: {
-          src:'getInput',
-          onDone: [
-            {
-              cond: "ifText",
-              target:"detectLanguage",
-              actions:[
-                assign({
-                  prompt:(context,_)=>context.prompt,
-                  workflow:(context,_)=>context.workflow,
-                  currentStateStartTime:(context,_)=>context.currentStateStartTime,
-                  currentState: 'getInput',
-                  propertiesToBeUpdate: null
-                }),
-                "updateContext"
-              ]
-            },
-            {
-              cond: "ifAudio",
-              target: "convertSpeechToText",
-              actions: [
-                assign({
-                  prompt:(context,_)=>context.prompt,
-                  workflow:(context,_)=>context.workflow,
-                  currentStateStartTime:(context,_)=>context.currentStateStartTime,
-                  currentState: 'getInput',
-                  propertiesToBeUpdate: null
-                }),
-                "updateContext"
-              ]
-            }
-          ],
-          onError: "handleError"
-        }
-      },
-      convertSpeechToText: {
-        entry: ['setStartTime'],
-        invoke: {
-          src: "convertSpeechToText",
-          onDone: [
-            {
-              cond: "ifError",
-              target: "handleError"
-            },{
-              target: "translateInput",
-              actions: [
-                assign({
-                  prompt:(context,_)=>context.prompt,
-                  workflow:(context,_)=>context.workflow,
-                  currentStateStartTime:(context,_)=>context.currentStateStartTime,
-                  currentState: 'convertSpeechToText',
-                  propertiesToBeUpdate: [{key:"prompt.input.body",value:"text"}]
-                }),
-              "updateContext"
-              ]
-            }
-          ],
-          onError: "handleError"
-        },
-      },
-      detectLanguage: {
-        entry: ['setStartTime'],
-        invoke: {
-          src: 'detectLanguage',
-          onDone: [
-            {
-              target: 'translateInput',
-              cond: 'unableToDetectLanguage',
-              actions: [
-                assign({
-                  prompt:(context,_)=>context.prompt,
-                  workflow:(context,_)=>context.workflow,
-                  currentStateStartTime:(context,_)=>context.currentStateStartTime,
-                  currentState: 'unableToDetectLanguage',
-                  propertiesToBeUpdate: null
-                }),
-                'updateContext'
-              ]
-            },
-            {
-              target: 'translateInput',
-              actions: [
-                assign({
-                  prompt:(context,_)=>context.prompt,
-                  workflow:(context,_)=>context.workflow,
-                  currentStateStartTime:(context,_)=>context.currentStateStartTime,
-                  currentState: 'detectLanguage',
-                  propertiesToBeUpdate: [{key:"prompt.input.inputLanguage",value:"language"}]
-                }),
-                'updateContext'
-              ]
-            }
-          ],
-          onError: 'handleError',
-        }
-      },
-      translateInput: {
-        entry: ['setStartTime'],
-        invoke: {
-          src: 'translateInput',
-          onDone: [
-            {
-              cond: 'unableToTranslate',
-              target: 'handleError',
-              actions: [
-                assign({
-                  prompt:(context,_)=>context.prompt,
-                  workflow:(context,_)=>context.workflow,
-                  currentStateStartTime:(context,_)=>context.currentStateStartTime,
-                  currentState: 'unableToTranslateInput',
-                  propertiesToBeUpdate: null
-                }),
-                'updateContext',
-              ]
-            },
-            {
-              target: 'classifyQuery',
-              actions: [
-                assign({
-                  prompt:(context,_)=>context.prompt,
-                  workflow:(context,_)=>context.workflow,
-                  currentStateStartTime:(context,_)=>context.currentStateStartTime,
-                  currentState: 'translateInput',
-                  propertiesToBeUpdate: [{key:"prompt.inputTextInEnglish",value:"translated"}]
-                }),
-                'updateContext'
-              ]
-            }
-          ],
-          onError: 'handleError',
-        },
-      },
-      classifyQuery: {
-        entry: ['setStartTime'],
-        invoke: {
-          src: 'classifyQuery',
-          onDone: [
-            {
-              target: 'getUserStatusFromPMKisan',
-              actions: [
-                assign({
-                  prompt:(context,_)=>context.prompt,
-                  workflow:(context,_)=>context.workflow,
-                  currentStateStartTime:(context,_)=>context.currentStateStartTime,
-                  currentState: 'classifyQuery',
-                  propertiesToBeUpdate: [{key:"prompt.class",value:"class"}]
-                }),
-                'updateContext'
-              ]
-            },
-          ],
-          onError: 'handleError',
-        },
-      },
-      getUserStatusFromPMKisan: {
-        entry: ['setStartTime'],
-        invoke: {
-          src: 'getUserStatusFromPMKisan',
-          onDone: [
-            {
-              target: 'translateOutput',
-              actions: [
-                assign({
-                  prompt:(context,_)=>context.prompt,
-                  workflow:(context,_)=>context.workflow,
-                  currentStateStartTime:(context,_)=>context.currentStateStartTime,
-                  currentState: 'getUserStatusFromPMKisan',
-                  propertiesToBeUpdate: [{key:"prompt.outputInEnglish",value:"status"}]
-                }),
-                "updateContext"
-              ]
-            }
-          ],
-          onError: 'handleError',
-        },
-      },
-      translateOutput: {
-        entry: ['setStartTime'],
-        invoke: {
-          src: 'translateOutput',
-          onDone: [
-            {
-              cond: 'unableToTranslate',
-              target: 'handleError',
-              actions: [
-                assign({
-                  prompt:(context,_)=>context.prompt,
-                  workflow:(context,_)=>context.workflow,
-                  currentStateStartTime:(context,_)=>context.currentStateStartTime,
-                  currentState: 'unableToTranslateOutput',
-                  propertiesToBeUpdate: null
-                }),
-                'updateContext'
-              ]
-            },
-            {
-              target: 'storeAndSendMessage',
-              actions: [
-                assign({
-                  prompt:(context,_)=>context.prompt,
-                  workflow:(context,_)=>context.workflow,
-                  currentStateStartTime:(context,_)=>context.currentStateStartTime,
-                  currentState: 'translateOutput',
-                  propertiesToBeUpdate: [{key:"prompt.output",value:"translated"}]
-                }),
-                'updateContext'
-              ],
-            }
-          ],
-          onError: 'handleError',
-        },
-      },
-      storeAndSendMessage: {
-        entry: ['setStartTime'],
-        invoke: {
-          src: 'storeAndSendMessage',
-          onDone: [
-            {
-              target: 'done',
-              actions: [
-                assign({
-                  prompt:(context,_)=>context.prompt,
-                  workflow:(context,_)=>context.workflow,
-                  currentStateStartTime:(context,_)=>context.currentStateStartTime,
-                  currentState: 'storeAndSendMessage',
-                  propertiesToBeUpdate: [{key:"prompt.response",value:"translated"}]
-                }),
-                'updateContext'
-              ]
-            }
-          ],
-          onError: 'handleError',
-        },
-      },
-      handleError: {
-        invoke: {
-          src: 'logError',
-          onDone: {
-            target: 'done',
-            actions: ['updateContextWithError']
-          }
-        }
-      },
-      done: {
-        type: 'final',
-        invoke: {
-          src: 'done'
-        }
-      }
-    },
-},
-{
-  services: promptServices,
-  actions: promptActions,
-  guards: promptGuards
-}
-);
-
-
-
 export const botFlowMachine = createMachine(
   {
-    /** @xstate-layout N4IgpgJg5mDOIC5QCMD2AXAYgG1QdwDoZ0BVWMAJwEUBXOdAS1QDsBiEgZQFEAlAfQCSAOQAKJACoBtAAwBdRKAAOqWA0YsFIAB6IATAEYAnAQAc0gCwB2fboDMus-pOGArABoQAT0S3Dx17b6LgBsluaGNpa25gC+MR5oWLiEAIawANYMzFAAgikQABYpKRRCNAC2yJTs3PzCYlJymsqq6syaOgjBhsEEui6WJsG2ltLSfv0e3gi+-i6BIWERulGx8SCJOPgEAG4p2AwQKYzZeYXFpRVVFKwQLGAEWTuo6Q+bybv7h8dZuflFJTKlUoCCeqAAxj8WDJZDDmio1Ex2khtIgbBYCJYBhFLBF9EZcVM9C5jLpdMESS4TCFbNJLME4gkMFtCHsDkcTn9zoCrtVKBRUBQCIpsMcAGaC8oEd7bNnfTlnAGXYEUUHMZ6QtowuEolqIjQozro8yY7H6XH4gmGIkIcxBTHSBaBcmGaRktZMpLbNKZbIAeXEIhqvEEogkOqUCLaHTRw161MMVgs5hc7uCNv6lkx5JJwzpBhcjI2zI+co5vwDQbuzAeYNe0pLsq+5f9gbVGqhzG1TV1UaRMYQRkMJgIRhc5lstKGY1s7i8aPNBDGY3NwXNIQshfWMtZzZ+raD-MFwtF6AlFClO8+7P3UEr7Yhne78l7rX7hrRfhHY4nU+CM7naYVlsAgrApQxyRMcJnEMIsrzFMB0HBApfjISgABFjhSW57kedUXjeRtCAQpCUOyNCKEw9AUgfTUkWfeE3wNUBOl0cw3VMEloMpfQ1xMG0TBArEZygilol0Yc4KIggSOQ1DyEorDWCPIURXFSUGy9YjELk8iFKomiwTo6E5AjEA9WjD8EDYjiE241xeKcG19ECPoXBnd1aUsLE4nWZhUAgOBNB3Rj9WRFjEAAWnTecEEilwCD8JLkuSoYpK0ohEIo2h6HfSMmPC1FbV0G1zDsUCJOsboKRzExLHSlkCB9X5FQuIFrlCyyIttcwRzdaJE3mWwTHxG1ZkSyryX6djqS3T1GrLW9Wp5FVOryoqIJNMDghTV1QlEsa-AmwxLCm8dpFmhqPmag81uYor9HMYYlzpZxBl60YnNizMHUCGwyt44I0u3aTFs5Ss7sKo1cV0PpnF48lhpJU6MwGX7eKpGxzUCK7tlksioAogzIYHAwTFhukLHxJ6KTGcxnPtMD5jtcmIKCeqQYylSSas8lpH0Ag11OwxbApboXMsDNXFA+YgknVNHSpXHCDAZgIBZHnur5gWhYk0WQgiEYBIF9zl1F4dJ1CNY4iAA */
+    /** @xstate-layout N4IgpgJg5mDOIC5QCMD2AXAYgG1QdwDoZ0BVWMAJwEUBXOdAS1QDsBiEgZQFEAlAfQCSAOQAKJACoBtAAwBdRKAAOqWA0YsFIAB6IAjAA4AzAQAsukwDZDAVhMAma3f26ANCACeiALR2DBXQCc0sHWAboWugDsutIWAL5xbmhYuIQAjnSw6swAwtgAhrCqAGYMlKwQLGAEDMwAbqgA1tXJOPgEGfRMuQVFDKWUCLUNAMb52TKyk5rKqtmaOgi61rqmJtb61tbS+hYm0tFunghmBNJ2VvoHAfrRJobmCUkYbemZ2XmFJWUUrJQUqAoBEUBXQxUBAFsCK1Uh13t1Pn0BhQhvVUGMJnJpkgQLM1N0Ft5ItYCE57BtDBZNtYLNYjt59PoCLtrJFdmELoZDHZIk8QDD2oVGrUoABBfIQAAW+XyFCENAhyHKnF4glEEmxShU+I0OMWUSZ4UsFgcPOCAXW9IQdhMkVJkQdhluFxWtmsfIFhDq+WwDAg4xF4qlMrlCqVv0qzGqwyaLResO9vv9jGYYol0tl8sVgxjGO6k01uO18z13kcFgIAQsARWkUpGyc+itjmkBGs3K5gQdkRr+g98faib9AdTQYzoezEaqNTRzWhA69PuHKbTwczYZzaLzLALunkOLxJdA+p2qx25cZ5gCDmbdlb7bsnYC3d7-ZSg6XycD6ZDWfDFWnGM509Aghy-Ucf3XSdUVGAMdyxOx9y1OYCVLBAaQCStpF0QxIhtW1OxMW97w7B5nwdV9En5BdQM-EdV3HP9ykjaNZzjd9FyTeix1-DcUVzODmALQwkKLFDdWPRAwlMXCbTsfDNktDxEBbNtSK7CiNjfV5aK4lceKg-9-kBYFQXBCgoRAsDuMgidwxg9FBILOQZmLVDJIQHxpBJQwax2fQa0MWILB2K1fLsNtIhNFZOWrbD3SokChRFAB5cQRHYbh+GEMQpBcg83Ik7Q9CMUxzBpHYnF0AxQuUhArmMJ0NnbbzOwsXlEpo6yVzSjKWJnBpgK6uievShztyErF8uQnVmEJE4HUrZ8LV8ewHBwq1qpsNSTHuRxNP0ExtITEbUvSgCowG2N5w43TlzOkRxqcrE91c8S5rQ6qIp5fZuWwmJIh2CxNuWJkVmkKsAhrKlGWOj89Iev4KABIEQXGczLOGhHU16p7MSmaaxNm+avHCJk72JJ0q0iXblhB7b212mweR7DYjs627ijAdARklEUyEoAARcZ8gu1jBvYnSuZ5vnUwFihhfQfI8fzKbRMPdziqWELTA2NkWw2KlpEMTbLGMVkeQMB0bQpOHCGl3n+fIBWRaRlHTPRyEbql7nHbl53FeVgT8cLDWisWUmosrfZiUh58IjsTaOwIWOQqCdtNgCO2CGMqdLqAyXYVzlX4IJ9XCo+jzSdZAhCKBu8HlpOk6uWaSNmWW1duiXCEio5hUAgOBNE9N7ibQrxWRMStq1ret9EbK0vCdCstlZXQLnuExr1sbPiHl2guiKsPK61o1TAdcILSCAGLkXuwobOLY8MfGtAaMeIOZ0zosgRXpvkoUeR5T64UrEFBwZsqyxUXkEZkAVfB4QtDYB02dkoQTXHZABBV3rzXMBFK4YR448j2GyTa7Z-BmBrL4K41VwjZ26t+dBTEKCAM1vqPwJhGSbHng8YKPIwrVjONeAi7UQoxGfCg2AwocbpRYeHPQ15a7tR7NyHkVZHCJzqoDYwsQjAWkcFvYIhg6GnWkSIWRJ99TbFMBvKIyx6xBGBnVZ8xhnC3ACpnahdhs4O1llAeWgdzE4MsNHB42xcJVmwgEJOvgU6UhwsSdq88jDZ1zoE8eURWyHUBpvSwDYmwt0sKsWwQi8K7HsMSFJzAICvDSR5AwRSoi4XuNFf6m1aStgiEFTha1QgJQSEAA */
     id: 'botFlow',
     initial: 'getUserQuestion',
     context: {
@@ -335,11 +27,36 @@ export const botFlowMachine = createMachine(
       getUserQuestion: {
         on: {
           USER_INPUT: {
-            target: 'askingAadhaarNumber',
+            target: 'questionClassifier',
             actions: [
               assign({
-                response: () => 'Please enter your Mobile/Aadhaar/Benificiary Id:',
-                type: 'pause'
+                query: (_,event) => event.data
+              })
+            ]
+          }
+        }
+      },
+      questionClassifier: {
+        invoke: {
+          src: "questionClassifier",
+          onDone: [
+            {
+              target: 'askingAadhaarNumber',
+              actions: [
+                assign({
+                  response: () => 'Please enter your Mobile/Aadhaar/Benificiary Id:',
+                  queryType: (_,event) => event.data,
+                  type: 'pause'
+                })
+              ]
+            }
+          ],
+          onError: {
+            target: 'error',
+            actions: [
+              assign({
+                error: (_, event) => event.data.message,
+                type: ''
               })
             ]
           }
@@ -363,6 +80,17 @@ export const botFlowMachine = createMachine(
           src: 'validateAadhaarNumber',
           onDone: [
             {
+              cond: "ifNotValidAadhaar",
+              target: "askingAadhaarNumber",
+              actions: [
+                assign({
+                  response: () => 'Please enter a valid Mobile/Aadhaar/Benificiary Id:',
+                  userAadhaarNumber: "",
+                  type: 'pause'
+                })
+              ]
+            },
+            {
               cond: "ifMultipleAadhaar",
               target: "askingAadhaarNumber",
               actions: [
@@ -373,7 +101,24 @@ export const botFlowMachine = createMachine(
               ]
             },
             {
-              target: "askingOTP"
+              cond: "ifNoRecordsFound",
+              target: "askingAadhaarNumber",
+              actions: [
+                assign({
+                  response: () => 'Please enter your Mobile/Aadhaar/Benificiary Id again:',
+                  userAadhaarNumber: "",
+                  type: 'pause'
+                })
+              ]
+            },
+            {
+              target: "askingOTP",
+              actions: [
+                assign({
+                  response: () => 'Please enter the OTP sent to your registered mobile number:',
+                  type: 'pause'
+                })
+              ]
             }
           ],
           onError: {
@@ -388,10 +133,6 @@ export const botFlowMachine = createMachine(
         }
       },
       askingOTP: {
-        entry: assign({
-          response: () => 'Please enter the OTP sent to your registered mobile number:',
-          type: 'pause'
-        }),
         on: {
           USER_INPUT: {
             target: 'validatingOTP',
@@ -407,9 +148,21 @@ export const botFlowMachine = createMachine(
       validatingOTP: {
         invoke: {
           src: 'validateOTP',
-          onDone: {
-            target: 'fetchingUserData',
-          },
+          onDone: [
+            {
+              cond: "ifInvalidOTP",
+              target: "askingOTP",
+              actions: [
+                assign({
+                  response: () => 'Invalid OTP\nPlease enter the correct OTP:',
+                  type: 'pause'
+                })
+              ]
+            },
+            {
+              target: 'fetchingUserData',
+            }
+          ],
           onError: {
             target: 'error',
             actions: [
@@ -464,6 +217,7 @@ export const botFlowMachine = createMachine(
 
 
 export const inputMessageProcessor = createMachine<any>({
+    /** @xstate-layout N4IgpgJg5mDOIC5QEsB2AHArgFwLJ1gEMYAFAJwHsBjAisgOmQgBswBiAZQBUBBAJS4B9EnwDyAYQCiHDgEkAcgHEA2gAYAuolDoKsZNmQVUWkAA9EqgDQgAnhYC+962ix4CxMOWq0GLnGwgjMEZUADcKAGtgvzdYIlJKGji6ENcENHCqQgMjNXU8kx09HOMkMwtrOwRVR2cMHHw4jy8k2BSYgKCQ8KjUhvcE72Tfeux0sOpsw1Q85QBGTTKi-WmTc2rKhycQGMb4z0SfPuw2MDJKBnRmbIAzOgBbY73mw+Hj8cyp3I0Cpd0VoxrCq2LZ1VzPQatFJUIyhM7YDjoMBgKgACy4FC4YFMJ0CqGiE16uwGByGbQYMLC8MRyLRGKxOI+kxKsw0hX+JSBGxB1VqO1GENJUIpsOpSJR6Mx2NxXQykQJ4JJLSOlLhZAR4rpUsZcqyLJ+C3ZxVWZXWVh5NW2xKakJVovVNIl9Olp3OKSutweTyVr3J9FVYtpkoZY11XxmPzZf2NgNNwKqlrB-RtQqOEDA2BR2AAMoRUFBMB5OvjuvLvSnlW905mqDm8wWPEy9dNWYttByTaAzZteVaBT6ySlq1nc-nCzBiwSegrk-tK37h7XRw2YE3w7NDdGAaUu-HQfzFRXfUOMyP6+P2GcLvQPdg7mRHta58eGIu62PG2H9fko+2Yzvym5BM+SfF5BwYbAyDzWBrkzWRRknUsiX7I9wPoSDoNgsB4LSL8W0jNsQGWTk4yA-dQNtN4MNQGDsmwhC8SnMsKNTKioJorCcJwNdv3mQjiM7QDzWAvtD2fNDqNouCEKvd1YPvR8UPE4V0PYqT6NwiZm2+H9+I7WNdzI3sk1iZSjlRPMWDASQ3TIRC5WQsSwJUizUCsmyLh4-DdKNbcuWErZtlQCh03gMoWPnOhfJIwyAFoABYAA4e1ixKAHZ6AAVlUHLVDmAA2eLVAAZgATnygqQKU5yjiYVhosE7seXi4qACYqqcyi-RiBqDKEntMvy-L6Hi0qxvS-LVFK+LRvyjrZxqt4AwdTVg2lXqAPWIrWvoVr8rStK5kSmbsrmOYZp7NL0voNL8tKzLMvi1rWrSsrMsS+bTMWhdTyXc8PA2-yezmHKMtG8b4qus6StKz7BUiiC1M40ZAdIgKEDmVrzvoMaxrSma0rytq4YHFzLNYDyoq3GL+p5c7npG3HCrmTLSsq0SFq6ocglRwz0YKkqcdx978sS478faxx7CAA */
     id: 'inputMessageProcessor',
     predictableActionArguments: true,
     initial: 'idle',

@@ -16,8 +16,11 @@ export const promptGuards = {
     ifAudio: (_,event) => event.data.prompt.input.type == "Audio",
     wordContactInQuery: (_, event) => /contact/i.test(event.data?.translated),
     ifMultipleAadhaar: (_,event) => {
-        console.log("ifMultipleAadhaar")
-        console.log(event.data.d.output.Message)
-        return event.data.d.output.Message == "This mobile number taged with multiple records."
-    }
+        return event.data == "This mobile number taged with multiple records."
+    },
+    ifNoRecordsFound: (context,event)=> {
+        return event.data == `No Record Found for this (${context.userAadhaarNumber}) Aadhar/Ben_id/Mobile.`
+    },
+    ifNotValidAadhaar: (_,event) =>  event.data == "Please enter a valid Beneficiary ID/Aadhaar Number/Phone number",
+    ifInvalidOTP: (_,event) => event.data == "OTP not verified"
 }
