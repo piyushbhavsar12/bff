@@ -24,7 +24,7 @@ export class AiToolsService {
     );
 
     var raw = JSON.stringify({
-      text: text.replace("?","")?.trim(),
+      text: text?.replace("?","")?.trim(),
     });
 
     var requestOptions = {
@@ -46,7 +46,7 @@ export class AiToolsService {
             error: null
         }
     } catch (error) {
-        if(isMostlyEnglish(text.replace("?","")?.trim())) {
+        if(isMostlyEnglish(text?.replace("?","")?.trim())) {
             return {
                 language: Language.en,
                 error: error.message
@@ -76,7 +76,7 @@ export class AiToolsService {
     var raw = JSON.stringify({
       source_language: source,
       target_language: target,
-      text: text.replace("\n","."),
+      text: text?.replace("\n","."),
     });
 
     var requestOptions = {

@@ -6,7 +6,7 @@ import { Language } from '../../language';
 import { promptActions } from './prompt.actions';
 import { promptGuards } from './prompt.gaurds';
 
-export const botFlowMachine = createMachine(
+export const botFlowMachine1 = createMachine(
   {
     /** @xstate-layout N4IgpgJg5mDOIC5QCMD2AXAYgG1QdwDoZ0BVWMAJwEUBXOdAS1QDsBiEgZQFEAlAfQCSAOQAKJACoBtAAwBdRKAAOqWA0YsFIAB6IAjAA4AzAQAsukwDZDAVhMAma3f26ANCACeiALR2DBXQCc0sHWAboWugDsutIWAL5xbmhYuIQAjnSw6swAwtgAhrCqAGYMlKwQLGAEDMwAbqgA1tXJOPgEGfRMuQVFDKWUCLUNAMb52TKyk5rKqtmaOgi61rqmJtb61tbS+hYm0tFunghmBNJ2VvoHAfrRJobmCUkYbemZ2XmFJWUUrJQUqAoBEUBXQxUBAFsCK1Uh13t1Pn0BhQhvVUGMJnJpkgQLM1N0Ft5ItYCE57BtDBZNtYLNYjt59PoCLtrJFdmELoZDHZIk8QDD2oVGrUoABBfIQAAW+XyFCENAhyHKnF4glEEmxShU+I0OMWUSZ4UsFgcPOCAXW9IQdhMkVJkQdhluFxWtmsfIFhDq+WwDAg4xF4qlMrlCqVv0qzGqwyaLResO9vv9jGYYol0tl8sVgxjGO6k01uO18z13kcFgIAQsARWkUpGyc+itjmkBGs3K5gQdkRr+g98faib9AdTQYzoezEaqNTRzWhA69PuHKbTwczYZzaLzLALunkOLxJdA+p2qx25cZ5gCDmbdlb7bsnYC3d7-ZSg6XycD6ZDWfDFWnGM509Aghy-Ucf3XSdUVGAMdyxOx9y1OYCVLBAaQCStpF0QxIhtW1OxMW97w7B5nwdV9En5BdQM-EdV3HP9ykjaNZzjd9FyTeix1-DcUVzODmALQwkKLFDdWPRAwlMXCbTsfDNktDxEBbNtSK7CiNjfV5aK4lceKg-9-kBYFQXBCgoRAsDuMgidwxg9FBILOQZmLVDJIQHxpBJQwax2fQa0MWILB2K1fLsNtIhNFZOWrbD3SokChRFAB5cQRHYbh+GEMQpBcg83Ik7Q9CMUxzBpHYnF0AxQuUhArmMJ0NnbbzOwsXlEpo6yVzSjKWJnBpgK6uievShztyErF8uQnVmEJE4HUrZ8LV8ewHBwq1qpsNSTHuRxNP0ExtITEbUvSgCowG2N5w43TlzOkRxqcrE91c8S5rQ6qIp5fZuWwmJIh2CxNuWJkVmkKsAhrKlGWOj89Iev4KABIEQXGczLOGhHU16p7MSmaaxNm+avHCJk72JJ0q0iXblhB7b212mweR7DYjs627ijAdARklEUyEoAARcZ8gu1jBvYnSuZ5vnUwFihhfQfI8fzKbRMPdziqWELTA2NkWw2KlpEMTbLGMVkeQMB0bQpOHCGl3n+fIBWRaRlHTPRyEbql7nHbl53FeVgT8cLDWisWUmosrfZiUh58IjsTaOwIWOQqCdtNgCO2CGMqdLqAyXYVzlX4IJ9XCo+jzSdZAhCKBu8HlpOk6uWaSNmWW1duiXCEio5hUAgOBNE9N7ibQrxWRMStq1ret9EbK0vCdCstlZXQLnuExr1sbPiHl2guiKsPK61o1TAdcILSCAGLkXuwobOLY8MfGtAaMeIOZ0zosgRXpvkoUeR5T64UrEFBwZsqyxUXkEZkAVfB4QtDYB02dkoQTXHZABBV3rzXMBFK4YR448j2GyTa7Z-BmBrL4K41VwjZ26t+dBTEKCAM1vqPwJhGSbHng8YKPIwrVjONeAi7UQoxGfCg2AwocbpRYeHPQ15a7tR7NyHkVZHCJzqoDYwsQjAWkcFvYIhg6GnWkSIWRJ99TbFMBvKIyx6xBGBnVZ8xhnC3ACpnahdhs4O1llAeWgdzE4MsNHB42xcJVmwgEJOvgU6UhwsSdq88jDZ1zoE8eURWyHUBpvSwDYmwt0sKsWwQi8K7HsMSFJzAICvDSR5AwRSoi4XuNFf6m1aStgiEFTha1QgJQSEAA */
     id: 'botFlow',
@@ -21,6 +21,7 @@ export const botFlowMachine = createMachine(
       error: '',
       currentState: "getUserQuestion",
       type: '',
+      inputType:'',
       inputLanguage: ''
     },
     states: {
@@ -140,6 +141,361 @@ export const botFlowMachine = createMachine(
               assign({
                 otp: (_, event) => event.data,
                 type: ''
+              })
+            ]
+          }
+        }
+      },
+      validatingOTP: {
+        invoke: {
+          src: 'validateOTP',
+          onDone: [
+            {
+              cond: "ifInvalidOTP",
+              target: "askingOTP",
+              actions: [
+                assign({
+                  response: () => 'Invalid OTP\nPlease enter the correct OTP:',
+                  type: 'pause'
+                })
+              ]
+            },
+            {
+              target: 'fetchingUserData',
+            }
+          ],
+          onError: {
+            target: 'error',
+            actions: [
+              assign({
+                error: (_, event) => event.data.message,
+                type: ''
+              })
+            ]
+          }
+        }
+      },
+      fetchingUserData: {
+        invoke: {
+          src: 'fetchUserData',
+          onDone: {
+            target: 'endFlow',
+            actions: [
+              assign({
+                response: (_, event) => event.data,
+                type: ''
+              })
+            ]
+          },
+          onError: {
+            target: 'error',
+            actions: [
+              assign({
+                error: (_, event) => event.data.message,
+                type: ''
+              })
+            ]
+          }
+        }
+      },
+      error: {
+        invoke: {
+          src: 'logError',
+          onDone: 'endFlow',
+        }
+      },
+      endFlow: {
+        type: 'final'
+      }
+    }
+  },
+  {
+    actions: promptActions,
+    services: promptServices,
+    guards: promptGuards
+  }
+);
+
+
+export const botFlowMachine2 = createMachine(
+  {
+    /** @xstate-layout N4IgpgJg5mDOIC5QCMD2AXAYgG1QdwDoZ0BVWMAJwEUBXOdAS1QDsBiEgZQFEAlAfQCSAOQAKJACoBtAAwBdRKAAOqWA0YsFIAB6IAjAA4AzAQAsukwDZDAVhMAma3f26ANCACeiALR2DBXQCc0sHWAboWugDsutIWAL5xbmhYuIQAjnSw6swAwtgAhrCqAGYMlKwQLGAEDMwAbqgA1tXJOPgEGfRMuQVFDKWUCLUNAMb52TKyk5rKqtmaOgi61rqmJtb61tbS+hYm0tFunghmBNJ2VvoHAfrRJobmCUkYbemZ2XmFJWUUrJQUqAoBEUBXQxUBAFsCK1Uh13t1Pn0BhQhvVUGMJnJpkgQLM1N0Ft5ItYCE57BtDBZNtYLNYjt59PoCLtrJFdmELoZDHZIk8QDD2oVGrUoABBfIQAAW+XyFCENAhyHKnF4glEEmxShU+I0OMWUSZ4UsFgcPOCAXW9IQdhMkVJkQdhluFxWtmsfIFhDq+WwDAg4xF4qlMrlCqVv0qzGqwyaLResO9vv9jGYYol0tl8sVgxjGO6k01uO18z13kcFgIAQsARWkUpGyc+itjmkBGs3K5gQdkRr+g98faib9AdTQYzoezEaqNTRzWhA69PuHKbTwczYZzaLzLALunkOLxJdA+p2qx25cZ5gCDmbdlb7bsnYC3d7-ZSg6XycD6ZDWfDFWnGM509Aghy-Ucf3XSdUVGAMdyxOx9y1OYCVLBAaQCStpF0QxIhtW1OxMW97w7B5nwdV9En5BdQM-EdV3HP9ykjaNZzjd9FyTeix1-DcUVzODmALQwkKLFDdWPRAwlMXCbTsfDNktDxEBbNtSK7CiNjfV5aK4lceKg-9-kBYFQXBCgoRAsDuMgidwxg9FBILOQZmLVDJIQHxpBJQwax2fQa0MWILB2K1fLsNtIhNFZOWrbD3SokChRFAB5cQRHYbh+GEMQpBcg83Ik7Q9CMUxzBpHYnF0AxQuUhArmMJ0NnbbzOwsXlEpo6yVzSjKWJnBpgK6uievShztyErF8uQnVmEJE4HUrZ8LV8ewHBwq1qpsNSTHuRxNP0ExtITEbUvSgCowG2N5w43TlzOkRxqcrE91c8S5rQ6qIp5fZuWwmJIh2CxNuWJkVmkKsAhrKlGWOj89Iev4KABIEQXGczLOGhHU16p7MSmaaxNm+avHCJk72JJ0q0iXblhB7b212mweR7DYjs627ijAdARklEUyEoAARcZ8gu1jBvYnSuZ5vnUwFihhfQfI8fzKbRMPdziqWELTA2NkWw2KlpEMTbLGMVkeQMB0bQpOHCGl3n+fIBWRaRlHTPRyEbql7nHbl53FeVgT8cLDWisWUmosrfZiUh58IjsTaOwIWOQqCdtNgCO2CGMqdLqAyXYVzlX4IJ9XCo+jzSdZAhCKBu8HlpOk6uWaSNmWW1duiXCEio5hUAgOBNE9N7ibQrxWRMStq1ret9EbK0vCdCstlZXQLnuExr1sbPiHl2guiKsPK61o1TAdcILSCAGLkXuwobOLY8MfGtAaMeIOZ0zosgRXpvkoUeR5T64UrEFBwZsqyxUXkEZkAVfB4QtDYB02dkoQTXHZABBV3rzXMBFK4YR448j2GyTa7Z-BmBrL4K41VwjZ26t+dBTEKCAM1vqPwJhGSbHng8YKPIwrVjONeAi7UQoxGfCg2AwocbpRYeHPQ15a7tR7NyHkVZHCJzqoDYwsQjAWkcFvYIhg6GnWkSIWRJ99TbFMBvKIyx6xBGBnVZ8xhnC3ACpnahdhs4O1llAeWgdzE4MsNHB42xcJVmwgEJOvgU6UhwsSdq88jDZ1zoE8eURWyHUBpvSwDYmwt0sKsWwQi8K7HsMSFJzAICvDSR5AwRSoi4XuNFf6m1aStgiEFTha1QgJQSEAA */
+    id: 'botFlow',
+    initial: 'getUserQuestion',
+    context: {
+      query: '',
+      queryType: '',
+      response: '',
+      userAadhaarNumber: '',
+      otp: '',
+      userData: null,
+      error: '',
+      currentState: "getUserQuestion",
+      type: '',
+      inputType:'',
+      inputLanguage: ''
+    },
+    states: {
+      getUserQuestion: {
+        on: {
+          USER_INPUT: {
+            target: 'checkType1',
+            actions: [
+              assign({
+                query: (_,event) => event.data,
+                response: (_,event) => event.data
+              })
+            ]
+          }
+        }
+      },
+      checkType1: {
+        invoke: {
+          src: "getInput",
+          onDone: [
+            {
+              cond:"ifAudio",
+              target: "confirmInput1",
+              actions: [
+                assign({
+                  type: "pause"
+                })
+              ]
+            },
+            {
+              target:"questionClassifier",
+              actions:[
+                assign({
+                  query: (_,event) => event.data.query,
+                  response: 'Please enter your Mobile/Aadhaar/Benificiary Id:'
+                })
+              ]
+            }
+          ],
+          onError: {
+            target: 'error',
+            actions: [
+              assign({
+                error: (_, event) => event.data.message,
+                type: ''
+              })
+            ]
+          }
+        }
+      },
+      confirmInput1:{
+        on: {
+          USER_INPUT: {
+            target: 'checkType1',
+            actions: [
+              assign({
+                query: (_,event) => event.data,
+                response: (_,event) => event.data
+              })
+            ]
+          }
+        }
+      },
+      questionClassifier: {
+        invoke: {
+          src: "questionClassifier",
+          onDone: [
+            {
+              target: 'askingAadhaarNumber',
+              actions: [
+                assign({
+                  response: () => {console.log("assigning response = Please enter your Mobile/Aadhaar/Benificiary Id:"); return 'Please enter your Mobile/Aadhaar/Benificiary Id:'},
+                  queryType: (_,event) => {console.log(`assigning queryType = ${event.data}`); return event.data},
+                  type: 'pause'
+                })
+              ]
+            }
+          ],
+          onError: {
+            target: 'error',
+            actions: [
+              assign({
+                error: (_, event) => event.data.message,
+                type: ''
+              })
+            ]
+          }
+        }
+      },
+      askingAadhaarNumber: {
+        on: {
+          USER_INPUT: {
+            target: 'checkType2',
+            actions: [
+              assign({
+                query: (_,event) => event.data,
+                response: (_,event) => event.data
+              })
+            ]
+          }
+        }
+      },
+      checkType2: {
+        invoke: {
+          src: "getInput",
+          onDone: [
+            {
+              cond:"ifAudio",
+              target: "confirmInput2",
+              actions: [
+                assign({
+                  type: "pause"
+                })
+              ]
+            },
+            {
+              target:"validatingAadhaarNumber",
+              actions:[
+                assign({
+                  query: (_,event) => event.data.query,
+                  userAadhaarNumber: (context, event) => {console.log("setting user aadhaar"); return `${event.data.query}`},
+                  type:''
+                })
+              ]
+            }
+          ],
+          onError: {
+            target: 'error',
+            actions: [
+              assign({
+                error: (_, event) => event.data.message,
+                type: ''
+              })
+            ]
+          }
+        }
+      },
+      confirmInput2:{
+        on: {
+          USER_INPUT: {
+            target: 'checkType2',
+            actions: [
+              assign({
+                query: (_,event) => event.data,
+                response: (_,event) => event.data
+              })
+            ]
+          }
+        }
+      },
+      validatingAadhaarNumber: {
+        invoke: {
+          src: 'validateAadhaarNumber',
+          onDone: [
+            {
+              cond: "ifNotValidAadhaar",
+              target: "askingAadhaarNumber",
+              actions: [
+                assign({
+                  response: () => 'Please enter a valid Mobile/Aadhaar/Benificiary Id:',
+                  userAadhaarNumber: "",
+                  type: 'pause'
+                })
+              ]
+            },
+            {
+              cond: "ifMultipleAadhaar",
+              target: "askingAadhaarNumber",
+              actions: [
+                assign({
+                  response: () => 'Please enter last four digits of your aadhaar',
+                  type: 'pause'
+                })
+              ]
+            },
+            {
+              cond: "ifNoRecordsFound",
+              target: "askingAadhaarNumber",
+              actions: [
+                assign({
+                  response: () => 'Please enter your Mobile/Aadhaar/Benificiary Id again:',
+                  userAadhaarNumber: "",
+                  type: 'pause'
+                })
+              ]
+            },
+            {
+              target: "askingOTP",
+              actions: [
+                assign({
+                  response: () => 'Please enter the OTP sent to your registered mobile number:',
+                  type: 'pause'
+                })
+              ]
+            }
+          ],
+          onError: {
+            target: 'error',
+            actions: [
+              assign({
+                error: (_, event) => event.data.message,
+                type: ''
+              })
+            ]
+          }
+        }
+      },
+      askingOTP: {
+        on: {
+          USER_INPUT: {
+            target: 'checkType3',
+            actions: [
+              assign({
+                query: (_,event) => event.data,
+                response: (_,event) => event.data
+              })
+            ]
+          }
+        }
+      },
+      checkType3: {
+        invoke: {
+          src: "getInput",
+          onDone: [
+            {
+              cond:"ifAudio",
+              target: "confirmInput3",
+              actions: [
+                assign({
+                  type: "pause"
+                })
+              ]
+            },
+            {
+              target:"validatingOTP",
+              actions:[
+                assign({
+                  query: (_,event) => event.data.query,
+                  otp: (context, event) => {console.log("setting user otp"); return `${event.data.query}`},
+                  type:''
+                })
+              ]
+            }
+          ],
+          onError: {
+            target: 'error',
+            actions: [
+              assign({
+                error: (_, event) => event.data.message,
+                type: ''
+              })
+            ]
+          }
+        }
+      },
+      confirmInput3:{
+        on: {
+          USER_INPUT: {
+            target: 'checkType3',
+            actions: [
+              assign({
+                query: (_,event) => event.data,
+                response: (_,event) => event.data
               })
             ]
           }

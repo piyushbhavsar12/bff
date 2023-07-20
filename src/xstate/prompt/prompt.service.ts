@@ -191,7 +191,7 @@ export const promptServices = {
 
     validateOTP: async (context, event) => {
         const userIdentifier = context.userAadhaarNumber
-        const otp = event.data;
+        const otp = context.otp;
         let res;
         // Perform OTP validation logic here
         if(/^[6-9]\d{9}$/.test(userIdentifier)) {

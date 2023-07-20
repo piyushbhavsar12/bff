@@ -18,8 +18,9 @@ async function bootstrap() {
   /** Fastify Application */
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
-    new FastifyAdapter()
+    new FastifyAdapter({ bodyLimit: 10048576 })
   );
+  
   /** Register Prismaservice LifeCycle hooks */
   const prismaService: PrismaService = app.get(PrismaService);
   prismaService.enableShutdownHooks(app);

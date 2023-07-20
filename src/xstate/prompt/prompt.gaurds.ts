@@ -13,7 +13,11 @@ export const promptGuards = {
         }
     },
     ifText: (_,event) => event.data.prompt.input.type == "Text",
-    ifAudio: (_,event) => event.data.prompt.input.type == "Audio",
+    ifAudio: (_,event) => {
+        console.log("if audio",event.data)
+        console.log(event.data.inputType == "Audio")
+        return event.data.inputType == "Audio"
+    },
     wordContactInQuery: (_, event) => /contact/i.test(event.data?.translated),
     ifMultipleAadhaar: (_,event) => {
         return event.data == "This mobile number taged with multiple records."
