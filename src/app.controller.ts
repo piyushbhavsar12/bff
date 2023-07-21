@@ -147,7 +147,8 @@ export class AppController {
           currentState: "getUserQuestion",
           type: '',
           inputType: type,
-          inputLanguage: prompt.inputLanguage
+          inputLanguage: prompt.inputLanguage,
+          lastAadhaarDigits:''
         })).start();
         conversationMap.set(`${userId}${configid}`, newBotFlowService);
         botFlowService = newBotFlowService;
