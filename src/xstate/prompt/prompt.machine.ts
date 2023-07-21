@@ -233,7 +233,8 @@ export const botFlowMachine2 = createMachine(
       currentState: "getUserQuestion",
       type: '',
       inputType:'',
-      inputLanguage: ''
+      inputLanguage: '',
+      lastAadhaarDigits:''
     },
     states: {
       getUserQuestion: {
@@ -400,7 +401,7 @@ export const botFlowMachine2 = createMachine(
             },
             {
               cond: "ifMultipleAadhaar",
-              target: "askingAadhaarNumber",
+              target: "askLastAaadhaarDigits",
               actions: [
                 assign({
                   response: () => 'Please enter last four digits of your aadhaar',
@@ -435,6 +436,67 @@ export const botFlowMachine2 = createMachine(
               assign({
                 error: (_, event) => event.data.message,
                 type: ''
+              })
+            ]
+          }
+        }
+      },
+      askLastAaadhaarDigits:{
+        on: {
+          USER_INPUT: {
+            target: 'checkType4',
+            actions: [
+              assign({
+                query: (_,event) => event.data,
+                response: (_,event) => event.data
+              })
+            ]
+          }
+        }
+      },
+      checkType4: {
+        invoke: {
+          src: "getInput",
+          onDone: [
+            {
+              cond:"ifAudio",
+              target: "confirmInput4",
+              actions: [
+                assign({
+                  type: "pause"
+                })
+              ]
+            },
+            {
+              target:"validatingAadhaarNumber",
+              actions:[
+                assign({
+                  query: (_,event) => event.data.query,
+                  lastAadhaarDigits: (context, event) => {console.log("setting user aadhaar"); return `${event.data.query}`},
+                  type:''
+                })
+              ]
+            }
+          ],
+          onError: {
+            target: 'error',
+            actions: [
+              assign({
+                error: (_, event) => event.data.message,
+                type: ''
+              })
+            ]
+          }
+        }
+      },
+      confirmInput4:{
+        on: {
+          USER_INPUT: {
+            target: 'checkType4',
+            actions: [
+              assign({
+                query: (_,event) => event.data,
+                response: (_,event) => event.data
               })
             ]
           }

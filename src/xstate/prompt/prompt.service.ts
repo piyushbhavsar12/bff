@@ -162,7 +162,7 @@ export const promptServices = {
     validateAadhaarNumber: async (context, event) => {
         try{
             console.log("validating user identifier")
-            const userIdentifier = context.userAadhaarNumber;
+            const userIdentifier = `${context.userAadhaarNumber}${context.lastAadhaarDigits}`;
             console.log("userIdentifier",userIdentifier)
             console.log(userIdentifier.length)
             console.log(/^[6-9]\d{9}$/.test(userIdentifier.substring(0,10)))
@@ -190,7 +190,7 @@ export const promptServices = {
     },
 
     validateOTP: async (context, event) => {
-        const userIdentifier = context.userAadhaarNumber
+        const userIdentifier = `${context.userAadhaarNumber}${context.lastAadhaarDigits}`;
         const otp = context.otp;
         let res;
         // Perform OTP validation logic here
@@ -213,7 +213,7 @@ export const promptServices = {
     },
 
     fetchUserData: async (context, event) => {
-        const userIdentifier = context.userAadhaarNumber
+        const userIdentifier = `${context.userAadhaarNumber}${context.lastAadhaarDigits}`;
         let res;
         let type='Mobile'
         if(/^[6-9]\d{9}$/.test(userIdentifier)) {
