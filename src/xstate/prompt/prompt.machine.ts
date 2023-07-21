@@ -113,11 +113,21 @@ export const botFlowMachine1 = createMachine(
               ]
             },
             {
+              cond: "ifOTPSend",
               target: "askingOTP",
               actions: [
                 assign({
                   response: () => 'Please enter the OTP sent to your registered mobile number:',
                   type: 'pause'
+                })
+              ]
+            },
+            {
+              target: "error",
+              actions: [
+                assign({
+                  error: (_, event) => event.data,
+                  type: ''
                 })
               ]
             }
@@ -421,11 +431,21 @@ export const botFlowMachine2 = createMachine(
               ]
             },
             {
+              cond: "ifOTPSend",
               target: "askingOTP",
               actions: [
                 assign({
                   response: () => 'Please enter the OTP sent to your registered mobile number:',
                   type: 'pause'
+                })
+              ]
+            },
+            {
+              target: "error",
+              actions: [
+                assign({
+                  error: (_, event) => event.data,
+                  type: ''
                 })
               ]
             }

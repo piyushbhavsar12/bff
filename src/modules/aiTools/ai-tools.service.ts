@@ -3,8 +3,6 @@ import { ConfigService } from '@nestjs/config';
 import { CustomLogger } from '../../common/logger';
 import { Language } from '../../language';
 import { isMostlyEnglish } from '../../utils';
-import { fetchWithAlert } from '../../common/utils';
-// import { flagsmith } from '../../flagsmith.module';
 
 @Injectable()
 export class AiToolsService {
@@ -12,38 +10,45 @@ export class AiToolsService {
   constructor(
     private configService: ConfigService
   ) {
-    // AUTH_HEADER = this.configService.get("AUTH_HEADER");
     this.logger = new CustomLogger("AiToolsService");
   }
   async detectLanguage(text: string): Promise<any> {
     var myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/json");
-    myHeaders.append(
-      "Authorization",
-      this.configService.get("AI_TOOLS_AUTH_HEADER")
-    );
 
-    var raw = JSON.stringify({
-      text: text?.replace("?","")?.trim(),
+    var body = JSON.stringify({
+      modelId: this.configService.get("TEXT_LANG_DETECTION_MODEL"),
+      task: "txt-lang-detection",
+      input:[{
+        source: text?.replace("?","")?.trim()
+      }],
+      userId: null
     });
 
     var requestOptions = {
       method: "POST",
       headers: myHeaders,
-      body: raw,
+      body
     };
 
     try {
-        let response = await fetch(
-            `${this.configService.get(
-              "AI_TOOLS_BASE_URL"
-            )}/text_lang_detection/bhashini/remote/`,
+        let response:any = await fetch(
+            'https://meity-auth.ulcacontrib.org/ulca/apis/v0/model/compute',
             requestOptions
         )
         response = await response.json()
-        return {
-            language: response["language"] ? response["language"] as Language : 'unk',
+        let language: Language;
+        if(response.output && response.output.length){
+          language = response.output[0]?.langPrediction[0]?.langCode as Language
+          return {
+            language: language || 'unk',
             error: null
+          }
+        } else {
+          return {
+            language: 'unk',
+            error: null
+          }
         }
     } catch (error) {
         if(isMostlyEnglish(text?.replace("?","")?.trim())) {
@@ -69,30 +74,42 @@ export class AiToolsService {
     var myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/json");
     myHeaders.append(
-      "Authorization",
-      this.configService.get("AI_TOOLS_AUTH_HEADER")
+      "authorization",
+      this.configService.get("DHRUVA_CLIENT_API_KEY")
     );
 
     var raw = JSON.stringify({
-      source_language: source,
-      target_language: target,
-      text: text?.replace("\n","."),
+      "config": {
+        "language": {
+          "sourceLanguage": source,
+          "targetLanguage": target
+        }
+      },
+      "input": [
+        {
+          "source": text?.replace("\n",".")
+        }
+      ]
     });
 
     var requestOptions = {
       method: "POST",
       headers: myHeaders,
-      body: raw.replace('"unk\"','"or\"'),
+      body: raw.replace('"unk\"','"en\"'),
     };
-    let translateURL = 'text_translation/bhashini/remote/';
-    translateURL = `${this.configService.get("AI_TOOLS_BASE_URL")}/${translateURL}`
+
+    let translateURL = 'services/inference/translation?serviceId=ai4bharat/indictrans-v2-all-gpu--t4';
+    translateURL = `${this.configService.get("DHRUVA_CLIENT_BASE_URL")}/${translateURL}`
     try {
-      let response = await fetch(
+      let response: any = await fetch(
         translateURL,
         requestOptions
       )
       response = await response.json()
-      let translated = response["translated"] as string ? response["translated"] as string : "";
+      if(response.output && response.output.length)
+      response = response.output[0]
+      else response["target"] = ""
+      let translated = response["target"] as string ? response["target"] as string : "";
       return {
         translated,
         error: translated ? null : `unable to translated text ${text} trom ${source} to ${target}`
@@ -163,20 +180,34 @@ export class AiToolsService {
       myHeaders.append("Content-Type", "application/json");
       myHeaders.append(
         "Authorization",
-        this.configService.get("AI_TOOLS_AUTH_HEADER")
+        `Bearer ${this.configService.get("HUGGINGFACE_TEXT_CLASSIFICATION_API_KEY")}`
       );
       let body = {
-        text
+        inputs: text
       }
-      let response: any = await fetch(`${this.configService.get("AI_TOOLS_BASE_URL")}/text_classification/grievance_recognition/local/`, {
+      let response: any = await fetch(`${this.configService.get("HUGGINGFACE_TEXT_CLASSIFICATION_BASE_URL")}`, {
         headers: myHeaders,
         "body": JSON.stringify(body),
         "method": "POST",
         "mode": "cors",
         "credentials": "omit"
       });
-      response = await response.text()
-      return response
+      response = await response.json()
+      if(response.error){
+        return {
+          error: response.error
+        }
+      }
+      const labels = response[0];
+      let highestScore = -1;
+      let highestScoreLabel = "LABEL_2"; // Default output if none of the scores are greater than 0.5
+      for (const labelInfo of labels) {
+        if (labelInfo.score > 0.5 && labelInfo.score > highestScore) {
+          highestScore = labelInfo.score;
+          highestScoreLabel = labelInfo.label;
+        }
+      }
+      return highestScoreLabel
     } catch(error){
       console.log(error)
       return {
@@ -184,41 +215,5 @@ export class AiToolsService {
       }
     }
   }
-
-  async llm(prompt: any): Promise<{ response: string; allContent: any; error: any }> {
-    var myHeaders = new Headers();
-    myHeaders.append("Content-Type", "application/json");
-    myHeaders.append(
-      "Authorization",
-      this.configService.get("AI_TOOLS_AUTH_HEADER")
-    );
-
-    var raw = JSON.stringify({
-      prompt: prompt,
-    });
-
-    var requestOptions = {
-      method: "POST",
-      headers: myHeaders,
-      body: raw,
-    };
-
-    try {
-      let response = await fetchWithAlert(
-        `${this.configService.get("AI_TOOLS_BASE_URL")}/llm/openai/chatgpt3`,
-        requestOptions
-      )
-      response = await response.json()
-      const error = Object.keys(response).indexOf('error')!=-1
-        return {
-          response: error ? null : response["choices"][0].message.content,
-          allContent: error ? null : response,
-          error: error ? response.error : null
-        };
-    } catch(error) {
-      return {response:null, allContent:null, error: error.message? error.message : "Unable to fetch gpt response."}
-    }
-  }
-
   
 }

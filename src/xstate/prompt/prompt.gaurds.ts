@@ -25,6 +25,9 @@ export const promptGuards = {
     ifNoRecordsFound: (context,event)=> {
         return event.data == `No Record Found for this (${context.userAadhaarNumber}) Aadhar/Ben_id/Mobile.`
     },
+    ifOTPSend: (_,event)=>{
+        return event.data == 'OTP send successfully!'
+    },
     ifNotValidAadhaar: (_,event) =>  event.data == "Please enter a valid Beneficiary ID/Aadhaar Number/Phone number",
     ifInvalidOTP: (_,event) => event.data == "OTP not verified"
 }

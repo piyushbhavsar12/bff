@@ -85,6 +85,11 @@ export class AppController {
         type = "Audio"
         prompt.inputLanguage = promptDto.inputLanguage as Language
         let response = await this.aiToolsService.speechToText(promptDto.media.text,prompt.inputLanguage)
+        if(!response)
+        return{
+          text:"",
+          error: "Something went wrong, please try again."
+        }
         userInput = response["data"]["source"]
         console.log("speech to text",userInput)
       } else {
@@ -96,25 +101,28 @@ export class AppController {
         }
       }
     }
-
     if(prompt.inputLanguage != Language.en) {
       try {
         let response = await this.aiToolsService.translate(
-          promptDto.inputLanguage as Language,
+          prompt.inputLanguage as Language,
           Language.en,
           userInput
         )
+        if(!response['translated'])
+        return { error: "Sorry, We are unable to translate given input, please try again" }
         prompt.inputTextInEnglish = response["translated"]
       } catch(error){
         console.log(error)
-        return { error: "unable to translate given language" }
+        return { error: "Sorry, We are unable to translate given input, please try again" }
       }
     } else {
       prompt.inputTextInEnglish = userInput
     }
     console.log("converted to english",prompt.inputTextInEnglish)
-    if(type == 'Audio'){
-      prompt.inputTextInEnglish = wordToNumber(prompt.inputTextInEnglish)
+    if(type == 'Audio') {
+      let number = wordToNumber(prompt.inputTextInEnglish)
+      if(/\d/.test(number))
+      prompt.inputTextInEnglish = number.toUpperCase()
     }
     let botFlowService = conversationMap.get(`${userId}${configid}`);
     if (!botFlowService) {
@@ -147,7 +155,8 @@ export class AppController {
           currentState: "getUserQuestion",
           type: '',
           inputType: type,
-          inputLanguage: prompt.inputLanguage
+          inputLanguage: prompt.inputLanguage,
+          lastAadhaarDigits:""
         })).start();
         conversationMap.set(`${userId}${configid}`, newBotFlowService);
         botFlowService = newBotFlowService;
@@ -171,7 +180,7 @@ export class AppController {
     }
     const currentContext = botFlowService.state.context;
     console.log("start context",)
-    const updatedContext = {
+    let updatedContext = {
       ...currentContext,
       inputType: type,
       type:""
@@ -182,6 +191,11 @@ export class AppController {
     await new Promise((resolve) => {
       botFlowService.subscribe((state) => {
         console.log('Current state:', state.value);
+        updatedContext = {
+          ...state.context,
+          currentState: state.value
+        };
+        botFlowService.state.context = updatedContext;
         console.log('Current context:', state.context);
         if(state.context.type=="pause"){
           console.log("paused state", state.value)
@@ -195,6 +209,7 @@ export class AppController {
       })
     });
     console.log("final response",botFlowService.getSnapshot().context.response)
+    console.log("final error",botFlowService.getSnapshot().context.error)
     let result = {
       text: botFlowService.getSnapshot().context.response,
       error: null
@@ -205,22 +220,23 @@ export class AppController {
       result.error = botFlowService.getSnapshot().context.error
     }
     prompt.inputLanguage = botFlowService.getSnapshot().context.inputLanguage
-    if(prompt.inputLanguage != Language.en) {
-      try {
-        let response = await this.aiToolsService.translate(
-          Language.en,
-          prompt.inputLanguage as Language,
-          result.text
-        )
-        if(response["error"])
-        result.error = "unable to translate given language"
-        result.text = response["translated"]
-      } catch(error){
-        console.log(error)
-        return { error: "unable to translate given language" }
+    if(result.text){
+      if(prompt.inputLanguage != Language.en) {
+        try {
+          let response = await this.aiToolsService.translate(
+            Language.en,
+            prompt.inputLanguage as Language,
+            result.text
+          )
+          if(response["error"])
+          result.error = "unable to translate given language"
+          result.text = response["translated"]
+        } catch(error){
+          console.log(error)
+          return { error: "unable to translate given language" }
+        }
       }
     }
-
     return result;
   }
 }

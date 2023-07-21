@@ -61,7 +61,7 @@ export const promptServices = {
         console.log("questionClassifier")
         try{
             let response: any = await aiToolsService.textClassification(context.query)
-            if (response.error) throw new Error("Something went wrong, please try again.")
+            if (response.error) throw new Error(`${response.error}, please try again.`)
             if (response == "LABEL_2"){
                 throw new Error("Please enter a question related to PM Kisan portal:")
             }

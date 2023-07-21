@@ -27,10 +27,8 @@ export const getUniqueKey = (maxSize = 15) => {
     const chars = 'abcdefghijklmnopqrstuvwxyz';
     const data = crypto.randomBytes(maxSize);
     let result = '';
-
     for (let i = 0; i < maxSize; i++) {
         result += chars[data[i] % chars.length];
     }
-
     return result.toUpperCase();
 }

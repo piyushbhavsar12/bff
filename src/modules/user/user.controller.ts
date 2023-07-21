@@ -1,7 +1,6 @@
 import { Body, Controller, Get, Param, Post, Query, Request, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
 import { query } from '@prisma/client';
-import { AuthGuard } from '../../common/auth-gaurd';
 import { ConfigService } from '@nestjs/config';
 import { CustomLogger } from 'src/common/logger';
 import { v4 as uuid } from 'uuid';
@@ -17,7 +16,6 @@ export class UserController {
   }
 
   @Get("/conversations")
-  @UseGuards(AuthGuard)
   async conversations(
     @Request() request, 
     @Query('userid') adminUserId: string, 
@@ -63,7 +61,6 @@ export class UserController {
   }
 
   @Get("/chathistory/:conversationId")
-  @UseGuards(AuthGuard)
   async chatHistory(@Param("conversationId") conversationId: string, @Request() request, @Query('userid') adminUserId: string): Promise<query[]> {
     let userId = request.headers.userId
     if(request.headers.roles.indexOf('Admin') != -1) {
