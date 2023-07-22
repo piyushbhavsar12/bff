@@ -1,6 +1,6 @@
 # Agrimitra API Docs
 
-## POSTMAN COLLECTION: Import [this](https://api.postman.com/collections/12306310-e1373175-5bcf-44d5-893a-be39214e5ae8?access_key=PMAT-01H5YF1B05QKJP0ERE9QPYMCMJ) link in Postman to see the entire collection.
+## POSTMAN COLLECTION: Copy (https://api.postman.com/collections/12306310-e1373175-5bcf-44d5-893a-be39214e5ae8?access_key=PMAT-01H5YF1B05QKJP0ERE9QPYMCMJ) link and import this in postman
 
 ## PM KISAN API'S:
 - BASE URL: https://exlink.pmkisan.gov.in/services/ChatBotServiceWithoutEncryption.asmx
