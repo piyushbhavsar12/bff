@@ -183,7 +183,10 @@ export class AiToolsService {
         `Bearer ${this.configService.get("HUGGINGFACE_TEXT_CLASSIFICATION_API_KEY")}`
       );
       let body = {
-        inputs: text
+        inputs: text,
+        options:{
+          wait_for_model:true
+        }
       }
       let response: any = await fetch(`${this.configService.get("HUGGINGFACE_TEXT_CLASSIFICATION_BASE_URL")}`, {
         headers: myHeaders,

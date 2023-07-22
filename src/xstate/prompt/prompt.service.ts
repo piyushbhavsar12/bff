@@ -231,6 +231,9 @@ export const promptServices = {
         }else {
             return Promise.reject(new Error('Please enter a valid Beneficiary ID/Aadhaar Number/Phone number'));
         }
+        if(res.d.output.Message=='Unable to get user details'){
+            return Promise.reject(new Error(res.d.output.Message))
+        }
         let userDetails = AADHAAR_GREETING_MESSAGE(
             res.d.output['BeneficiaryName'],
             res.d.output['FatherName'],

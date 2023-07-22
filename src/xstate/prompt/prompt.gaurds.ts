@@ -28,6 +28,9 @@ export const promptGuards = {
     ifOTPSend: (_,event)=>{
         return event.data == 'OTP send successfully!'
     },
+    ifTryAgain: (_,event)=>{
+        return event.data == 'Try again'
+    },
     ifNotValidAadhaar: (_,event) =>  event.data == "Please enter a valid Beneficiary ID/Aadhaar Number/Phone number",
     ifInvalidOTP: (_,event) => event.data == "OTP not verified"
 }

@@ -183,16 +183,31 @@ export class UserService {
       };
 
       let response: any = await axios.request(config)
-      response = await response.data
-      console.log("sendOTP",response)
-      response.d.output = JSON.parse(response.d.output)
-      response["status"] = response.d.output.Rsponce != "False" ? "OK" : "NOT_OK"
-      return response
+      console.log("sendOTP",response.status)
+      if (response.status >= 200 && response.status < 300) {
+        response = await response.data
+        response.d.output = JSON.parse(response.d.output)
+        response["status"] = response.d.output.Rsponce != "False" ? "OK" : "NOT_OK"
+        return response
+      } else {
+        return {
+          d: {
+            output: {
+              status: 'False',
+              Message: 'Try again'
+            }
+          }
+        }
+      }
     } catch (error) {
       console.log(error)
       return {
-        status: "NOT_OK",
-        error: error.message
+        d: {
+          output: {
+            status: 'False',
+            Message: 'Try again'
+          }
+        }
       }
     }
   }
@@ -213,21 +228,37 @@ export class UserService {
         maxBodyLength: Infinity,
         url: `${this.configService.get("PM_KISAN_BASE_URL")}/ChatbotOTPVerified`,
         headers: { 
-          'Content-Type': 'application/json', 
-          'Cookie': 'BIGipServerPMKISAN_exlink_80=3818190346.20480.0000'
+          'Content-Type': 'application/json'
         },
         data : data
       };
 
       let response: any = await axios.request(config)
-      response = await response.data
-      response.d.output = JSON.parse(response.d.output)
-      response["status"] = response.d.output.Rsponce != "False" ? "OK" : "NOT_OK"
-      return response
+      console.log("verifyOTP",response.status)
+      if (response.status >= 200 && response.status < 300) {
+        response = await response.data
+        response.d.output = JSON.parse(response.d.output)
+        response["status"] = response.d.output.Rsponce != "False" ? "OK" : "NOT_OK"
+        return response
+      } else {
+        return {
+          d: {
+            output: {
+              status: 'False',
+              Message: 'Try again'
+            }
+          }
+        }
+      }
     } catch (error) {
+      console.log(error)
       return {
-        status: "NOT_OK",
-        error: error.message
+        d: {
+          output: {
+            status: 'False',
+            Message: 'Try again'
+          }
+        }
       }
     }
   }
@@ -247,18 +278,34 @@ export class UserService {
         maxBodyLength: Infinity,
         url: `${this.configService.get("PM_KISAN_BASE_URL")}/ChatbotUserDetails`,
         headers: { 
-          'Content-Type': 'application/json', 
-          'Cookie': 'BIGipServerPMKISAN_exlink_80=3818190346.20480.0000'
+          'Content-Type': 'application/json'
         },
         data : data
       };
       res = await axios.request(config)
-      res = await res.data
-      res.d.output = JSON.parse(res.d.output)
-      res["status"] = res.d.output.Rsponce != "False" ? "OK" : "NOT_OK"
-    } catch {
-      res = {
-        status: "NOT_OK"
+      console.log("getUserData",res.status)
+      if (res.status >= 200 && res.status < 300) {
+        res = await res.data
+        res.d.output = JSON.parse(res.d.output)
+        res["status"] = res.d.output.Rsponce != "False" ? "OK" : "NOT_OK" 
+      } else {
+        res = {
+          d: {
+            output: {
+              status: 'False',
+              Message: 'Unable to get user details'
+            }
+          }
+        }
+      }
+    } catch (error) {
+      return {
+        d: {
+          output: {
+            status: 'False',
+            Message: 'Unable to get user details'
+          }
+        }
       }
     }
     return res

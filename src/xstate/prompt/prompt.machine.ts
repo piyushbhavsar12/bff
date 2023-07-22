@@ -106,7 +106,18 @@ export const botFlowMachine1 = createMachine(
               target: "askingAadhaarNumber",
               actions: [
                 assign({
-                  response: () => 'Please enter your Mobile/Aadhaar/Benificiary Id again:',
+                  response: (context) => `No records were found for ${context.userAadhaarNumber}, Please enter valid Mobile/Aadhaar/Benificiary Id again:`,
+                  userAadhaarNumber: "",
+                  type: 'pause'
+                })
+              ]
+            },
+            {
+              cond: "ifTryAgain",
+              target: "askingAadhaarNumber",
+              actions: [
+                assign({
+                  response: () => `Please try again by entering your valid Mobile/Aadhaar/Benificiary Id:`,
                   userAadhaarNumber: "",
                   type: 'pause'
                 })
@@ -171,6 +182,16 @@ export const botFlowMachine1 = createMachine(
               ]
             },
             {
+              cond: "ifTryAgain",
+              target: "askingOTP",
+              actions: [
+                assign({
+                  response: () => 'Please try again, by entering the OTP:',
+                  type: 'pause'
+                })
+              ]
+            },
+            {
               target: 'fetchingUserData',
             }
           ],
@@ -229,7 +250,7 @@ export const botFlowMachine1 = createMachine(
 
 export const botFlowMachine2 = createMachine(
   {
-    /** @xstate-layout N4IgpgJg5mDOIC5QCMD2AXAYgG1QdwDoZ0BVWMAJwEUBXOdAS1QDsBiEgZQFEAlAfQCSAOQAKJACoBtAAwBdRKAAOqWA0YsFIAB6IAjAA4AzAQAsukwDZDAVhMAma3f26ANCACeiALR2DBXQCc0sHWAboWugDsutIWAL5xbmhYuIQAjnSw6swAwtgAhrCqAGYMlKwQLGAEDMwAbqgA1tXJOPgEGfRMuQVFDKWUCLUNAMb52TKyk5rKqtmaOgi61rqmJtb61tbS+hYm0tFunghmBNJ2VvoHAfrRJobmCUkYbemZ2XmFJWUUrJQUqAoBEUBXQxUBAFsCK1Uh13t1Pn0BhQhvVUGMJnJpkgQLM1N0Ft5ItYCE57BtDBZNtYLNYjt59PoCLtrJFdmELoZDHZIk8QDD2oVGrUoABBfIQAAW+XyFCENAhyHKnF4glEEmxShU+I0OMWUSZ4UsFgcPOCAXW9IQdhMkVJkQdhluFxWtmsfIFhDq+WwDAg4xF4qlMrlCqVv0qzGqwyaLResO9vv9jGYYol0tl8sVgxjGO6k01uO18z13kcFgIAQsARWkUpGyc+itjmkBGs3K5gQdkRr+g98faib9AdTQYzoezEaqNTRzWhA69PuHKbTwczYZzaLzLALunkOLxJdA+p2qx25cZ5gCDmbdlb7bsnYC3d7-ZSg6XycD6ZDWfDFWnGM509Aghy-Ucf3XSdUVGAMdyxOx9y1OYCVLBAaQCStpF0QxIhtW1OxMW97w7B5nwdV9En5BdQM-EdV3HP9ykjaNZzjd9FyTeix1-DcUVzODmALQwkKLFDdWPRAwlMXCbTsfDNktDxEBbNtSK7CiNjfV5aK4lceKg-9-kBYFQXBCgoRAsDuMgidwxg9FBILOQZmLVDJIQHxpBJQwax2fQa0MWILB2K1fLsNtIhNFZOWrbD3SokChRFAB5cQRHYbh+GEMQpBcg83Ik7Q9CMUxzBpHYnF0AxQuUhArmMJ0NnbbzOwsXlEpo6yVzSjKWJnBpgK6uievShztyErF8uQnVmEJE4HUrZ8LV8ewHBwq1qpsNSTHuRxNP0ExtITEbUvSgCowG2N5w43TlzOkRxqcrE91c8S5rQ6qIp5fZuWwmJIh2CxNuWJkVmkKsAhrKlGWOj89Iev4KABIEQXGczLOGhHU16p7MSmaaxNm+avHCJk72JJ0q0iXblhB7b212mweR7DYjs627ijAdARklEUyEoAARcZ8gu1jBvYnSuZ5vnUwFihhfQfI8fzKbRMPdziqWELTA2NkWw2KlpEMTbLGMVkeQMB0bQpOHCGl3n+fIBWRaRlHTPRyEbql7nHbl53FeVgT8cLDWisWUmosrfZiUh58IjsTaOwIWOQqCdtNgCO2CGMqdLqAyXYVzlX4IJ9XCo+jzSdZAhCKBu8HlpOk6uWaSNmWW1duiXCEio5hUAgOBNE9N7ibQrxWRMStq1ret9EbK0vCdCstlZXQLnuExr1sbPiHl2guiKsPK61o1TAdcILSCAGLkXuwobOLY8MfGtAaMeIOZ0zosgRXpvkoUeR5T64UrEFBwZsqyxUXkEZkAVfB4QtDYB02dkoQTXHZABBV3rzXMBFK4YR448j2GyTa7Z-BmBrL4K41VwjZ26t+dBTEKCAM1vqPwJhGSbHng8YKPIwrVjONeAi7UQoxGfCg2AwocbpRYeHPQ15a7tR7NyHkVZHCJzqoDYwsQjAWkcFvYIhg6GnWkSIWRJ99TbFMBvKIyx6xBGBnVZ8xhnC3ACpnahdhs4O1llAeWgdzE4MsNHB42xcJVmwgEJOvgU6UhwsSdq88jDZ1zoE8eURWyHUBpvSwDYmwt0sKsWwQi8K7HsMSFJzAICvDSR5AwRSoi4XuNFf6m1aStgiEFTha1QgJQSEAA */
+    /** @xstate-layout N4IgpgJg5mDOIC5QCMD2AXAYgG1QdwDoZ0BVWMAJwEUBXOdAS1QDsBiEgZQFEAlAfQCSAOQAKJACoBtAAwBdRKAAOqWA0YsFIAB6IAjAA4AzAQAsukwDZDAVhMAma3f26ANCACeiALR2DBXQCc0sHWAboWugDsutIWAL5xbmhYuIQAxgAWYGkA1uLuimC6rBAsYAQMzABuqDnlyTj4BJnZeQVFCJU1aQCG6swysoOayqr9mjoIPibGAdaG+gF2hhbW+k6R+m6eCOHWugTSzraRJibRhpEJSRiN6Vm5+YXFpczlXbX1t6nND23PnWqqF6-UGkl08iQIFGaiYzAm3jsMwIcwWSxWaw2Ww8eki1gsBFWAQskSR510l2uIAaPxaj3axUoFFQFAIimwfQAZiyALYEGlNOn-DofEFwsFyEYqWEaKGTaazeaLZardb6TbbPT6Cx2AjLSKRAKncmUxLU76ClichgUHkCZiKGjoYqcXiCUQSYZQmHjOWIyLGAzSEy2bWY-TYnaBEkEY5LMkXK5mgWEACOdFg-QAwhzYKprZQSmUKkC6vyLWmM9nc-mGJRAd0+uK5F6lNLfaBJrp9qYQ-prNYjhYTNJopqEGZDnYrPpRwF1eZDOYqSmCOn6HCcz08wwCxRWEyWWyOehubbyykmuvM5ua7u6xQG8CmywJZC22M4Qipni9fp7GsKz9vi1jjl4EaxqsmwWGE06GIYdhJjcl6ENuOSVFAACCPQQBkPQ9BQQg0DyyCFq6-DCGIUiSt67Zfn6uybP4w4WDqjiRMEAQhuOSKRHqBoBuq077LY1grhWvytE8YB2EWbwljUZarkK0l2E+Yqvi2NEfjK8IMQqKJKuiqpYjxo4EoYXHBsaibiShkn0oUsmvO8pZfPZKntGpoovgMLYQlKn6yp2iLIqiyoYmqGo4ggvjOCipJRAmFJIeaHl-KpB4UMyrLslyvIXncDnCt5QIaX5QzadCdHBdooWKmiKrhtFOx2BsBADtIdhGmctnJhJaRWjadoOk6snke6VGttVQV6SFUyIQc4QmOs84mRGPGWYGTj2MlprIUVVQ9NgDAQE2zBYTheEEURJGFi5CmfIVPxHSdZ2MBd2G4fhhHEaRj4+aCWnvjNunfl4jgEsScxRJFTiRogjjSB1CHwYEAlzPodmHcdp3nZd303X993Fh8SkSa9eMfQT12-XdANlb5YIBbRs3fjE8VHJDEbmEsoExUjKPLEuRoGpj2Mvbj70YV9tO3f9cmuYp7k429+Oyz98v1oDzZDHYIM+vR834gEKLSClCZoyY46C-Mwvo2LawS00lPS59V2a8T+4PWTKuS2r1Ma0T9PqUzLaGAbNVzXVCBhKYlxIm1Zz9txAt2Mjdto6LhpO-19mu+rHvBwrPtuc9LtS4XhN0-9odA0MJiR2zDEmMS-Hm0cywxKxhjjucuqZyLGO5wd-tUzLRc14Wh65SeZ58quBeB5PWsM429fTYbtXyun1gEJZg4RqisQWEc46WQPkRsbocEwebYl50VaEADLbug2GTwAIgwUBqLA7DcAoh6aiTcwb6XTnxJcCESRw3VAjWKg4DgcVWOcXqKVnb3Cku0EwitHrk3SlgwoJg66603lHcGSIGoRXWi1RA04Yh-ksKSNB+00pFU8kQ3Bvty6YMcmAYhOtNJDBZjpDsMcDLhWMs1eBi097akQj1E0qVlIZWwVlHKx58rnhUYQ-hJChFkObvNCRRkmpRRkesA4ZxpDxhYcogaQ1bT2kdOgHBE1KKeiqlvaOO8OIEGiDDAM60ZFLD4ubIIqClEYIIGhDCAB5cQIgAFug8SAwKYD5oGGMGYEMp81S6CDPA2cxgFhrHmNIeYS4STRI4WAQwXCy46L4YYfRFVDEZPEZQwyjVYG0IQIYaQNgOpGiSnYmpqjCj1NLsrHhxVpItMEW0kRoMxE7zCqY3p8ClyTiiI4RRfVR6CgmXU9RR48qngKk04UCzGYby8eQ8B6yek0K2UiAkeJDC7TGY-WkjiRouPqe44B7TVn+mRpsec3Uwxqi2TYXUaMTjfMOYQJe8TEkNJmYvSu1MEkiFaW+dJoKJwGhREaLivhdr7F7jFApQz5hnDhY7f80TUUXVxRip6WKA5orxYs5moCiUFN1IhEcCFzYxA4tqccBS1gdRiNDOYFgIxYx+RXblbL0Uz00Rc7RFNsU8vxcDQlRtxHhH0HqUcRkSRnG7NKike96UzHYjnZlqrCCcjAOgTIGEyCUE-n0HoHL8FFQ9V6jIPryAUH9egHohrKoCpNV2U+pg1ibCRmsJVgzpWWGMNYUk0R1TMMAtE0N3qLq+qjQG05s8tELwkqW8N5bI3RtjXyo1rMOnyiiFDEceIFVXxvtK1G-jQinyCEqUI0SZ5Br9k0GecaQWJu8N2SB2yhzpyqQOaVoQDhrG7JEvqZpmCoAgHATQKZjXb28HmkwKIYL7CCeGeBXgFgEgHHmxC6wr5KtWNE4gFbaAblqt49mw5TAGnCFxIIErpxgW6qbCpH7lhzElSscZujdCXp8de6cd7AmwPgVESwhIKRHAjJSpYNS-nOKdJhjtRKIa4ehg+gj0qljmtpWR-8bVJ1urXFWW825ayUCw+zS4KIBkOBzcSW+YEgixmVElLiNgDTRNie7auq9RMMXMLqWcYQjQ6ivucQj8x-BmDmHFcV4R0N8LsNp4xkM8MseCWZHUJGBnKoo1R5g1onGjXQPZ+jS6phOeY7DVzMUk63s415njAQWX6o03LL2DmY4FPNStCMmIlwn0QufGChwljnBWFfDuRo1OwByK-TMH9q7f1-ugeAwWr2haY-eiLT7NpMQiJ58j8XbPChMGl+UYWOuPphTxKl-hSNxYcAlvjg1fPDRo64kbOGobjdY1FmCt7etce83x9TUBcXrd2EsfeJJDQIQUasNq44OLGFiEYLijhW7BEMIN+ZZ3GObfw5F1qq0Zt9e4-Nnzfn-lOkMD9sb-2usxQGQw-bc3ePIoIKyk7iSzvdmRvYYcURuwYiCBYccRpjDODgfOUIs4b4ls9WWqAFaW3Y+I8pnHlxiThKHb4fxKwUr4k2E4T7fGZ4-aiMjf8HEZhnHWtmiIHVW68ScMORCD80dgGYBAO42P4osdOCsBw4rpWrGRsj-r82H4JCAA */
     id: 'botFlow',
     initial: 'getUserQuestion',
     context: {
@@ -424,7 +445,18 @@ export const botFlowMachine2 = createMachine(
               target: "askingAadhaarNumber",
               actions: [
                 assign({
-                  response: () => 'Please enter your Mobile/Aadhaar/Benificiary Id again:',
+                  response: (context) => `No records were found for ${context.userAadhaarNumber}, Please enter valid Mobile/Aadhaar/Benificiary Id again:`,
+                  userAadhaarNumber: "",
+                  type: 'pause'
+                })
+              ]
+            },
+            {
+              cond: "ifTryAgain",
+              target: "askingAadhaarNumber",
+              actions: [
+                assign({
+                  response: () => `Please try again by entering your valid Mobile/Aadhaar/Benificiary Id:`,
                   userAadhaarNumber: "",
                   type: 'pause'
                 })
@@ -593,6 +625,16 @@ export const botFlowMachine2 = createMachine(
               actions: [
                 assign({
                   response: () => 'Invalid OTP\nPlease enter the correct OTP:',
+                  type: 'pause'
+                })
+              ]
+            },
+            {
+              cond: "ifTryAgain",
+              target: "askingOTP",
+              actions: [
+                assign({
+                  response: () => 'Please try again, by entering the OTP:',
                   type: 'pause'
                 })
               ]
