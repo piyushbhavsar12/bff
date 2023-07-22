@@ -34,3 +34,7 @@
 - Base URL: https://api-inference.huggingface.co
 	- ENDPOINT: /models/GautamR/model_grievance_class
 	- METHOD: POST
+	- RESPONSE (MAPPING): (pick the first element in the array)
+		- LABEL_0 -> aadhaar related question
+		- LABEL_1 -> payment related question
+		- LABEL_2 -> others
