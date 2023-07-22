@@ -101,7 +101,7 @@ export class AppController {
         }
       }
     }
-    if(prompt.inputLanguage != Language.en) {
+    if(prompt.inputLanguage != Language.en && userInput != 'resend OTP') {
       try {
         let response = await this.aiToolsService.translate(
           prompt.inputLanguage as Language,

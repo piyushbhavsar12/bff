@@ -581,6 +581,15 @@ export const botFlowMachine2 = createMachine(
               ]
             },
             {
+              cond:"resendOTP",
+              target:"validatingAadhaarNumber",
+              actions: [
+                assign({
+                  response: "Please enter the latest OTP sent to your registered mobile number:"
+                })
+              ]
+            },
+            {
               target:"validatingOTP",
               actions:[
                 assign({

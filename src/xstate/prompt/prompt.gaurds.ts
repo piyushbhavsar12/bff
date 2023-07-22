@@ -32,5 +32,9 @@ export const promptGuards = {
         return event.data == 'Try again'
     },
     ifNotValidAadhaar: (_,event) =>  event.data == "Please enter a valid Beneficiary ID/Aadhaar Number/Phone number",
-    ifInvalidOTP: (_,event) => event.data == "OTP not verified"
+    ifInvalidOTP: (_,event) => event.data == "OTP not verified",
+    resendOTP: (_,event) => {
+        console.log("if resendOTP",event.data)
+        return event.data.query == "resend OTP"
+    }
 }
