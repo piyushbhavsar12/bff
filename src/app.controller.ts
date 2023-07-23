@@ -214,6 +214,7 @@ export class AppController {
     console.log("final response",botFlowService.getSnapshot().context.response)
     console.log("final error",botFlowService.getSnapshot().context.error)
     let result = {
+      textInEnglish: botFlowService.getSnapshot().context.response,
       text: botFlowService.getSnapshot().context.response,
       error: null
     }

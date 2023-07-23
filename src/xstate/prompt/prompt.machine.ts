@@ -5,6 +5,9 @@ import { PromptDto } from '../../app.controller';
 import { Language } from '../../language';
 import { promptActions } from './prompt.actions';
 import { promptGuards } from './prompt.gaurds';
+const path = require('path');
+const filePath = path.resolve(__dirname, '../../common/en.json');
+const engMessage = require(filePath);
 
 export const botFlowMachine1 = createMachine(
   {
@@ -45,7 +48,7 @@ export const botFlowMachine1 = createMachine(
               target: 'askingAadhaarNumber',
               actions: [
                 assign({
-                  response: () => 'Please enter your Mobile/Aadhaar/Benificiary Id:',
+                  response: () => engMessage["label.popUpTitle"],
                   queryType: (_,event) => event.data,
                   type: 'pause'
                 })
@@ -85,7 +88,7 @@ export const botFlowMachine1 = createMachine(
               target: "askingAadhaarNumber",
               actions: [
                 assign({
-                  response: () => 'Please enter a valid Mobile/Aadhaar/Benificiary Id:',
+                  response: () => engMessage["label.popUpTitleValid"],
                   userAadhaarNumber: "",
                   type: 'pause'
                 })
@@ -96,7 +99,7 @@ export const botFlowMachine1 = createMachine(
               target: "askingAadhaarNumber",
               actions: [
                 assign({
-                  response: () => 'Please enter last four digits of your aadhaar',
+                  response: () => engMessage["label.popUpTitle2"],
                   type: 'pause'
                 })
               ]
@@ -117,7 +120,7 @@ export const botFlowMachine1 = createMachine(
               target: "askingAadhaarNumber",
               actions: [
                 assign({
-                  response: () => `Please try again by entering your valid Mobile/Aadhaar/Benificiary Id:`,
+                  response: () => engMessage["label.popUpTitleValid"],
                   userAadhaarNumber: "",
                   type: 'pause'
                 })
@@ -128,7 +131,7 @@ export const botFlowMachine1 = createMachine(
               target: "askingOTP",
               actions: [
                 assign({
-                  response: () => 'Please enter the OTP sent to your registered mobile number:',
+                  response: () => engMessage["label.popUpTitle3"],
                   type: 'pause'
                 })
               ]
@@ -176,7 +179,7 @@ export const botFlowMachine1 = createMachine(
               target: "askingOTP",
               actions: [
                 assign({
-                  response: () => 'Invalid OTP\nPlease enter the correct OTP:',
+                  response: () => engMessage["message.invalid_otp"],
                   type: 'pause'
                 })
               ]
@@ -186,7 +189,7 @@ export const botFlowMachine1 = createMachine(
               target: "askingOTP",
               actions: [
                 assign({
-                  response: () => 'Please try again, by entering the OTP:',
+                  response: () => engMessage["label.popUpTitle3"],
                   type: 'pause'
                 })
               ]
@@ -299,7 +302,7 @@ export const botFlowMachine2 = createMachine(
               actions:[
                 assign({
                   query: (_,event) => event.data.query,
-                  response: 'Please enter your Mobile/Aadhaar/Benificiary Id:'
+                  response: engMessage["label.popUpTitle"]
                 })
               ]
             }
@@ -336,7 +339,7 @@ export const botFlowMachine2 = createMachine(
               target: 'askingAadhaarNumber',
               actions: [
                 assign({
-                  response: () => {console.log("assigning response = Please enter your Mobile/Aadhaar/Benificiary Id:"); return 'Please enter your Mobile/Aadhaar/Benificiary Id:'},
+                  response: () => engMessage["label.popUpTitle"],
                   queryType: (_,event) => {console.log(`assigning queryType = ${event.data}`); return event.data},
                   type: 'pause'
                 })
@@ -424,7 +427,7 @@ export const botFlowMachine2 = createMachine(
               target: "askingAadhaarNumber",
               actions: [
                 assign({
-                  response: () => 'Please enter a valid Mobile/Aadhaar/Benificiary Id:',
+                  response: () => engMessage["label.popUpTitleValid"],
                   userAadhaarNumber: "",
                   type: 'pause'
                 })
@@ -435,7 +438,7 @@ export const botFlowMachine2 = createMachine(
               target: "askLastAaadhaarDigits",
               actions: [
                 assign({
-                  response: () => 'Please enter last four digits of your aadhaar',
+                  response: () => engMessage["label.popUpTitle2"],
                   type: 'pause'
                 })
               ]
@@ -456,7 +459,7 @@ export const botFlowMachine2 = createMachine(
               target: "askingAadhaarNumber",
               actions: [
                 assign({
-                  response: () => `Please try again by entering your valid Mobile/Aadhaar/Benificiary Id:`,
+                  response: () => engMessage["label.popUpTitleValid"],
                   userAadhaarNumber: "",
                   type: 'pause'
                 })
@@ -467,7 +470,7 @@ export const botFlowMachine2 = createMachine(
               target: "askingOTP",
               actions: [
                 assign({
-                  response: () => 'Please enter the OTP sent to your registered mobile number:',
+                  response: () => engMessage["label.popUpTitle3"],
                   type: 'pause'
                 })
               ]
@@ -585,7 +588,7 @@ export const botFlowMachine2 = createMachine(
               target:"validatingAadhaarNumber",
               actions: [
                 assign({
-                  response: "Please enter the latest OTP sent to your registered mobile number:"
+                  response: engMessage["label.popUpTitle3"]
                 })
               ]
             },
@@ -633,7 +636,7 @@ export const botFlowMachine2 = createMachine(
               target: "askingOTP",
               actions: [
                 assign({
-                  response: () => 'Invalid OTP\nPlease enter the correct OTP:',
+                  response: () => engMessage["message.invalid_otp"],
                   type: 'pause'
                 })
               ]
@@ -643,7 +646,7 @@ export const botFlowMachine2 = createMachine(
               target: "askingOTP",
               actions: [
                 assign({
-                  response: () => 'Please try again, by entering the OTP:',
+                  response: () => engMessage["label.popUpTitle3"],
                   type: 'pause'
                 })
               ]
