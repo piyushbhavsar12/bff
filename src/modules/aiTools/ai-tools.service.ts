@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { CustomLogger } from '../../common/logger';
 import { Language } from '../../language';
 import { isMostlyEnglish } from '../../utils';
+import { error } from 'console';
 
 @Injectable()
 export class AiToolsService {
@@ -68,108 +69,83 @@ export class AiToolsService {
   async translate(
     source: Language,
     target: Language,
-    text: string,
-    userMobile?: string,
-  ): Promise<any> {
-    var myHeaders = new Headers();
-    myHeaders.append("Content-Type", "application/json");
-    myHeaders.append(
-      "authorization",
-      this.configService.get("DHRUVA_CLIENT_API_KEY")
-    );
-
-    var raw = JSON.stringify({
-      "config": {
-        "language": {
-          "sourceLanguage": source,
-          "targetLanguage": target
-        }
-      },
-      "input": [
-        {
-          "source": text?.replace("\n",".")
-        }
-      ]
-    });
-
-    var requestOptions = {
-      method: "POST",
-      headers: myHeaders,
-      body: raw.replace('"unk\"','"en\"'),
-    };
-
-    let translateURL = 'services/inference/translation?serviceId=ai4bharat/indictrans-v2-all-gpu--t4';
-    translateURL = `${this.configService.get("DHRUVA_CLIENT_BASE_URL")}/${translateURL}`
+    text: string
+  ) {
     try {
-      let response: any = await fetch(
-        translateURL,
-        requestOptions
-      )
-      response = await response.json()
-      if(response.output && response.output.length)
-      response = response.output[0]
-      else response["target"] = ""
-      let translated = response["target"] as string ? response["target"] as string : "";
-      return {
-        translated,
-        error: translated ? null : `unable to translated text ${text} trom ${source} to ${target}`
+      let config = {
+        "language": {
+            "sourceLanguage": source,
+            "targetLanguage": target
+        }
       }
-    } catch(error) {
+      let bhashiniConfig: any = await this.getBhashiniConfig('translation',config)
+      console.log('bhashiniConfig',bhashiniConfig)
+      let response: any = await this.computeBhashini(
+        bhashiniConfig?.pipelineInferenceAPIEndPoint?.inferenceApiKey?.value,
+        "translation",
+        bhashiniConfig?.pipelineResponseConfig[0].config[0].serviceId,
+        bhashiniConfig?.pipelineInferenceAPIEndPoint?.callbackUrl,
+        config,
+        {
+          "input":[
+            {
+              // "source": text?.replace("\n",".")
+              "source": text
+            }
+          ]
+        }
+      )
       return {
-        translated: "",
-        error: error.message
+        text: response?.pipelineResponse[0]?.output[0]?.target,
+        error: null
+      }
+    } catch(error){
+      console.log(error)
+      return {
+        text:"",
+        error: error
       }
     }
   }
 
-  async speechToText(base64audio,inputLanguage){
-    try{
-      let modelId;
-      switch(inputLanguage){
-        case 'en':
-          modelId = this.configService.get("STT_MODEL_ID_EN")
-          break;
-        case 'hi':
-          modelId = this.configService.get("STT_MODEL_ID_HI")
-          break;
-        case 'bn':
-          modelId = this.configService.get("STT_MODEL_ID_BN")
-          break;
-        case 'ta':
-          modelId = this.configService.get("STT_MODEL_ID_TA")
-          break;
-        case 'te':
-          modelId = this.configService.get("STT_MODEL_ID_TE")
-          break;
-        default:
-          modelId = this.configService.get("STT_MODEL_ID_EN")
-      }
-
-      let body = {
-        modelId,
-        task: "asr",
-        audioContent: base64audio,
-        source: inputLanguage,
-        userId: null
-      }
-      let response = await fetch(this.configService.get("ULCA_STT_BASE_URL"), {
-        "headers": {
-          "accept": "*/*",
-          "accept-language": "en-GB,en-US;q=0.9,en;q=0.8",
-          "cache-control": "no-cache",
-          "content-type": "application/json",
+  async speechToText(
+    base64audio: string,
+    language: Language
+  ) {
+    try {
+      let config: any = await this.getBhashiniConfig('asr',{
+        "language": {
+            "sourceLanguage": language
+        }
+      })
+  
+      let response: any = await this.computeBhashini(
+        config?.pipelineInferenceAPIEndPoint?.inferenceApiKey?.value,
+        "asr",
+        config?.pipelineResponseConfig[0].config[0].serviceId,
+        config?.pipelineInferenceAPIEndPoint?.callbackUrl,
+        {
+          "language": {
+              "sourceLanguage": language
+          }
         },
-        "body": JSON.stringify(body),
-        "method": "POST",
-        "mode": "cors",
-        "credentials": "omit"
-      });
-      response = await response.json()
-      return response
+        {
+          "audio":[
+            {
+              "audioContent": base64audio
+            }
+          ]
+        }
+      )
+      return {
+        text: response?.pipelineResponse[0]?.output[0]?.source,
+        error: null
+      }
     } catch(error){
       console.log(error)
       return {
-        error
+        text:"",
+        error: error
       }
     }
   }
@@ -218,5 +194,74 @@ export class AiToolsService {
       }
     }
   }
-  
+
+  async getBhashiniConfig(task,config) {
+    var myHeaders = new Headers();
+    myHeaders.append("userID", this.configService.get("ULCA_USER_ID"));
+    myHeaders.append("ulcaApiKey", this.configService.get("ULCA_API_KEY"));
+    myHeaders.append("Content-Type", "application/json");
+
+    var raw = JSON.stringify({
+      "pipelineTasks": [
+        {
+          "taskType": task,
+          "config": config
+        }
+      ],
+      "pipelineRequestConfig": {
+        "pipelineId": "64392f96daac500b55c543cd"
+      }
+    });
+
+    var requestOptions: any = {
+      method: 'POST',
+      headers: myHeaders,
+      body: raw,
+      redirect: 'follow'
+    };
+    try{
+      let response  = await fetch(this.configService.get("ULCA_CONFIG_URL"), requestOptions)
+      response = await response.json()
+      return response
+    } catch(error) {
+      console.log(error);
+      return {
+        error
+      }
+    }
+  }
+
+  async computeBhashini(authorization, task, serviceId, url, config, input) {
+    var myHeaders = new Headers();
+    myHeaders.append("Accept", " */*");
+    myHeaders.append("Authorization", authorization);
+    myHeaders.append("Content-Type", "application/json");
+    config['serviceId']=serviceId
+    var raw = JSON.stringify({
+      "pipelineTasks": [
+        {
+          "taskType": task,
+          "config": config
+        }
+      ],
+      "inputData": input
+    });
+    var requestOptions: any = {
+      method: 'POST',
+      headers: myHeaders,
+      body: raw,
+      redirect: 'follow'
+    };
+
+    try{
+      let response  = await fetch(url, requestOptions)
+      response = await response.json()
+      return response
+    } catch(error) {
+      console.log(error);
+      return {
+        error
+      }
+    }
+  }
 }
