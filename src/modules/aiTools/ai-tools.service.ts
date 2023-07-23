@@ -80,23 +80,28 @@ export class AiToolsService {
       }
       let bhashiniConfig: any = await this.getBhashiniConfig('translation',config)
       console.log('bhashiniConfig',bhashiniConfig)
-      let response: any = await this.computeBhashini(
-        bhashiniConfig?.pipelineInferenceAPIEndPoint?.inferenceApiKey?.value,
-        "translation",
-        bhashiniConfig?.pipelineResponseConfig[0].config[0].serviceId,
-        bhashiniConfig?.pipelineInferenceAPIEndPoint?.callbackUrl,
-        config,
-        {
-          "input":[
-            {
-              // "source": text?.replace("\n",".")
-              "source": text
-            }
-          ]
-        }
-      )
+      
+      let textArray = text.split("\n")
+      for(let i=0;i<textArray.length;i++){
+        let response: any = await this.computeBhashini(
+          bhashiniConfig?.pipelineInferenceAPIEndPoint?.inferenceApiKey?.value,
+          "translation",
+          bhashiniConfig?.pipelineResponseConfig[0].config[0].serviceId,
+          bhashiniConfig?.pipelineInferenceAPIEndPoint?.callbackUrl,
+          config,
+          {
+            "input":[
+              {
+                // "source": text?.replace("\n",".")
+                "source": textArray[i]
+              }
+            ]
+          }
+        )
+        textArray[i]=response?.pipelineResponse[0]?.output[0]?.target
+      }
       return {
-        text: response?.pipelineResponse[0]?.output[0]?.target,
+        text: textArray.join('\n'),
         error: null
       }
     } catch(error){
