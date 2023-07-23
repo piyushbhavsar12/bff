@@ -9,6 +9,7 @@ import { AiToolsService } from "./modules/aiTools/ai-tools.service";
 import { wordToNumber } from "./common/utils";
 import { ConversationService } from "./modules/conversation/conversation.service";
 import { PrismaService } from "./global-services/prisma.service";
+import { CustomLogger } from "./common/logger";
 
 export class PromptDto {
   @IsNotEmpty()
@@ -49,6 +50,7 @@ export class AppController {
   private aiToolsService: AiToolsService
   private conversationService: ConversationService
   private prismaService: PrismaService
+  private logger: CustomLogger
   
   constructor(
     private readonly appService: AppService
@@ -57,6 +59,7 @@ export class AppController {
     this.configService = new ConfigService()
     this.aiToolsService = new AiToolsService(this.configService)
     this.conversationService = new ConversationService(this.prismaService,this.configService)
+    this.logger = new CustomLogger("AppController");
   }
 
   @Get("/")
@@ -67,6 +70,15 @@ export class AppController {
   @Post("/prompt/:configid")
   async prompt(@Body() promptDto: any, @Headers() headers, @Param("configid") configid: string): Promise<any> {
     const userId = headers["user-id"]
+    let verboseLogger = this.logger.logWithCustomFields({
+      userId: userId,
+      flowId: configid
+    },"verbose")
+    let errorLogger = this.logger.logWithCustomFields({
+      userId: userId,
+      flowId: configid
+    },"error")
+    verboseLogger("User input", promptDto)
     let conversation = await this.conversationService.getConversationState(
       userId,
       configid
@@ -85,20 +97,24 @@ export class AppController {
       } else {
         let response = await this.aiToolsService.detectLanguage(userInput)
         prompt.inputLanguage = response["language"] as Language
+        verboseLogger("Detected Language =", prompt.inputLanguage)
       }
     } else if (promptDto.media){
       if(promptDto.media.category=="base64audio" && promptDto.media.text){
         type = "Audio"
         prompt.inputLanguage = promptDto.inputLanguage as Language
         let response = await this.aiToolsService.speechToText(promptDto.media.text,prompt.inputLanguage)
-        if(response.error)
-        return{
-          text:"",
-          error: "Something went wrong, please try again."
+        if(response.error) {
+          errorLogger(response.error)
+          return{
+            text:"",
+            error: "Something went wrong, please try again."
+          }
         }
         userInput = response["text"]
-        console.log("speech to text",userInput)
+        verboseLogger("speech to text =",userInput)
       } else {
+        errorLogger("Unsupported media")
         return {
           text: "",
           media: promptDto.media,
@@ -115,11 +131,14 @@ export class AppController {
           Language.en,
           userInput
         )
-        if(!response['text'])
-        return { error: "Sorry, We are unable to translate given input, please try again" }
+        if(!response['text']) {
+          errorLogger("Sorry, We are unable to translate given input, please try again")
+          return { error: "Sorry, We are unable to translate given input, please try again" }
+        }
         prompt.inputTextInEnglish = response["text"]
+        verboseLogger("translated english text =", prompt.inputTextInEnglish)
       } catch(error){
-        console.log(error)
+        errorLogger("Sorry, We are unable to translate given input, please try again")
         return { error: "Sorry, We are unable to translate given input, please try again" }
       }
     } else {
@@ -156,7 +175,7 @@ export class AppController {
 
     let botFlowService = interpret(botFlowMachine.withContext(conversation || defaultContext)).start();
 
-    console.log("current state when API hit =", botFlowService.state.context.currentState)
+    verboseLogger("current state when API hit =", botFlowService.state.context.currentState)
 
     let isNumber = false;
     if(type == 'Audio' && ['askingAadhaarNumber','askingOTP'].indexOf(botFlowService.state.context.currentState) != -1) {
@@ -164,11 +183,11 @@ export class AppController {
       if(/\d/.test(number)){
         isNumber = true
         prompt.inputTextInEnglish = number.toUpperCase()
+        verboseLogger("english text to numbers conversion =",prompt.inputTextInEnglish)
       }
     }
 
     const currentContext = botFlowService.state.context;
-    console.log("start context",)
     let updatedContext = {
       ...currentContext,
       inputType: type,
@@ -176,12 +195,11 @@ export class AppController {
     };
     botFlowService.state.context = updatedContext;
 
-    console.log("sending user input",prompt.inputTextInEnglish)
     botFlowService.send('USER_INPUT', { data: prompt.inputTextInEnglish });
 
     await new Promise((resolve) => {
       botFlowService.subscribe((state) => {
-        console.log('Current state:', state.value);
+        verboseLogger('Current state:', state.value);
         updatedContext = {
           ...state.context,
           //@ts-ignore
@@ -190,7 +208,7 @@ export class AppController {
         botFlowService.state.context = updatedContext;
         console.log('Current context:', state.context);
         if(state.context.type=="pause"){
-          console.log("paused state", state.value)
+          verboseLogger("paused state", state.value)
           resolve(state)
         }
       });
@@ -201,13 +219,13 @@ export class AppController {
           state:'Done'
         };
         botFlowService.state.context = updatedContext;
-        console.log("state done")
+        verboseLogger("state done")
         resolve(state)
       })
     });
 
-    console.log("final response",botFlowService.getSnapshot().context.response)
-    console.log("final error",botFlowService.getSnapshot().context.error)
+    verboseLogger("final response",botFlowService.getSnapshot().context.response)
+    verboseLogger("final error",botFlowService.getSnapshot().context.error)
     let result = {
       textInEnglish: botFlowService.getSnapshot().context.response,
       text: botFlowService.getSnapshot().context.response,
@@ -234,11 +252,14 @@ export class AppController {
             prompt.inputLanguage as Language,
             result.text
           )
-          if(!response['text'])
-          result.error = "Sorry, We are unable to translate given input, please try again"
+          if(!response['text']){
+            errorLogger("Sorry, We are unable to translate given input, please try again")
+            result.error = "Sorry, We are unable to translate given input, please try again"
+          }
           result.text = response["text"]
+          verboseLogger("input language translated text =",result.text)
         } catch(error){
-          console.log(error)
+          errorLogger(error)
           return { error: "Sorry, We are unable to translate given input, please try again" }
         }
       }
@@ -251,6 +272,8 @@ export class AppController {
       configid
     )
 
+    verboseLogger("current state while returning response =", botFlowService.state.context.currentState)
+    verboseLogger("response", result)
     return result;
   }
 }
