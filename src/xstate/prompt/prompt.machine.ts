@@ -109,7 +109,7 @@ export const botFlowMachine1 = createMachine(
               target: "askingAadhaarNumber",
               actions: [
                 assign({
-                  response: (context) => `No records were found for ${context.userAadhaarNumber}, Please enter valid Mobile/Aadhaar/Benificiary Id again:`,
+                  response: (context) => `No records were found for ${context.userAadhaarNumber}, Please enter valid Mobile/Aadhaar/Benificiary Id again.`,
                   userAadhaarNumber: "",
                   type: 'pause'
                 })
@@ -448,7 +448,7 @@ export const botFlowMachine2 = createMachine(
               target: "askingAadhaarNumber",
               actions: [
                 assign({
-                  response: (context) => `No records were found for ${context.userAadhaarNumber}, Please enter valid Mobile/Aadhaar/Benificiary Id again:`,
+                  response: (context) => `No records were found for ${context.userAadhaarNumber}, Please enter valid Mobile/Aadhaar/Benificiary Id again.`,
                   userAadhaarNumber: "",
                   type: 'pause'
                 })
