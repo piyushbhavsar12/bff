@@ -6,6 +6,7 @@ import { AADHAAR_GREETING_MESSAGE } from "../../common/constants";
 import { UserService } from "../../modules/user/user.service";
 import { PrismaService } from "../../global-services/prisma.service";
 import axios from "axios";
+import { decryptRequest, encryptRequest } from "src/common/utils";
 const path = require('path');
 const filePath = path.resolve(__dirname, '../../common/kisanPortalErrors.json');
 const PMKissanProtalErrors = require(filePath);
@@ -246,8 +247,9 @@ export const promptServices = {
         console.log("using...",userIdentifier, type)
         let userErrors = [];
         try {
+        let encryptedData = await encryptRequest(`{\"Types\":\"${type}",\"Values\":\"${userIdentifier}\",\"Token\":\"${configService.get("PM_KISSAN_TOKEN")}\"}`)
         let data = JSON.stringify({
-            "EncryptedRequest": `{\"Types\":\"${type}",\"Values\":\"${userIdentifier}\",\"Token\":\"${configService.get("PM_KISSAN_TOKEN")}\"}`
+            "EncryptedRequest": `${encryptedData.d.encryptedvalu}@${encryptedData.d.token}`
         });
         console.log("body", data)
         
@@ -264,7 +266,8 @@ export const promptServices = {
         let errors: any = await axios.request(config)
         errors = await errors.data
         console.log("related issues",errors)
-        errors = JSON.parse(errors.d.output)
+        let decryptedData: any = await decryptRequest(errors.d.output,encryptedData.d.token)
+        errors = JSON.parse(decryptedData.d.decryptedvalue)
         if(errors.Rsponce == "True"){
             Object.entries(errors).forEach(([key, value]) => {
             if(key!="Rsponce" && key != "Message"){

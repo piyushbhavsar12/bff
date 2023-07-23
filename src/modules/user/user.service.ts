@@ -6,6 +6,7 @@ import { CustomLogger } from "../../common/logger";
 import * as momentTZ from "moment-timezone";
 import * as moment from 'moment';
 import axios, { Method } from "axios";
+import { decryptRequest, encryptRequest } from "src/common/utils";
 
 
 @Injectable()
@@ -168,8 +169,9 @@ export class UserService {
     type: string = 'Mobile'
   ): Promise<any> {
     try {
+      let encryptedData = await encryptRequest(`{\"Types\":\"${type}\",\"Values\":\"${mobileNumber}\",\"Token\":\"${this.configService.get("PM_KISSAN_TOKEN")}\"}`)
       let data = JSON.stringify({
-        "EncryptedRequest": `{\"Types\":\"${type}\",\"Values\":\"${mobileNumber}\",\"Token\":\"${this.configService.get("PM_KISSAN_TOKEN")}\"}`
+        "EncryptedRequest": `${encryptedData.d.encryptedvalu}@${encryptedData.d.token}`
       });
       
       let config = {
@@ -186,7 +188,8 @@ export class UserService {
       console.log("sendOTP",response.status)
       if (response.status >= 200 && response.status < 300) {
         response = await response.data
-        response.d.output = JSON.parse(response.d.output)
+        let decryptedData: any = await decryptRequest(response.d.output,encryptedData.d.token)
+        response.d.output = JSON.parse(decryptedData.d.decryptedvalue)
         response["status"] = response.d.output.Rsponce != "False" ? "OK" : "NOT_OK"
         return response
       } else {
@@ -219,8 +222,9 @@ export class UserService {
   ): Promise<any> {
 
     try {
+      let encryptedData = await encryptRequest(`{\"Types\":\"${type}\",\"Values\":\"${mobileNumber}\",\"OTP\":\"${otp}\",\"Token\":\"${this.configService.get("PM_KISSAN_TOKEN")}\"}`)
       let data = JSON.stringify({
-        "EncryptedRequest": `{\"Types\":\"${type}\",\"Values\":\"${mobileNumber}\",\"OTP\":\"${otp}\",\"Token\":\"${this.configService.get("PM_KISSAN_TOKEN")}\"}`
+        "EncryptedRequest": `${encryptedData.d.encryptedvalu}@${encryptedData.d.token}`
       });
       
       let config = {
@@ -237,7 +241,9 @@ export class UserService {
       console.log("verifyOTP",response.status)
       if (response.status >= 200 && response.status < 300) {
         response = await response.data
-        response.d.output = JSON.parse(response.d.output)
+        let decryptedData: any = await decryptRequest(response.d.output,encryptedData.d.token)
+        console.log(decryptedData)
+        response.d.output = JSON.parse(decryptedData.d.decryptedvalue)
         response["status"] = response.d.output.Rsponce != "False" ? "OK" : "NOT_OK"
         return response
       } else {
@@ -269,8 +275,9 @@ export class UserService {
   ): Promise<any> {
     let res: any;
     try {
+      let encryptedData = await encryptRequest(`{\"Types\":\"${type}\",\"Values\":\"${mobileNumber}\",\"Token\":\"${this.configService.get("PM_KISSAN_TOKEN")}\"}`)
       let data = JSON.stringify({
-        "EncryptedRequest": `{\"Types\":\"${type}\",\"Values\":\"${mobileNumber}\",\"Token\":\"${this.configService.get("PM_KISSAN_TOKEN")}\"}`
+        "EncryptedRequest": `${encryptedData.d.encryptedvalu}@${encryptedData.d.token}`
       });
       
       let config = {
@@ -286,7 +293,8 @@ export class UserService {
       console.log("getUserData",res.status)
       if (res.status >= 200 && res.status < 300) {
         res = await res.data
-        res.d.output = JSON.parse(res.d.output)
+        let decryptedData: any = await decryptRequest(res.d.output,encryptedData.d.token)
+        res.d.output = JSON.parse(decryptedData.d.decryptedvalue)
         res["status"] = res.d.output.Rsponce != "False" ? "OK" : "NOT_OK" 
       } else {
         res = {
