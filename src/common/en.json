@@ -5,4 +5,4 @@
     "lable.noRecordsFound": "No records were found for <user_identifier>, Please enter valid Mobile/Aadhaar/Benificiary Id again.",
     "label.popUpTitle3": "Dear Beneficiary, request you to kindly enter the OTP that has been received by you.",
     "message.invalid_otp": "Invalid Otp"
-  }
+}

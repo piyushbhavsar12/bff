@@ -1,6 +1,5 @@
 import { ConfigService } from "@nestjs/config";
 import { AiToolsService } from "../../modules/aiTools/ai-tools.service";
-import { Language } from "../../language";
 import { CustomLogger } from "../../common/logger";
 import { AADHAAR_GREETING_MESSAGE } from "../../common/constants";
 import { UserService } from "../../modules/user/user.service";
@@ -27,37 +26,6 @@ export const promptServices = {
         return context
     },
 
-    convertSpeechToText: async (context)=>{
-        console.log("convertSpeechToText")
-        return {
-            text:"where is my money?",
-            error: null
-        }
-    },
-
-    detectLanguage: async (context) => {
-        console.log("detectLanguage")
-        let response = await aiToolsService.detectLanguage(context.prompt.input.body)
-        return response
-    },
-
-    translateInput: async (context) => {
-        console.log("translateInput")
-        if(context.prompt.input.inputLanguage != Language.en) {
-            let response = await aiToolsService.translate(
-                context.prompt.input.inputLanguage as Language,
-                Language.en,
-                context.prompt.input.body
-            )
-            return response
-        } else {
-            return {
-                translated: context.prompt.input.body,
-                error: null
-            }
-        }
-    },
-
     questionClassifier: async (context) => {
         console.log("questionClassifier")
         try{
@@ -72,86 +40,6 @@ export const promptServices = {
         } catch (error){
             return Promise.reject(error)
         }
-    },
-
-    getUserStatusFromPMKisan: async(context)=> {
-        console.log("getUserStatusFromPMKisan")
-        return {
-            status:[
-                'marked as dead',
-                'aadhaar not verified'
-            ]
-        }
-    },
-
-    translateOutput: async (context) => {
-        console.log("translateOutput")
-        if(context.prompt.input.inputLanguage != Language.en) {
-            let response = {
-                translated: [],
-                error:[]
-            };
-            for(let i=0; i<context.prompt.outputInEnglish.length; i++){
-                let res = await aiToolsService.translate(
-                    Language.en,
-                    context.prompt.input.inputLanguage as Language,
-                    context.prompt.outputInEnglish[i],
-                )
-                response.translated.push(res["translated"])
-                if(res.error)
-                response.error.push(res.error)
-            }
-            return response
-        } else {
-            return {
-                translated: context.prompt.outputInEnglish,
-                error: null
-            }
-        }
-    },
-
-    storeAndSendMessage: async (context) => {
-        try{
-            console.log("storeAndSendMessage")
-
-            // await prismaService.query.create({
-            //     data: {
-            //         id: context.prompt.input.messageId,
-            //         userId: context.prompt.input.userId,
-            //         query: context.prompt.input.body,
-            //         response: `${context.prompt.output}`,
-            //         responseTime: new Date().getTime() - context.prompt.timestamp,
-            //         queryInEnglish: context.prompt.inputTextInEnglish,
-            //         responseInEnglish: `${context.prompt.outputInEnglish}`,
-            //         conversation: {
-            //             create: {
-            //                 id: context.prompt.input.conversationId,
-            //                 userId: context.prompt.input.userId
-            //             }
-            //         },
-            //         workflow: {
-            //             create: {
-            //                 userId: context.prompt.input.userId,
-            //                 content: context.workflow,
-            //             },
-            //         }
-            //     },
-            // });
-
-            return context.prompt.output
-        } catch(error){
-            console.log(error)
-            throw new Error(error)
-        }
-    },
-
-    done: async (context) => {
-        console.log("done")
-        logger.logWithCustomFields({
-            userId: context.prompt.input.userId,
-            messageId: context.prompt.input.messageId
-        },'verbose')('done',context)
-        return context
     },
 
     logError: async (_, event) =>{

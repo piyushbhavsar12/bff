@@ -2,8 +2,9 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { CustomLogger } from '../../common/logger';
 import { Language } from '../../language';
-import { isMostlyEnglish } from '../../utils';
-import { error } from 'console';
+import { isMostlyEnglish } from 'src/common/utils';
+const fetch = require('node-fetch'); 
+const { Headers } = fetch;
 
 @Injectable()
 export class AiToolsService {

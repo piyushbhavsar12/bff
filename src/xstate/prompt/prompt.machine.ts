@@ -1,8 +1,6 @@
 // @ts-nocheck
-import { actions, assign, createMachine } from 'xstate';
+import { assign, createMachine } from 'xstate';
 import { promptServices } from './prompt.service';
-import { PromptDto } from '../../app.controller';
-import { Language } from '../../language';
 import { promptActions } from './prompt.actions';
 import { promptGuards } from './prompt.gaurds';
 const path = require('path');
@@ -13,21 +11,37 @@ export const botFlowMachine1 = createMachine(
   {
     /** @xstate-layout N4IgpgJg5mDOIC5QCMD2AXAYgG1QdwDoZ0BVWMAJwEUBXOdAS1QDsBiEgZQFEAlAfQCSAOQAKJACoBtAAwBdRKAAOqWA0YsFIAB6IAjAA4AzAQAsukwDZDAVhMAma3f26ANCACeiALR2DBXQCc0sHWAboWugDsutIWAL5xbmhYuIQAjnSw6swAwtgAhrCqAGYMlKwQLGAEDMwAbqgA1tXJOPgEGfRMuQVFDKWUCLUNAMb52TKyk5rKqtmaOgi61rqmJtb61tbS+hYm0tFunghmBNJ2VvoHAfrRJobmCUkYbemZ2XmFJWUUrJQUqAoBEUBXQxUBAFsCK1Uh13t1Pn0BhQhvVUGMJnJpkgQLM1N0Ft5ItYCE57BtDBZNtYLNYjt59PoCLtrJFdmELoZDHZIk8QDD2oVGrUoABBfIQAAW+XyFCENAhyHKnF4glEEmxShU+I0OMWUSZ4UsFgcPOCAXW9IQdhMkVJkQdhluFxWtmsfIFhDq+WwDAg4xF4qlMrlCqVv0qzGqwyaLResO9vv9jGYYol0tl8sVgxjGO6k01uO18z13kcFgIAQsARWkUpGyc+itjmkBGs3K5gQdkRr+g98faib9AdTQYzoezEaqNTRzWhA69PuHKbTwczYZzaLzLALunkOLxJdA+p2qx25cZ5gCDmbdlb7bsnYC3d7-ZSg6XycD6ZDWfDFWnGM509Aghy-Ucf3XSdUVGAMdyxOx9y1OYCVLBAaQCStpF0QxIhtW1OxMW97w7B5nwdV9En5BdQM-EdV3HP9ykjaNZzjd9FyTeix1-DcUVzODmALQwkKLFDdWPRAwlMXCbTsfDNktDxEBbNtSK7CiNjfV5aK4lceKg-9-kBYFQXBCgoRAsDuMgidwxg9FBILOQZmLVDJIQHxpBJQwax2fQa0MWILB2K1fLsNtIhNFZOWrbD3SokChRFAB5cQRHYbh+GEMQpBcg83Ik7Q9CMUxzBpHYnF0AxQuUhArmMJ0NnbbzOwsXlEpo6yVzSjKWJnBpgK6uievShztyErF8uQnVmEJE4HUrZ8LV8ewHBwq1qpsNSTHuRxNP0ExtITEbUvSgCowG2N5w43TlzOkRxqcrE91c8S5rQ6qIp5fZuWwmJIh2CxNuWJkVmkKsAhrKlGWOj89Iev4KABIEQXGczLOGhHU16p7MSmaaxNm+avHCJk72JJ0q0iXblhB7b212mweR7DYjs627ijAdARklEUyEoAARcZ8gu1jBvYnSuZ5vnUwFihhfQfI8fzKbRMPdziqWELTA2NkWw2KlpEMTbLGMVkeQMB0bQpOHCGl3n+fIBWRaRlHTPRyEbql7nHbl53FeVgT8cLDWisWUmosrfZiUh58IjsTaOwIWOQqCdtNgCO2CGMqdLqAyXYVzlX4IJ9XCo+jzSdZAhCKBu8HlpOk6uWaSNmWW1duiXCEio5hUAgOBNE9N7ibQrxWRMStq1ret9EbK0vCdCstlZXQLnuExr1sbPiHl2guiKsPK61o1TAdcILSCAGLkXuwobOLY8MfGtAaMeIOZ0zosgRXpvkoUeR5T64UrEFBwZsqyxUXkEZkAVfB4QtDYB02dkoQTXHZABBV3rzXMBFK4YR448j2GyTa7Z-BmBrL4K41VwjZ26t+dBTEKCAM1vqPwJhGSbHng8YKPIwrVjONeAi7UQoxGfCg2AwocbpRYeHPQ15a7tR7NyHkVZHCJzqoDYwsQjAWkcFvYIhg6GnWkSIWRJ99TbFMBvKIyx6xBGBnVZ8xhnC3ACpnahdhs4O1llAeWgdzE4MsNHB42xcJVmwgEJOvgU6UhwsSdq88jDZ1zoE8eURWyHUBpvSwDYmwt0sKsWwQi8K7HsMSFJzAICvDSR5AwRSoi4XuNFf6m1aStgiEFTha1QgJQSEAA */
     id: 'botFlow',
-    initial: 'getUserQuestion',
+    predictableActionArguments: true,
+    initial: 'checkStateAndJump',
     context: {
+      userQuestion:'',
       query: '',
       queryType: '',
       response: '',
       userAadhaarNumber: '',
       otp: '',
-      userData: null,
       error: '',
       currentState: "getUserQuestion",
       type: '',
       inputType:'',
-      inputLanguage: ''
+      inputLanguage: '',
+      lastAadhaarDigits: '',
+      state:'onGoing'
     },
     states: {
+      checkStateAndJump: {
+        always: [
+          { target: 'getUserQuestion', cond: (context) => context.currentState === 'getUserQuestion' },
+          { target: 'questionClassifier', cond: (context) => context.currentState === 'questionClassifier' },
+          { target: 'askingAadhaarNumber', cond: (context) => context.currentState === 'askingAadhaarNumber' },
+          { target: 'validatingAadhaarNumber', cond: (context) => context.currentState === 'validatingAadhaarNumber' },
+          { target: 'askingOTP', cond: (context) => context.currentState === 'askingOTP' },
+          { target: 'validatingOTP', cond: (context) => context.currentState === 'validatingOTP' },
+          { target: 'fetchingUserData', cond: (context) => context.currentState === 'fetchingUserData' },
+          { target: 'error', cond: (context) => context.currentState === 'error' },
+          { target: 'endFlow', cond: (context) => context.currentState === 'endFlow' }
+        ]
+      },
       getUserQuestion: {
         on: {
           USER_INPUT: {
@@ -253,24 +267,48 @@ export const botFlowMachine1 = createMachine(
 
 export const botFlowMachine2 = createMachine(
   {
-    /** @xstate-layout N4IgpgJg5mDOIC5QCMD2AXAYgG1QdwDoZ0BVWMAJwEUBXOdAS1QDsBiEgZQFEAlAfQCSAOQAKJACoBtAAwBdRKAAOqWA0YsFIAB6IAjAA4AzAQAsukwDZDAVhMAma3f26ANCACeiALR2DBXQCc0sHWAboWugDsutIWAL5xbmhYuIQAxgAWYGkA1uLuimC6rBAsYAQMzABuqDnlyTj4BJnZeQVFCJU1aQCG6swysoOayqr9mjoIPibGAdaG+gF2hhbW+k6R+m6eCOHWugTSzraRJibRhpEJSRiN6Vm5+YXFpczlXbX1t6nND23PnWqqF6-UGkl08iQIFGaiYzAm3jsMwIcwWSxWaw2Ww8eki1gsBFWAQskSR510l2uIAaPxaj3axUoFFQFAIimwfQAZiyALYEGlNOn-DofEFwsFyEYqWEaKGTaazeaLZardb6TbbPT6Cx2AjLSKRAKncmUxLU76ClichgUHkCZiKGjoYqcXiCUQSYZQmHjOWIyLGAzSEy2bWY-TYnaBEkEY5LMkXK5mgWEACOdFg-QAwhzYKprZQSmUKkC6vyLWmM9nc-mGJRAd0+uK5F6lNLfaBJrp9qYQ-prNYjhYTNJopqEGZDnYrPpRwF1eZDOYqSmCOn6HCcz08wwCxRWEyWWyOehubbyykmuvM5ua7u6xQG8CmywJZC22M4Qipni9fp7GsKz9vi1jjl4EaxqsmwWGE06GIYdhJjcl6ENuOSVFAACCPQQBkPQ9BQQg0DyyCFq6-DCGIUiSt67Zfn6uybP4w4WDqjiRMEAQhuOSKRHqBoBuq077LY1grhWvytE8YB2EWbwljUZarkK0l2E+Yqvi2NEfjK8IMQqKJKuiqpYjxo4EoYXHBsaibiShkn0oUsmvO8pZfPZKntGpoovgMLYQlKn6yp2iLIqiyoYmqGo4ggvjOCipJRAmFJIeaHl-KpB4UMyrLslyvIXncDnCt5QIaX5QzadCdHBdooWKmiKrhtFOx2BsBADtIdhGmctnJhJaRWjadoOk6snke6VGttVQV6SFUyIQc4QmOs84mRGPGWYGTj2MlprIUVVQ9NgDAQE2zBYTheEEURJGFi5CmfIVPxHSdZ2MBd2G4fhhHEaRj4+aCWnvjNunfl4jgEsScxRJFTiRogjjSB1CHwYEAlzPodmHcdp3nZd303X993Fh8SkSa9eMfQT12-XdANlb5YIBbRs3fjE8VHJDEbmEsoExUjKPLEuRoGpj2Mvbj70YV9tO3f9cmuYp7k429+Oyz98v1oDzZDHYIM+vR834gEKLSClCZoyY46C-Mwvo2LawS00lPS59V2a8T+4PWTKuS2r1Ma0T9PqUzLaGAbNVzXVCBhKYlxIm1Zz9txAt2Mjdto6LhpO-19mu+rHvBwrPtuc9LtS4XhN0-9odA0MJiR2zDEmMS-Hm0cywxKxhjjucuqZyLGO5wd-tUzLRc14Wh65SeZ58quBeB5PWsM429fTYbtXyun1gEJZg4RqisQWEc46WQPkRsbocEwebYl50VaEADLbug2GTwAIgwUBqLA7DcAoh6aiTcwb6XTnxJcCESRw3VAjWKg4DgcVWOcXqKVnb3Cku0EwitHrk3SlgwoJg66603lHcGSIGoRXWi1RA04Yh-ksKSNB+00pFU8kQ3Bvty6YMcmAYhOtNJDBZjpDsMcDLhWMs1eBi097akQj1E0qVlIZWwVlHKx58rnhUYQ-hJChFkObvNCRRkmpRRkesA4ZxpDxhYcogaQ1bT2kdOgHBE1KKeiqlvaOO8OIEGiDDAM60ZFLD4ubIIqClEYIIGhDCAB5cQIgAFug8SAwKYD5oGGMGYEMp81S6CDPA2cxgFhrHmNIeYS4STRI4WAQwXCy46L4YYfRFVDEZPEZQwyjVYG0IQIYaQNgOpGiSnYmpqjCj1NLsrHhxVpItMEW0kRoMxE7zCqY3p8ClyTiiI4RRfVR6CgmXU9RR48qngKk04UCzGYby8eQ8B6yek0K2UiAkeJDC7TGY-WkjiRouPqe44B7TVn+mRpsec3Uwxqi2TYXUaMTjfMOYQJe8TEkNJmYvSu1MEkiFaW+dJoKJwGhREaLivhdr7F7jFApQz5hnDhY7f80TUUXVxRip6WKA5orxYs5moCiUFN1IhEcCFzYxA4tqccBS1gdRiNDOYFgIxYx+RXblbL0Uz00Rc7RFNsU8vxcDQlRtxHhH0HqUcRkSRnG7NKike96UzHYjnZlqrCCcjAOgTIGEyCUE-n0HoHL8FFQ9V6jIPryAUH9egHohrKoCpNV2U+pg1ibCRmsJVgzpWWGMNYUk0R1TMMAtE0N3qLq+qjQG05s8tELwkqW8N5bI3RtjXyo1rMOnyiiFDEceIFVXxvtK1G-jQinyCEqUI0SZ5Br9k0GecaQWJu8N2SB2yhzpyqQOaVoQDhrG7JEvqZpmCoAgHATQKZjXb28HmkwKIYL7CCeGeBXgFgEgHHmxC6wr5KtWNE4gFbaAblqt49mw5TAGnCFxIIErpxgW6qbCpH7lhzElSscZujdCXp8de6cd7AmwPgVESwhIKRHAjJSpYNS-nOKdJhjtRKIa4ehg+gj0qljmtpWR-8bVJ1urXFWW825ayUCw+zS4KIBkOBzcSW+YEgixmVElLiNgDTRNie7auq9RMMXMLqWcYQjQ6ivucQj8x-BmDmHFcV4R0N8LsNp4xkM8MseCWZHUJGBnKoo1R5g1onGjXQPZ+jS6phOeY7DVzMUk63s415njAQWX6o03LL2DmY4FPNStCMmIlwn0QufGChwljnBWFfDuRo1OwByK-TMH9q7f1-ugeAwWr2haY-eiLT7NpMQiJ58j8XbPChMGl+UYWOuPphTxKl-hSNxYcAlvjg1fPDRo64kbOGobjdY1FmCt7etce83x9TUBcXrd2EsfeJJDQIQUasNq44OLGFiEYLijhW7BEMIN+ZZ3GObfw5F1qq0Zt9e4-Nnzfn-lOkMD9sb-2usxQGQw-bc3ePIoIKyk7iSzvdmRvYYcURuwYiCBYccRpjDODgfOUIs4b4ls9WWqAFaW3Y+I8pnHlxiThKHb4fxKwUr4k2E4T7fGZ4-aiMjf8HEZhnHWtmiIHVW68ScMORCD80dgGYBAO42P4osdOCsBw4rpWrGRsj-r82H4JCAA */
+    /** @xstate-layout N4IgpgJg5mDOIC5QCMD2AXAYgG1QdwDoZ0BVWMAJwEUBXOdAS1QDsBiEgZQFEAlAfQCSAOQAKJACoBtAAwBdRKAAOqWA0YsFIAB6IAjAFZdBaQHZ9ANgBMATmsAOO-vsmANCACeiALS6zlggAsurbS1haWptIBAL7RbmhYuIQAxgAWYMkA1uLuimC6rBAsYAQMzABuqJklCTj4BGkZ2bn5CGWVyQCG6swysn2ayqo9mjoIXpYmAQS+AMzWlo6Ls9Lm5vpunuMGNgQmdpYBYfZHi+ax8Rh1KelZOXkFRcwl7VU1V0kNt80PbRWoXR6fUkunkSBAQzUTGYo0Q1iMln0+lmljW0kMdnM9k23l0KOmhnh0gcxN0dgClguIFqn0adxaBUoFFQFAIimw3QAZiyALYEGn1Ok-VqvQHQ4FyQYqKEacFjLx2EwmAjWFbo4k2XS6LE47ZWawERaKxX6AIBcwmKJUgUpFichgUHkCZiKGjoAqcXiCUQSAbgyEjOXeWb6GZ2FGWAzSWbmaSmay6nxBaSG6wmNbmsIWmPWj71ACOdFgPQAwhzYKp7ZRCsVSv9qvy84RC-RoWXOhWGFWKH8Ot1xXI-UppYHQGMtQbdKtMSZJhYtboAomp4q9gEnJbDpaAujc4kC0XS+XKwxq0yWWyOehuY7G-vm4e28eu6ee6L+ywJWDh8NobDxtYqwqtY5hmpagGTGYy7BAaAThlO8zwuYswmLMe7XAQHaZGUUAAIKdBAqSdJ0FBCDQPLINWnr8MIYhSJK-ojn+QYIAYRimOEtgOE4mJ2ImdggXsBxRIcMYhvo6G0t89xgJYNbPHWlQNjaXxNDJli9gCH69IODE-jKMIsRMUwzKhCxLOGqzrImSrKrMIYCYc9gHCY1iSYK0ktHJTwvPW7z3qp9J5Bp75AoOoJSr+spjnCCJIiiaIYpauiJhYKYrIuU7wgYYTuTcaleaw56suyXK8neGFCupmlip+unfhCTHRdo3iKsqqpxvoGrZeYfEeN4tkEPZ+h2KE6ZIjuElxNSTYNHaDpOi6bpydR3p0UOjVRYZMXjCGYYRlGMZxqNGz9eMoF2KZqHpqhxImMEeUEOUnTYAwED9sweEEURJFkRR1Y+YpbwVZ8z2ve9jCffhhHEaR5GUW+-y1Tp-R6ZtBn-l4pxDQl9lahiAnLmsQkLNqqKzHi5JodNKlg29H1fTDv3wwDtavMps10xDOHQz9cP-YjfZhf0EWMVt-4hv4qoZfZ9mWLMdiLkT5gk5GVjIZTATU5cAVcwzvOw39CPyb5Sn+RheuQ4zfNG5QNXacClgNQGzE7a50yWJMpgGA44amsrqtkxrCta49ls899hssxQJtAxzusvfTVsG8zAv28LkizM7TXbS1rGHAi4ZwZisbSIifVbD4xP7KT6sUyH2szQn4P65HqfG4D7Pm6Difc1Dbf8wj6cDv0ATZ+LLHagrBDmGSabSME5pdadlfairNeIumNj7BEJhh73rdM4PrMKV3IP1OH-dH7bgtaRn+jjxjRknMY8sHMhXHwpYAcb-oW9pgcfeLdk4DxvkVCgzISpXhvHyWmB8QHX2jsPOqqNH6jjzl4BYKstb7CcMiT+CYzpY0WAQfQNgsRWFNA4UONNZpYQADIdnQPhAeAARBgUA1CwHYNwGiPp6JoNdnnI4Bo8bmlGq5OM8tdSzGmGmJwZcAhKmjBEGItCApVRaAEWOZ8VKaLyAEZBKMNou2auOaeZdtR4gtEoyY1glxnTYqQ8I9k1gOBsArR6+iwDaM7n5c++Ugo+KMcCUW+l0FjC1gaQwWpQJYiRIBf2Z15hGBQhEPEURUKokpOoyqnkDHgMgZeMqt49H5OCaFEeJic6YzaiqNUXUDg9QrnoQwzirCuN6k03QOSdaVXmo6Z0rp0DaNWrRX0aNTG5zGDGZUo08Ra2OhSOCK9EArA9qBXB9itSRjsI9LCOEADy4gRA8K9OMgRkUn47V8KBVMmIpzIiUesQhWxZ4ElnMmewU51ZePKbMHR-iykFTyLMEJ9UrkRL0EES6cZ0y9TTGYLBupUIexRGmNYSoEWN2BUEgFfizYBMCsKMFlSUEgkEWY7wvUPbJgtKqbUSoUpnTTAaVYhglHIjLlYNRfSpIgrAPitmQLZreNJUjB2g4naQqEeObcgR9grHuoYEMDitisuMOsRcZgVjZJxaK-5hSLylWvOVXFJLwWoJlVS8YdSOrqm6dqV5iBUWGjEZGM05M3K5NpAMxawyAVjP4dUieNy4kqmRAcIIs5dXMq2AJUMZc2rcR2WsIBScjknMBYSuBwDM0iEtSG65edEQLBmNmdlHSLC6h6fMPY89fA9PXCNPZPqL7wPzdm4GuaM2fWOQWslxiwnoyhQgB5MwbCK06rOXqswa3ywNK5ZK91DhIgcOmvuUB+1dvjhbDtfaTmFulWLYt44sSzBmH-bKZpnAHHnVYPYqFTRl1MArYkG6GbbuKsU01pTOb7q3YewdX5rXTNagJQ0XUxJLpWH-XUI0VYU2CDYUwWIKTer5fUTkYB0BpBwmQSgrDuidB3d3LDOG8OfQIxQIj6BOiFsmTUyeUx-DIXXLOtWIE1WtIpDMHcqwwgmh3HvNthBsO4dSPh8gNHiNGqgSU2Bs1xOUagNR2j9HgMQpPaOhUgksS3Ncn-OMc7HHzGmNGYIDyyTiKmphwgxVSNEuKgxylYGEBkIRCBb53tGWuEcfdFM4ZFjRjjOueErbprMFQBAOAmgbSgcxghfwZcFZevsPCEzq9AIplnFBrW4ReqPWINR2grZmpTP-BEZLaxGXogEiBTL4GjD2IXpaDilkMNNzyQK3QCXJ6yJnn-DMBhMWAXMETCmQ0emTAOI4U4ra7NzWYPaQZS13R9Z2hMREpC4LmXxvPNMy5UuXvWOGBWs4F6dZUi2YsT4OwnkoBtvOjzSFf1RGQhwUxFTLnSaQ9lyIYwjR9vs2A2Er422jk98cBg9jpPO6qSYWJnUAV6oEASbGghhCQ38gVlgod6F2DGYIKJTQGBnS08YSpRFOAaasGMqIvF+qGctfH4xPYq1jETiIPKkKJkoYaY6yILq7lE09ADKdj4UFZ5iPj3zhNIQLomRZziKYiR5chkHmRGHFhYUfdhnD0DwG07KxA5oL0UjxOixEs9iTcd2heheQRUQ7nJDS-VGjykBFZ3BKWeIuqeyURqdMNajikPRcSMzQPAGi+SEztbXvjc2rJKGCMk0lQKzEjIyYhoggrAgmZzxouDkHpEKz3wqFIONqycZ1y8GpykPunBIIvUpgGBx3isvUw5mjVAoHxY5pv5nSyQLkCHLoxmjbzHuPAay9LyGhyiIri8Se11OF4w6JzRTE6vLXpXWe55pL53mMpDOcU1ResKYNafkEEcCoxUSijiPWU5Jqj0n1Od92FqX2VgI9TxrfMZLW3LHLFc0R6YqVnXTFMHiOMDWZvLUGtc9QIRCHpZPdMRUMA5gCAa4TvZCGeBlVENMbUU4GtZVGeerU0SYOxU0WIWIIAA */
     id: 'botFlow',
-    initial: 'getUserQuestion',
+    predictableActionArguments: true,
+    initial: 'checkStateAndJump',
     context: {
+      userQuestion:'',
       query: '',
       queryType: '',
       response: '',
       userAadhaarNumber: '',
       otp: '',
-      userData: null,
       error: '',
       currentState: "getUserQuestion",
       type: '',
       inputType:'',
       inputLanguage: '',
-      lastAadhaarDigits:''
+      lastAadhaarDigits:'',
+      state:'onGoing'
     },
     states: {
+      checkStateAndJump: {
+        always: [
+          { target: 'getUserQuestion', cond: (context) => context.currentState === 'getUserQuestion' },
+          { target: 'checkType1', cond: (context) => context.currentState === 'checkType1' },
+          { target: 'confirmInput1', cond: (context) => context.currentState === 'confirmInput1' },
+          { target: 'questionClassifier', cond: (context) => context.currentState === 'questionClassifier' },
+          { target: 'askingAadhaarNumber', cond: (context) => context.currentState === 'askingAadhaarNumber' },
+          { target: 'checkType2', cond: (context) => context.currentState === 'checkType2' },
+          { target: 'confirmInput2', cond: (context) => context.currentState === 'confirmInput2' },
+          { target: 'validatingAadhaarNumber', cond: (context) => context.currentState === 'validatingAadhaarNumber' },
+          { target: 'askLastAaadhaarDigits', cond: (context) => context.currentState === 'askLastAaadhaarDigits' },
+          { target: 'checkType4', cond: (context) => context.currentState === 'checkType4' },
+          { target: 'confirmInput4', cond: (context) => context.currentState === 'confirmInput4' },
+          { target: 'askingOTP', cond: (context) => context.currentState === 'askingOTP' },
+          { target: 'checkType3', cond: (context) => context.currentState === 'checkType3' },
+          { target: 'confirmInput3', cond: (context) => context.currentState === 'confirmInput3' },
+          { target: 'validatingOTP', cond: (context) => context.currentState === 'validatingOTP' },
+          { target: 'fetchingUserData', cond: (context) => context.currentState === 'fetchingUserData' },
+          { target: 'error', cond: (context) => context.currentState === 'error' },
+          { target: 'endFlow', cond: (context) => context.currentState === 'endFlow' }
+        ]
+      },
       getUserQuestion: {
         on: {
           USER_INPUT: {
@@ -301,6 +339,7 @@ export const botFlowMachine2 = createMachine(
               target:"questionClassifier",
               actions:[
                 assign({
+                  userQuestion: (_,event) => event.data.query,
                   query: (_,event) => event.data.query,
                   response: engMessage["label.popUpTitle"]
                 })
@@ -388,7 +427,7 @@ export const botFlowMachine2 = createMachine(
               actions:[
                 assign({
                   query: (_,event) => event.data.query,
-                  userAadhaarNumber: (context, event) => {console.log("setting user aadhaar"); return `${event.data.query}`},
+                  userAadhaarNumber: (_, event) => {console.log("setting user aadhaar"); return `${event.data.query}`},
                   type:''
                 })
               ]
@@ -527,7 +566,7 @@ export const botFlowMachine2 = createMachine(
               actions:[
                 assign({
                   query: (_,event) => event.data.query,
-                  lastAadhaarDigits: (context, event) => {console.log("setting user aadhaar"); return `${event.data.query}`},
+                  lastAadhaarDigits: (_context, event) => {console.log("setting user aadhaar"); return `${event.data.query}`},
                   type:''
                 })
               ]
@@ -597,7 +636,7 @@ export const botFlowMachine2 = createMachine(
               actions:[
                 assign({
                   query: (_,event) => event.data.query,
-                  otp: (context, event) => {console.log("setting user otp"); return `${event.data.query}`},
+                  otp: (_context, event) => {console.log("setting user otp"); return `${event.data.query}`},
                   type:''
                 })
               ]
@@ -705,179 +744,4 @@ export const botFlowMachine2 = createMachine(
     services: promptServices,
     guards: promptGuards
   }
-);
-
-
-export const inputMessageProcessor = createMachine<any>({
-    /** @xstate-layout N4IgpgJg5mDOIC5QEsB2AHArgFwLJ1gEMYAFAJwHsBjAisgOmQgBswBiAZQBUBBAJS4B9EnwDyAYQCiHDgEkAcgHEA2gAYAuolDoKsZNmQVUWkAA9EqgDQgAnhYC+962ix4CxMOWq0GLnGwgjMEZUADcKAGtgvzdYIlJKGji6ENcENHCqQgMjNXU8kx09HOMkMwtrOwRVR2cMHHw4jy8k2BSYgKCQ8KjUhvcE72Tfeux0sOpsw1Q85QBGTTKi-WmTc2rKhycQGMb4z0SfPuw2MDJKBnRmbIAzOgBbY73mw+Hj8cyp3I0Cpd0VoxrCq2LZ1VzPQatFJUIyhM7YDjoMBgKgACy4FC4YFMJ0CqGiE16uwGByGbQYMLC8MRyLRGKxOI+kxKsw0hX+JSBGxB1VqO1GENJUIpsOpSJR6Mx2NxXQykQJ4JJLSOlLhZAR4rpUsZcqyLJ+C3ZxVWZXWVh5NW2xKakJVovVNIl9Olp3OKSutweTyVr3J9FVYtpkoZY11XxmPzZf2NgNNwKqlrB-RtQqOEDA2BR2AAMoRUFBMB5OvjuvLvSnlW905mqDm8wWPEy9dNWYttByTaAzZteVaBT6ySlq1nc-nCzBiwSegrk-tK37h7XRw2YE3w7NDdGAaUu-HQfzFRXfUOMyP6+P2GcLvQPdg7mRHta58eGIu62PG2H9fko+2Yzvym5BM+SfF5BwYbAyDzWBrkzWRRknUsiX7I9wPoSDoNgsB4LSL8W0jNsQGWTk4yA-dQNtN4MNQGDsmwhC8SnMsKNTKioJorCcJwNdv3mQjiM7QDzWAvtD2fNDqNouCEKvd1YPvR8UPE4V0PYqT6NwiZm2+H9+I7WNdzI3sk1iZSjlRPMWDASQ3TIRC5WQsSwJUizUCsmyLh4-DdKNbcuWErZtlQCh03gMoWPnOhfJIwyAFoABYAA4e1ixKAHZ6AAVlUHLVDmAA2eLVAAZgATnygqQKU5yjiYVhosE7seXi4qACYqqcyi-RiBqDKEntMvy-L6Hi0qxvS-LVFK+LRvyjrZxqt4AwdTVg2lXqAPWIrWvoVr8rStK5kSmbsrmOYZp7NL0voNL8tKzLMvi1rWrSsrMsS+bTMWhdTyXc8PA2-yezmHKMtG8b4qus6StKz7BUiiC1M40ZAdIgKEDmVrzvoMaxrSma0rytq4YHFzLNYDyoq3GL+p5c7npG3HCrmTLSsq0SFq6ocglRwz0YKkqcdx978sS478faxx7CAA */
-    id: 'inputMessageProcessor',
-    predictableActionArguments: true,
-    initial: 'idle',
-    context: {
-      prompt: null,
-      workflow: [],
-      currentState: 'idle'
-    },
-    states: {
-      idle: {
-        on: {
-          START_PROCESSING: 'input',
-        },
-      },
-      input: {
-        entry: ['setStartTimeForCompleteFlow','setStartTime'],
-        invoke: {
-          src:'getInput',
-          onDone: [
-            {
-              cond: "ifText",
-              target:"detectLanguage",
-              actions:[
-                assign({
-                  prompt:(context,_)=>context.prompt,
-                  workflow:(context,_)=>context.workflow,
-                  currentStateStartTime:(context,_)=>context.currentStateStartTime,
-                  currentState: 'getInput',
-                  propertiesToBeUpdate: null
-                }),
-                "updateContext"
-              ]
-            },
-            {
-              cond: "ifAudio",
-              target: "convertSpeechToText",
-              actions: [
-                assign({
-                  prompt:(context,_)=>context.prompt,
-                  workflow:(context,_)=>context.workflow,
-                  currentStateStartTime:(context,_)=>context.currentStateStartTime,
-                  currentState: 'getInput',
-                  propertiesToBeUpdate: null
-                }),
-                "updateContext"
-              ]
-            }
-          ],
-          onError: "handleError"
-        }
-      },
-      convertSpeechToText: {
-        entry: ['setStartTime'],
-        invoke: {
-          src: "convertSpeechToText",
-          onDone: [
-            {
-              cond: "ifError",
-              target: "handleError"
-            },{
-              target: "translateInput",
-              actions: [
-                assign({
-                  prompt:(context,_)=>context.prompt,
-                  workflow:(context,_)=>context.workflow,
-                  currentStateStartTime:(context,_)=>context.currentStateStartTime,
-                  currentState: 'convertSpeechToText',
-                  propertiesToBeUpdate: [{key:"prompt.input.body",value:"text"}]
-                }),
-              "updateContext"
-              ]
-            }
-          ],
-          onError: "handleError"
-        },
-      },
-      detectLanguage: {
-        entry: ['setStartTime'],
-        invoke: {
-          src: 'detectLanguage',
-          onDone: [
-            {
-              target: 'translateInput',
-              cond: 'unableToDetectLanguage',
-              actions: [
-                assign({
-                  prompt:(context,_)=>context.prompt,
-                  workflow:(context,_)=>context.workflow,
-                  currentStateStartTime:(context,_)=>context.currentStateStartTime,
-                  currentState: 'unableToDetectLanguage',
-                  propertiesToBeUpdate: null
-                }),
-                'updateContext'
-              ]
-            },
-            {
-              target: 'translateInput',
-              actions: [
-                assign({
-                  prompt:(context,_)=>context.prompt,
-                  workflow:(context,_)=>context.workflow,
-                  currentStateStartTime:(context,_)=>context.currentStateStartTime,
-                  currentState: 'detectLanguage',
-                  propertiesToBeUpdate: [{key:"prompt.input.inputLanguage",value:"language"}]
-                }),
-                'updateContext'
-              ]
-            }
-          ],
-          onError: 'handleError',
-        }
-      },
-      translateInput: {
-        entry: ['setStartTime'],
-        invoke: {
-          src: 'translateInput',
-          onDone: [
-            {
-              cond: 'unableToTranslate',
-              target: 'handleError',
-              actions: [
-                assign({
-                  prompt:(context,_)=>context.prompt,
-                  workflow:(context,_)=>context.workflow,
-                  currentStateStartTime:(context,_)=>context.currentStateStartTime,
-                  currentState: 'unableToTranslateInput',
-                  propertiesToBeUpdate: null
-                }),
-                'updateContext',
-              ]
-            },
-            {
-              target: 'done',
-              actions: [
-                assign({
-                  prompt:(context,_)=>context.prompt,
-                  workflow:(context,_)=>context.workflow,
-                  currentStateStartTime:(context,_)=>context.currentStateStartTime,
-                  currentState: 'translateInput',
-                  propertiesToBeUpdate: [{key:"prompt.inputTextInEnglish",value:"translated"}]
-                }),
-                'updateContext'
-              ]
-            }
-          ],
-          onError: 'handleError',
-        },
-      },
-      handleError: {
-        invoke: {
-          src: 'logError',
-          onDone: {
-            target: 'done',
-            actions: ['updateContextWithError']
-          }
-        }
-      },
-      done: {
-        type: 'final',
-        invoke: {
-          src: 'done'
-        }
-      }
-    },
-},
-{
-  services: promptServices,
-  actions: promptActions,
-  guards: promptGuards
-}
 );

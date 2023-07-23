@@ -1,4 +1,5 @@
-import { isMostlyEnglish } from "./utils"
+import { isMostlyEnglish } from "./common/utils"
+
 
 describe("Languge detection", () => {
     let testcases = [

@@ -12,4 +12,6 @@ export enum Language {
   pa = "pa",
   ta = "ta",
   te = "te",
+  sa = "sa",
+  ur = "ur"
 }

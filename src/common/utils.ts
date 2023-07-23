@@ -1,3 +1,13 @@
+const fetch = require('node-fetch'); 
+const { Headers } = fetch;
+
+export function isMostlyEnglish(text: string): boolean {
+  const englishCharacterCount = (text.match(/[a-zA-Z0-9\s.,!?'"`~@#$%^&*()-_=+[\]{};:\\|<>/?]/g) || []).length;
+  const totalCharacters = text.length;
+  const englishCharacterPercentage = (englishCharacterCount / totalCharacters) * 100;
+  return englishCharacterPercentage >= 90;
+}
+
 export const wordToNumber = (word) => {
     word = word?.replace('.','')
     const numberWords = {
