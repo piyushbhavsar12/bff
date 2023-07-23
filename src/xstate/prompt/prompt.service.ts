@@ -6,7 +6,7 @@ import { AADHAAR_GREETING_MESSAGE } from "../../common/constants";
 import { UserService } from "../../modules/user/user.service";
 import { PrismaService } from "../../global-services/prisma.service";
 import axios from "axios";
-import { decryptRequest, encryptRequest } from "src/common/utils";
+import { decryptRequest, encryptRequest } from "../../common/utils";
 const path = require('path');
 const filePath = path.resolve(__dirname, '../../common/kisanPortalErrors.json');
 const PMKissanProtalErrors = require(filePath);

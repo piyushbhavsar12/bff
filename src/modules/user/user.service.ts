@@ -6,7 +6,7 @@ import { CustomLogger } from "../../common/logger";
 import * as momentTZ from "moment-timezone";
 import * as moment from 'moment';
 import axios, { Method } from "axios";
-import { decryptRequest, encryptRequest } from "src/common/utils";
+import { decryptRequest, encryptRequest } from "../../common/utils";
 
 
 @Injectable()
