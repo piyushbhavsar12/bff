@@ -1,7 +1,8 @@
-import { Body, Controller, Get, Param, Post, Query, Request, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { UserService } from './user.service';
 import { ConfigService } from '@nestjs/config';
 import { CustomLogger } from 'src/common/logger';
+const { v5: uuidv5 } = require('uuid');
 
 @Controller('user')
 export class UserController {
@@ -69,15 +70,7 @@ export class UserController {
 
   @Post('/generateUserId/:identifier')
   async generateUserId(@Param("identifier") identifier: string) {
-    const stringToUuid = (str: any) => {
-      str = str.replace('-', '');
-      return 'xxxxxxxx-xxxx-4xxx-xxxx-xxxxxxxxxxxx'.replace(
-        /[x]/g,
-        function (c, p) {
-          return str[p % str.length];
-        }
-      );
-    };
-    return stringToUuid(identifier)
+    const uuid = uuidv5(identifier, uuidv5.DNS);
+    return uuid
   }
 }
