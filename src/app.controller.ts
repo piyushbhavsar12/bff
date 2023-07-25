@@ -243,7 +243,7 @@ export class AppController {
       result.text = null
       result.error = botFlowService.getSnapshot().context.error
     }
-    prompt.inputLanguage = botFlowService.getSnapshot().context.inputLanguage as Language
+    prompt.inputLanguage = promptDto.inputLanguage
 
     if(result.text){
       if(prompt.inputLanguage != Language.en && !isNumber) {
