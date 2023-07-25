@@ -178,7 +178,7 @@ export class AppController {
     verboseLogger("current state when API hit =", botFlowService.state.context.currentState)
 
     let isNumber = false;
-    if(type == 'Audio' && ['askingAadhaarNumber','askingOTP'].indexOf(botFlowService.state.context.currentState) != -1) {
+    if(type == 'Audio' && ['askingAadhaarNumber','askingOTP','confirmInput2','confirmInput3','confirmInput4'].indexOf(botFlowService.state.context.currentState) != -1) {
       let number = wordToNumber(prompt.inputTextInEnglish)
       if(/\d/.test(number)){
         isNumber = true
