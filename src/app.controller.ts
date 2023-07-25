@@ -78,7 +78,7 @@ export class AppController {
       userId: userId,
       flowId: configid
     },"error")
-    verboseLogger("User input", promptDto)
+    // verboseLogger("User input", promptDto)
     let conversation = await this.conversationService.getConversationState(
       userId,
       configid
@@ -124,27 +124,6 @@ export class AppController {
       }
     }
 
-    if(prompt.inputLanguage != Language.en && userInput != 'resend OTP') {
-      try {
-        let response = await this.aiToolsService.translate(
-          prompt.inputLanguage as Language,
-          Language.en,
-          userInput
-        )
-        if(!response['text']) {
-          errorLogger("Sorry, We are unable to translate given input, please try again")
-          return { error: "Sorry, We are unable to translate given input, please try again" }
-        }
-        prompt.inputTextInEnglish = response["text"]
-        verboseLogger("translated english text =", prompt.inputTextInEnglish)
-      } catch(error){
-        errorLogger("Sorry, We are unable to translate given input, please try again")
-        return { error: "Sorry, We are unable to translate given input, please try again" }
-      }
-    } else {
-      prompt.inputTextInEnglish = userInput
-    }
-
     let botFlowMachine;
     switch(configid){
       case '1':
@@ -174,18 +153,50 @@ export class AppController {
     }
 
     let botFlowService = interpret(botFlowMachine.withContext(conversation || defaultContext)).start();
-
     verboseLogger("current state when API hit =", botFlowService.state.context.currentState)
-
     let isNumber = false;
-    if(type == 'Audio' && ['askingAadhaarNumber','askingOTP','askLastAaadhaarDigits','confirmInput2','confirmInput3','confirmInput4'].indexOf(botFlowService.state.context.currentState) != -1) {
-      let number = wordToNumber(prompt.inputTextInEnglish)
-      if(/\d/.test(number)){
-        isNumber = true
-        prompt.inputTextInEnglish = number.toUpperCase()
-        verboseLogger("english text to numbers conversion =",prompt.inputTextInEnglish)
+
+    if(type == 'Audio' && (botFlowService.state.context.currentState == 'confirmInput1' || botFlowService.state.context.currentState == 'getUserQuestion')) {
+      let res =  {
+        text: userInput,
+        textInEnglish: "",
+        error: null
+      }
+      res['audio'] = await this.aiToolsService.textToSpeech(res.text,prompt.inputLanguage)
+      return res
+    } else {
+      //translate to english
+      if(prompt.inputLanguage != Language.en && userInput != 'resend OTP') {
+        try {
+          let response = await this.aiToolsService.translate(
+            prompt.inputLanguage as Language,
+            Language.en,
+            userInput
+          )
+          if(!response['text']) {
+            errorLogger("Sorry, We are unable to translate given input, please try again")
+            return { error: "Sorry, We are unable to translate given input, please try again" }
+          }
+          prompt.inputTextInEnglish = response["text"]
+          verboseLogger("translated english text =", prompt.inputTextInEnglish)
+        } catch(error){
+          errorLogger("Sorry, We are unable to translate given input, please try again")
+          return { error: "Sorry, We are unable to translate given input, please try again" }
+        }
+      } else {
+        prompt.inputTextInEnglish = userInput
+      }
+
+      if(type == 'Audio' && ['askingAadhaarNumber','askingOTP','askLastAaadhaarDigits','confirmInput2','confirmInput3','confirmInput4'].indexOf(botFlowService.state.context.currentState) != -1) {
+        let number = wordToNumber(prompt.inputTextInEnglish)
+        if(/\d/.test(number)){
+          isNumber = true
+          prompt.inputTextInEnglish = number.toUpperCase()
+          verboseLogger("english text to numbers conversion =",prompt.inputTextInEnglish)
+        }
       }
     }
+
 
     const currentContext = botFlowService.state.context;
     let updatedContext = {
