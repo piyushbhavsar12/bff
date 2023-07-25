@@ -16,7 +16,7 @@
         "types":["scheme","payment"]
     },
     "Not a Landowner": {
-        "text":"Dear Beneficiary, your payment has been stopped as you have been marked as a \"Landless farmer\". If this information is incorrect, kindly visit PM KISAN nodal officer of your district/block office with your land details.",
+        "text":"Dear Beneficiary, your payment has been stopped as you have been marked as a \"Landless farmer\". If this information is incorrect, kindly visit PM KISAN nodal officer of your district or block office with your land details.",
         "types":["payment"]
     },
     "Internal stopped by State Department": {
@@ -64,11 +64,11 @@
         "types":["payment"]
     },
     "Employees of State/Central/ Local Bodies/ PSU": {
-        "text":"Dear Beneficiary, you have not received your payment as you have been marked as an Employees of State/Central/ Local Bodies/ PSU by the State. As per the PM KISAN guidelines, Employees of State/Central/ Local Bodies/ PSU are not eligible to avail the benefits of PM KISAN.",
+        "text":"Dear Beneficiary, you have not received your payment as you have been marked as an Employees of State or Centralor Local Bodies or PSU by the State. As per the PM KISAN guidelines, Employees of State or Centralor Local Bodiesor PSU are not eligible to avail the benefits of PM KISAN.",
         "types":["payment"]
     },
     "Superannuated/Retired Pensioner": {
-        "text":"Dear Beneficiary, you have not received your payment as you have been marked as an Superannuated/Retired Pensioner by the State. As per the PM KISAN guidelines, Superannuated/Retired Pensioners are not eligible to avail the benefits of PM KISAN.",
+        "text":"Dear Beneficiary, you have not received your payment as you have been marked as an Superannuated or Retired Pensioner by the State. As per the PM KISAN guidelines, Superannuated or Retired Pensioners are not eligible to avail the benefits of PM KISAN.",
         "types":["payment"]
     },
     "Registered Professional": {
@@ -80,7 +80,7 @@
         "types":["payment"]
     },
     "Beneficiary does not belongs to our state": {
-        "text":"Dear Beneficiary, as per our record, you have been marked  ineligible by State as your land details belong to another State. To receive benefits under PM KISAN, request you to please visit PM KISAN nodal officer of your district/block office and update your land details of the State from which you have registered.",
+        "text":"Dear Beneficiary, as per our record, you have been marked  ineligible by State as your land details belong to another State. To receive benefits under PM KISAN, request you to please visit PM KISAN nodal officer of your district or block office and update your land details of the State from which you have registered.",
         "types":["payment"]
     },
     "Land Ownership does not stand in his/her name.": {
