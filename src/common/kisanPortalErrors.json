@@ -39,7 +39,7 @@
         "text":"Dear Beneficiary, As per our records, your bank account is not linked with your Aadhaar number. Therefore, benefits have not been released. Please link your Aadhaar with your bank account in your bank and enable it for DBT payment",
         "types":["payment","aadhar"]
     },
-    "Aadhaar Number is not seeded in NPCI": {
+    "NPCI not Seeded": {
         "text":"Dear Beneficiary, As per our records,your bank account is not linked with your Aadhaar number. Therefore, benefits have not been released. Please link your Aadhaar with your bank account in your bank and enable it for DBT payment",
         "types":["payment","aadhaar"]
     },
