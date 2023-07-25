@@ -156,6 +156,48 @@ export class AiToolsService {
     }
   }
 
+  async textToSpeech(
+    text: string,
+    language: Language
+  ) {
+    try {
+      let config: any = await this.getBhashiniConfig('tts',{
+        "language": {
+            "sourceLanguage": language
+        }
+      })
+  
+      let response: any = await this.computeBhashini(
+        config?.pipelineInferenceAPIEndPoint?.inferenceApiKey?.value,
+        "tts",
+        config?.pipelineResponseConfig[0].config[0].serviceId,
+        config?.pipelineInferenceAPIEndPoint?.callbackUrl,
+        {
+          "language": {
+              "sourceLanguage": language
+          }
+        },
+        {
+          "input":[
+            {
+              "source": text
+            }
+          ]
+        }
+      )
+      return {
+        text: response?.pipelineResponse[0]?.audio[0]?.audioContent,
+        error: null
+      }
+    } catch(error){
+      console.log(error)
+      return {
+        text:"",
+        error: error
+      }
+    }
+  }
+
   async textClassification(text: string) {
     try{
       var myHeaders = new Headers();
@@ -243,6 +285,10 @@ export class AiToolsService {
     myHeaders.append("Authorization", authorization);
     myHeaders.append("Content-Type", "application/json");
     config['serviceId']=serviceId
+    if(task == 'tts'){
+      config['gender']='female'
+      config['samplingRate']=8000
+    }
     var raw = JSON.stringify({
       "pipelineTasks": [
         {

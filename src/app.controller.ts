@@ -229,7 +229,8 @@ export class AppController {
     let result = {
       textInEnglish: botFlowService.getSnapshot().context.response,
       text: botFlowService.getSnapshot().context.response,
-      error: null
+      error: null,
+      audio: null,
     }
     if(botFlowService.getSnapshot().context.error){
       const currentContext = botFlowService.state.context;
@@ -263,6 +264,8 @@ export class AppController {
           return { error: "Sorry, We are unable to translate given input, please try again" }
         }
       }
+
+      result['audio'] = await this.aiToolsService.textToSpeech(result.text,isNumber ? Language.en : prompt.inputLanguage)
     }
 
     await this.conversationService.saveConversation(
