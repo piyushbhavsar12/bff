@@ -187,7 +187,7 @@ export class AiToolsService {
       let highestScore = -1;
       let highestScoreLabel = "LABEL_2"; // Default output if none of the scores are greater than 0.5
       for (const labelInfo of labels) {
-        if (labelInfo.score > 0.5 && labelInfo.score > highestScore) {
+        if (labelInfo.score > 0.95 && labelInfo.label === "LABEL_1") {
           highestScore = labelInfo.score;
           highestScoreLabel = labelInfo.label;
         }
