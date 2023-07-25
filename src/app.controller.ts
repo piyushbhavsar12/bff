@@ -275,8 +275,22 @@ export class AppController {
           return { error: "Sorry, We are unable to translate given input, please try again" }
         }
       }
-
-      result['audio'] = await this.aiToolsService.textToSpeech(result.text,isNumber ? Language.en : prompt.inputLanguage)
+      try{
+        let textToaudio = result.text
+        if(botFlowService.state.context.currentState == 'endFlow'){
+          let resArray = result.text.split("\n")
+          let compareText = result.textInEnglish.split('\n')
+          if(compareText[compareText.length-1].slice(0,12)=="Registration"){
+            textToaudio = ""
+          } else {
+            textToaudio = resArray[resArray.length-1]
+          }
+        }
+        verboseLogger("textToaudio =",textToaudio)
+        result['audio'] = await this.aiToolsService.textToSpeech(textToaudio,isNumber ? Language.en : prompt.inputLanguage)
+      } catch(error){
+        result['audio'] = {text: "",error: error.message}
+      }
     }
 
     await this.conversationService.saveConversation(
