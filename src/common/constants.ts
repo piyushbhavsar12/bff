@@ -4,7 +4,7 @@ export const AADHAAR_GREETING_MESSAGE = (
     DOB,
     Address,
     DateOfRegistration
-) => `Hi ${BeneficiaryName},
+) => `Dear ${BeneficiaryName},
 Name: ${BeneficiaryName}
 Father Name: ${FatherName}
 Date Of Birth: ${DOB}
