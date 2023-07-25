@@ -276,7 +276,9 @@ export class AppController {
     )
 
     verboseLogger("current state while returning response =", botFlowService.state.context.currentState)
-    verboseLogger("response", result)
+    verboseLogger("response text", result.text)
+    verboseLogger("response textInEnglish", result.textInEnglish)
+    verboseLogger("response error", result.error)
     return result;
   }
 }
