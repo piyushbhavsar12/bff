@@ -78,7 +78,7 @@ export class AppController {
       userId: userId,
       flowId: configid
     },"error")
-    // verboseLogger("User input", promptDto)
+    verboseLogger("User input", promptDto)
     let conversation = await this.conversationService.getConversationState(
       userId,
       configid
