@@ -225,16 +225,16 @@ export class AiToolsService {
           error: response.error
         }
       }
-      const labels = response[0];
-      let highestScore = -1;
-      let highestScoreLabel = "LABEL_2"; // Default output if none of the scores are greater than 0.5
-      for (const labelInfo of labels) {
-        if (labelInfo.score > 0.95 && labelInfo.label === "LABEL_1") {
-          highestScore = labelInfo.score;
-          highestScoreLabel = labelInfo.label;
-        }
-      }
-      return highestScoreLabel
+      const label = response[0][0].label;
+      // let highestScore = -1;
+      // let highestScoreLabel = "LABEL_2"; // Default output if none of the scores are greater than 0.5
+      // for (const labelInfo of labels) {
+      //   if (labelInfo.score > 0.95 && labelInfo.label === "LABEL_1") {
+      //     highestScore = labelInfo.score;
+      //     highestScoreLabel = labelInfo.label;
+      //   }
+      // }
+      return label
     } catch(error){
       console.log(error)
       return {
