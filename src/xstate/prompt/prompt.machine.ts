@@ -26,7 +26,9 @@ export const botFlowMachine1 = createMachine(
       inputType:'',
       inputLanguage: '',
       lastAadhaarDigits: '',
-      state:'onGoing'
+      state:'onGoing',
+      userId:"",
+      isOTPVerified: false
     },
     states: {
       checkStateAndJump: {
@@ -284,7 +286,9 @@ export const botFlowMachine2 = createMachine(
       inputType:'',
       inputLanguage: '',
       lastAadhaarDigits:'',
-      state:'onGoing'
+      state:'onGoing',
+      userId:"",
+      isOTPVerified: false
     },
     states: {
       checkStateAndJump: {
@@ -692,6 +696,508 @@ export const botFlowMachine2 = createMachine(
             },
             {
               target: 'fetchingUserData',
+            }
+          ],
+          onError: {
+            target: 'error',
+            actions: [
+              assign({
+                error: (_, event) => event.data.message,
+                type: ''
+              })
+            ]
+          }
+        }
+      },
+      fetchingUserData: {
+        invoke: {
+          src: 'fetchUserData',
+          onDone: {
+            target: 'endFlow',
+            actions: [
+              assign({
+                response: (_, event) => event.data,
+                type: ''
+              })
+            ]
+          },
+          onError: {
+            target: 'error',
+            actions: [
+              assign({
+                error: (_, event) => event.data.message,
+                type: ''
+              })
+            ]
+          }
+        }
+      },
+      error: {
+        invoke: {
+          src: 'logError',
+          onDone: 'endFlow',
+        }
+      },
+      endFlow: {
+        type: 'final'
+      }
+    }
+  },
+  {
+    actions: promptActions,
+    services: promptServices,
+    guards: promptGuards
+  }
+);
+
+
+export const botFlowMachine3 = createMachine(
+  {
+    id: 'botFlow3',
+    predictableActionArguments: true,
+    initial: 'checkStateAndJump',
+    context: {
+      userQuestion:'',
+      query: '',
+      queryType: '',
+      response: '',
+      userAadhaarNumber: '',
+      otp: '',
+      error: '',
+      currentState: "getUserQuestion",
+      type: '',
+      inputType:'',
+      inputLanguage: '',
+      lastAadhaarDigits:'',
+      state:'onGoing',
+      userId:'',
+      isOTPVerified: false
+    },
+    states: {
+      checkStateAndJump: {
+        always: [
+          { target: 'getUserQuestion', cond: (context) => context.currentState === 'getUserQuestion' },
+          { target: 'checkType1', cond: (context) => context.currentState === 'checkType1' },
+          { target: 'confirmInput1', cond: (context) => context.currentState === 'confirmInput1' },
+          { target: 'questionClassifier', cond: (context) => context.currentState === 'questionClassifier' },
+          { target: 'askingAadhaarNumber', cond: (context) => context.currentState === 'askingAadhaarNumber' },
+          { target: 'checkType2', cond: (context) => context.currentState === 'checkType2' },
+          { target: 'confirmInput2', cond: (context) => context.currentState === 'confirmInput2' },
+          { target: 'validatingAadhaarNumber', cond: (context) => context.currentState === 'validatingAadhaarNumber' },
+          { target: 'askLastAaadhaarDigits', cond: (context) => context.currentState === 'askLastAaadhaarDigits' },
+          { target: 'checkType4', cond: (context) => context.currentState === 'checkType4' },
+          { target: 'confirmInput4', cond: (context) => context.currentState === 'confirmInput4' },
+          { target: 'askingOTP', cond: (context) => context.currentState === 'askingOTP' },
+          { target: 'checkType3', cond: (context) => context.currentState === 'checkType3' },
+          { target: 'confirmInput3', cond: (context) => context.currentState === 'confirmInput3' },
+          { target: 'validatingOTP', cond: (context) => context.currentState === 'validatingOTP' },
+          { target: 'fetchingUserData', cond: (context) => context.currentState === 'fetchingUserData' },
+          { target: 'error', cond: (context) => context.currentState === 'error' },
+          { target: 'endFlow', cond: (context) => context.currentState === 'endFlow' }
+        ]
+      },
+      getUserQuestion: {
+        on: {
+          USER_INPUT: {
+            target: 'checkType1',
+            actions: [
+              assign({
+                query: (_,event) => event.data,
+                response: (_,event) => event.data
+              })
+            ]
+          }
+        }
+      },
+      checkType1: {
+        invoke: {
+          src: "getInput",
+          onDone: [
+            {
+              cond:"ifAudio",
+              target: "confirmInput1",
+              actions: [
+                assign({
+                  type: "pause"
+                })
+              ]
+            },
+            {
+              target:"questionClassifier",
+              actions:[
+                assign({
+                  userQuestion: (_,event) => event.data.query,
+                  query: (_,event) => event.data.query,
+                  response: engMessage["label.popUpTitle"]
+                })
+              ]
+            }
+          ],
+          onError: {
+            target: 'error',
+            actions: [
+              assign({
+                error: (_, event) => event.data.message,
+                type: ''
+              })
+            ]
+          }
+        }
+      },
+      confirmInput1:{
+        on: {
+          USER_INPUT: {
+            target: 'checkType1',
+            actions: [
+              assign({
+                query: (_,event) => event.data,
+                response: (_,event) => event.data
+              })
+            ]
+          }
+        }
+      },
+      questionClassifier: {
+        invoke: {
+          src: "questionClassifier",
+          onDone: [
+            {
+              target: 'checkIfOTPHasBeenVerified',
+              actions: [
+                assign({
+                  queryType: (_,event) => {console.log(`assigning queryType = ${event.data}`); return event.data}
+                })
+              ]
+            }
+          ],
+          onError: {
+            target: 'error',
+            actions: [
+              assign({
+                error: (_, event) => event.data.message,
+                type: ''
+              })
+            ]
+          }
+        }
+      },
+      checkIfOTPHasBeenVerified: {
+        invoke: {
+          src: "getInput",
+          onDone: [
+            {
+              cond:"ifOTPHasBeenVerified",
+              target:"fetchingUserData"
+            },
+            {
+              target:"askingAadhaarNumber",
+              actions: [
+                assign({
+                  response: () => engMessage["label.popUpTitle"],
+                  type: 'pause'
+                })
+              ]
+            }
+          ]
+        }
+      },
+      askingAadhaarNumber: {
+        on: {
+          USER_INPUT: {
+            target: 'checkType2',
+            actions: [
+              assign({
+                query: (_,event) => event.data,
+                response: (_,event) => event.data
+              })
+            ]
+          }
+        }
+      },
+      checkType2: {
+        invoke: {
+          src: "getInput",
+          onDone: [
+            {
+              cond:"ifAudio",
+              target: "confirmInput2",
+              actions: [
+                assign({
+                  type: "pause"
+                })
+              ]
+            },
+            {
+              target:"validatingAadhaarNumber",
+              actions:[
+                assign({
+                  query: (_,event) => event.data.query,
+                  userAadhaarNumber: (_, event) => {console.log("setting user aadhaar"); return `${event.data.query}`},
+                  type:''
+                })
+              ]
+            }
+          ],
+          onError: {
+            target: 'error',
+            actions: [
+              assign({
+                error: (_, event) => event.data.message,
+                type: ''
+              })
+            ]
+          }
+        }
+      },
+      confirmInput2:{
+        on: {
+          USER_INPUT: {
+            target: 'checkType2',
+            actions: [
+              assign({
+                query: (_,event) => event.data,
+                response: (_,event) => event.data
+              })
+            ]
+          }
+        }
+      },
+      validatingAadhaarNumber: {
+        invoke: {
+          src: 'validateAadhaarNumber',
+          onDone: [
+            {
+              cond: "ifNotValidAadhaar",
+              target: "askingAadhaarNumber",
+              actions: [
+                assign({
+                  response: () => engMessage["label.popUpTitleValid"],
+                  userAadhaarNumber: "",
+                  type: 'pause'
+                })
+              ]
+            },
+            {
+              cond: "ifMultipleAadhaar",
+              target: "askLastAaadhaarDigits",
+              actions: [
+                assign({
+                  response: () => engMessage["label.popUpTitle2"],
+                  type: 'pause'
+                })
+              ]
+            },
+            {
+              cond: "ifNoRecordsFound",
+              target: "askingAadhaarNumber",
+              actions: [
+                assign({
+                  response: (context) => `No records were found for ${context.userAadhaarNumber}, Please enter valid Mobile/Aadhaar/Benificiary Id again.`,
+                  userAadhaarNumber: "",
+                  type: 'pause'
+                })
+              ]
+            },
+            {
+              cond: "ifTryAgain",
+              target: "askingAadhaarNumber",
+              actions: [
+                assign({
+                  response: () => engMessage["label.popUpTitleValid"],
+                  userAadhaarNumber: "",
+                  type: 'pause'
+                })
+              ]
+            },
+            {
+              cond: "ifOTPSend",
+              target: "askingOTP",
+              actions: [
+                assign({
+                  response: () => engMessage["label.popUpTitle3"],
+                  type: 'pause'
+                })
+              ]
+            },
+            {
+              target: "error",
+              actions: [
+                assign({
+                  error: (_, event) => event.data,
+                  type: ''
+                })
+              ]
+            }
+          ],
+          onError: {
+            target: 'error',
+            actions: [
+              assign({
+                error: (_, event) => event.data.message,
+                type: ''
+              })
+            ]
+          }
+        }
+      },
+      askLastAaadhaarDigits:{
+        on: {
+          USER_INPUT: {
+            target: 'checkType4',
+            actions: [
+              assign({
+                query: (_,event) => event.data,
+                response: (_,event) => event.data
+              })
+            ]
+          }
+        }
+      },
+      checkType4: {
+        invoke: {
+          src: "getInput",
+          onDone: [
+            {
+              cond:"ifAudio",
+              target: "confirmInput4",
+              actions: [
+                assign({
+                  type: "pause"
+                })
+              ]
+            },
+            {
+              target:"validatingAadhaarNumber",
+              actions:[
+                assign({
+                  query: (_,event) => event.data.query,
+                  lastAadhaarDigits: (_context, event) => {console.log("setting user aadhaar"); return `${event.data.query}`},
+                  type:''
+                })
+              ]
+            }
+          ],
+          onError: {
+            target: 'error',
+            actions: [
+              assign({
+                error: (_, event) => event.data.message,
+                type: ''
+              })
+            ]
+          }
+        }
+      },
+      confirmInput4:{
+        on: {
+          USER_INPUT: {
+            target: 'checkType4',
+            actions: [
+              assign({
+                query: (_,event) => event.data,
+                response: (_,event) => event.data
+              })
+            ]
+          }
+        }
+      },
+      askingOTP: {
+        on: {
+          USER_INPUT: {
+            target: 'checkType3',
+            actions: [
+              assign({
+                query: (_,event) => event.data,
+                response: (_,event) => event.data
+              })
+            ]
+          }
+        }
+      },
+      checkType3: {
+        invoke: {
+          src: "getInput",
+          onDone: [
+            {
+              cond:"ifAudio",
+              target: "confirmInput3",
+              actions: [
+                assign({
+                  type: "pause"
+                })
+              ]
+            },
+            {
+              cond:"resendOTP",
+              target:"validatingAadhaarNumber",
+              actions: [
+                assign({
+                  response: engMessage["label.popUpTitle3"]
+                })
+              ]
+            },
+            {
+              target:"validatingOTP",
+              actions:[
+                assign({
+                  query: (_,event) => event.data.query,
+                  otp: (_context, event) => {console.log("setting user otp"); return `${event.data.query}`},
+                  type:''
+                })
+              ]
+            }
+          ],
+          onError: {
+            target: 'error',
+            actions: [
+              assign({
+                error: (_, event) => event.data.message,
+                type: ''
+              })
+            ]
+          }
+        }
+      },
+      confirmInput3:{
+        on: {
+          USER_INPUT: {
+            target: 'checkType3',
+            actions: [
+              assign({
+                query: (_,event) => event.data,
+                response: (_,event) => event.data
+              })
+            ]
+          }
+        }
+      },
+      validatingOTP: {
+        invoke: {
+          src: 'validateOTP',
+          onDone: [
+            {
+              cond: "ifInvalidOTP",
+              target: "askingOTP",
+              actions: [
+                assign({
+                  response: () => engMessage["message.invalid_otp"],
+                  type: 'pause'
+                })
+              ]
+            },
+            {
+              cond: "ifTryAgain",
+              target: "askingOTP",
+              actions: [
+                assign({
+                  response: () => engMessage["label.popUpTitle3"],
+                  type: 'pause'
+                })
+              ]
+            },
+            {
+              target: 'fetchingUserData',
+              actions: 'updateUserAsValidated'
             }
           ],
           onError: {

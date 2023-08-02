@@ -2,7 +2,7 @@ import { Controller, Get, Post, Headers, Body, Param } from "@nestjs/common";
 import { AppService, Prompt } from "./app.service";
 import { IsNotEmpty,IsUUID, IsOptional } from 'class-validator';
 import { interpret } from "xstate";
-import { botFlowMachine1, botFlowMachine2 } from "./xstate/prompt/prompt.machine";
+import { botFlowMachine1, botFlowMachine2, botFlowMachine3 } from "./xstate/prompt/prompt.machine";
 import { Language } from "./language";
 import { ConfigService } from "@nestjs/config";
 import { AiToolsService } from "./modules/aiTools/ai-tools.service";
@@ -69,7 +69,9 @@ export class AppController {
 
   @Post("/prompt/:configid")
   async prompt(@Body() promptDto: any, @Headers() headers, @Param("configid") configid: string): Promise<any> {
+    //get userId from headers
     const userId = headers["user-id"]
+    //setup loggers
     let verboseLogger = this.logger.logWithCustomFields({
       userId: userId,
       flowId: configid
@@ -79,17 +81,35 @@ export class AppController {
       flowId: configid
     },"error")
     verboseLogger("User input", promptDto)
+    //create or get user and conversation
+    let user;
+    try{
+      user = await this.prismaService.user.findUnique({
+        where:{
+          id: userId
+        }
+      })
+    }catch{
+      verboseLogger("creating new user with id =",userId)
+    }
+    if(!user) {
+      user = await this.prismaService.user.create({
+        data:{
+          id: userId
+        }
+      })
+    }
     let conversation = await this.conversationService.getConversationState(
       userId,
       configid
     )
-    console.log("conversation",conversation)
+    //input setup
     let prompt: Prompt = {
       input: promptDto
     }
     let userInput = promptDto.text;
     let type = "text"
-
+    //handle text and audio
     if(promptDto.text){
       type = "Text"
       if(/^\d+$/.test(userInput)){
@@ -97,6 +117,10 @@ export class AppController {
       } else {
         let response = await this.aiToolsService.detectLanguage(userInput)
         prompt.inputLanguage = response["language"] as Language
+        //@ts-ignore
+        if(prompt.inputLanguage == 'unk'){
+          prompt.inputLanguage = prompt.input.inputLanguage as Language
+        }
         verboseLogger("Detected Language =", prompt.inputLanguage)
       }
     } else if (promptDto.media){
@@ -124,6 +148,17 @@ export class AppController {
       }
     }
 
+    //Save user message
+    await this.prismaService.message.create({
+      data:{
+        text: type=="Text"?promptDto.text:null,
+        audio: type=="Audio"?promptDto.media.text:null,
+        type: "User",
+        userId,
+        flowId: configid || '3'
+      }
+    })
+    //get flow
     let botFlowMachine;
     switch(configid){
       case '1':
@@ -132,16 +167,20 @@ export class AppController {
       case '2':
         botFlowMachine = botFlowMachine2
         break
+      case '3':
+        botFlowMachine = botFlowMachine3
+        break
       default:
-        botFlowMachine = botFlowMachine2
+        botFlowMachine = botFlowMachine3
     }
 
     let defaultContext = {
+      userId,
       userQuestion:'',
       query: '',
       queryType: '',
       response: '',
-      userAadhaarNumber: '',
+      userAadhaarNumber: user.identifier && configid=='3' ? user.identifier : '',
       otp: '',
       error: '',
       currentState: "getUserQuestion",
@@ -149,7 +188,8 @@ export class AppController {
       inputType: type,
       inputLanguage: prompt.inputLanguage,
       lastAadhaarDigits:'',
-      state:'onGoing'
+      state:'onGoing',
+      isOTPVerified: user.isVerified
     }
 
     let botFlowService = interpret(botFlowMachine.withContext(conversation || defaultContext)).start();
@@ -299,6 +339,16 @@ export class AppController {
       botFlowService.state.context.state,
       configid
     )
+
+    await this.prismaService.message.create({
+      data:{
+        text: result?.text ? result?.text : result.error? result.error : null,
+        audio: result?.audio?.text ? result?.audio?.text : null,
+        type: "System",
+        userId,
+        flowId: configid || '3'
+      }
+    })
 
     verboseLogger("current state while returning response =", botFlowService.state.context.currentState)
     verboseLogger("response text", result.text)

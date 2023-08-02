@@ -1,7 +1,8 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Headers } from '@nestjs/common';
 import { UserService } from './user.service';
 import { ConfigService } from '@nestjs/config';
 import { CustomLogger } from 'src/common/logger';
+import { PrismaService } from 'src/global-services/prisma.service';
 const { v5: uuidv5 } = require('uuid');
 
 @Controller('user')
@@ -9,9 +10,10 @@ export class UserController {
   private logger: CustomLogger;
   constructor(
     private readonly userService: UserService,
-    private readonly configService: ConfigService
+    private readonly prismaService: PrismaService
   ) {
     this.logger = new CustomLogger("UserService");
+    this.prismaService = new PrismaService();
   }
 
   @Get("/sendotp/:identifier")
@@ -72,5 +74,46 @@ export class UserController {
   async generateUserId(@Param("identifier") identifier: string) {
     const uuid = uuidv5(identifier, uuidv5.DNS);
     return uuid
+  }
+
+  @Get("/history/:flowId")
+  async prompt(@Headers() headers,@Param("flowId") flowId: string): Promise<any> {
+    const userId = headers["user-id"]
+    if(!userId){
+      return {
+        "status": "NOT_OK",
+        "error": "Invalid userId."
+      }
+    }
+    let user;
+    try{
+      user = await this.prismaService.user.findUnique({
+        where:{
+          id: userId
+        },
+        select: {
+          messages: {
+            where: {
+              flowId: flowId || '3'
+            }
+          }
+        }
+      })
+    }catch{
+      return {
+        "status": "NOT_OK",
+        "error": "Invalid userId."
+      }
+    }
+    if(!user) {
+      return {
+        "status": "NOT_OK",
+        "error": "Invalid userId."
+      }
+    }
+    return {
+      "status": "OK",
+      "data": user.messages
+    }
   }
 }

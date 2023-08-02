@@ -24,12 +24,21 @@ model conversation {
   @@unique([userId,flowId])
 }
 
-model config {
-  id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now()) @db.Timestamptz(3)
-  updatedAt DateTime @updatedAt
-  version   Int
-  data      Json
-  question  String
-  answer    String
+model User {
+  id           String   @id @db.Uuid
+  createdAt    DateTime @default(now())
+  identifier   String?
+  isVerified   Boolean  @default(false)
+  messages     Message[]
+}
+
+model Message {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  text      String?
+  audio     String?
+  type      String
+  userId    String   @db.Uuid
+  user      User     @relation(fields: [userId], references: [id])
+  flowId    String
 }

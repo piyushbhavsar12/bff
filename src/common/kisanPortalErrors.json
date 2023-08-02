@@ -1,130 +1,130 @@
 {
     "Marked as dead": {
-        "text":"Dear Beneficiary, your payment has not been processed as \"Death status\" has been marked against you by the State. If this status is not true, you may revoke it by completing your e-KYC through biometric or face authentication to continue as a beneficiary under the scheme",
+        "text":"Dear {{farmer_name}}, your payment has not been processed as \"Death status\" has been marked against you by the State. If this status is not true, you may revoke it by completing your e-KYC through biometric or face authentication to continue as a beneficiary under the scheme",
         "types":["payment"]
     },
     "Name Correction Required": {
-        "text":"Dear Beneficiary, your payment has not been processed due to mismatch of your registered name and Aadhaar name. To avail the benefits under PM KISAN, you are requested to visit PM KISAN portal and correct your name by using \"Name correction as per Aadhaar\" under Farmer corner module",
+        "text":"Dear {{farmer_name}}, your payment has not been processed due to mismatch of your registered name and Aadhaar name. To avail the benefits under PM KISAN, you are requested to visit PM KISAN portal and correct your name by using \"Name correction as per Aadhaar\" under Farmer corner module",
         "types":["payment"]
     },
     "Income Tax Payee": {
-        "text":"Dear Beneficiary, your payment has been stopped as you have been identified as a taxpayer. According to the guidelines of the PM KISAN scheme, individuals who are income tax payees are ineligible to avail the benefits of the scheme.",
+        "text":"Dear {{farmer_name}}, your payment has been stopped as you have been identified as a taxpayer. According to the guidelines of the PM KISAN scheme, individuals who are income tax payees are ineligible to avail the benefits of the scheme.",
         "types":["payment"]
     },
     "Location Correction Required": {
-        "text":"Dear Beneficiary, to receive benefits under PM KISAN scheme request you to kindly visit the nearest office, to provide the updated and accurate location details, ensuring that your information aligns with your current address.",
+        "text":"Dear {{farmer_name}}, to receive benefits under PM KISAN scheme request you to kindly visit the nearest office, to provide the updated and accurate location details, ensuring that your information aligns with your current address.",
         "types":["scheme","payment"]
     },
     "Not a Landowner": {
-        "text":"Dear Beneficiary, your payment has been stopped as you have been marked as a \"Landless farmer\". If this information is incorrect, kindly visit PM KISAN nodal officer of your district or block office with your land details.",
+        "text":"Dear {{farmer_name}}, your payment has been stopped as you have been marked as a \"Landless farmer\". If this information is incorrect, kindly visit PM KISAN nodal officer of your district or block office with your land details.",
         "types":["payment"]
     },
     "Internal stopped by State Department": {
-        "text":"Dear Beneficiary, you have not received your payment as your payment has been stopped by the State Nodal Officer.",
+        "text":"Dear {{farmer_name}}, you have not received your payment as your payment has been stopped by the State Nodal Officer.",
         "types":["payment"]
     },
     "Benefit Surrender": {
-        "text":"Dear Beneficiary, your payment has been stopped as you have surrendered your benefit..",
+        "text":"Dear {{farmer_name}}, your payment has been stopped as you have surrendered your benefit..",
         "types":["payment"]
     },
     "Old district to new district transfer": {
-        "text":"Dear Beneficiary, you have not received your payment as your location details are incorrect. By visiting the nearest office, you can provide the updated and accurate location details, ensuring that your information aligns with your current address.",
+        "text":"Dear {{farmer_name}}, you have not received your payment as your location details are incorrect. By visiting the nearest office, you can provide the updated and accurate location details, ensuring that your information aligns with your current address.",
         "types":["payment"]
     },
     "Invalid Gender Value": {
-        "text":"Dear Beneficiary, you have not received your payment as your gender information is invalid in PM KISAN.  you can rectify it by utilizing the Gender correction Module available in the PM KISAN portal.",
+        "text":"Dear {{farmer_name}}, you have not received your payment as your gender information is invalid in PM KISAN.  you can rectify it by utilizing the Gender correction Module available in the PM KISAN portal.",
         "types":["payment"]
     },
     "UID NEVER ENABLE FOR DBT": {
-        "text":"Dear Beneficiary, As per our records, your bank account is not linked with your Aadhaar number. Therefore, benefits have not been released. Please link your Aadhaar with your bank account in your bank and enable it for DBT payment",
+        "text":"Dear {{farmer_name}}, As per our records, your bank account is not linked with your Aadhaar number. Therefore, benefits have not been released. Please link your Aadhaar with your bank account in your bank and enable it for DBT payment",
         "types":["payment","aadhar"]
     },
     "NPCI not Seeded": {
-        "text":"Dear Beneficiary, As per our records,your bank account is not linked with your Aadhaar number. Therefore, benefits have not been released. Please link your Aadhaar with your bank account in your bank and enable it for DBT payment",
+        "text":"Dear {{farmer_name}}, As per our records,your bank account is not linked with your Aadhaar number. Therefore, benefits have not been released. Please link your Aadhaar with your bank account in your bank and enable it for DBT payment",
         "types":["payment","aadhaar"]
     },
     "UID is Disable for DBT": {
-        "text":"Dear Beneficiary, As per our records,your bank account is not linked with your Aadhaar number. Therefore, benefits have not been released. Please link your Aadhaar with your bank account in your bank and enable it for DBT payment",
+        "text":"Dear {{farmer_name}}, As per our records,your bank account is not linked with your Aadhaar number. Therefore, benefits have not been released. Please link your Aadhaar with your bank account in your bank and enable it for DBT payment",
         "types":["payment","aadhaar"]
     },
     "UID is CANCELLED BY UIDAI": {
-        "text":"Dear Beneficiary, As per our records, the Aadhaar number provided by you has been CANCELLED BY UIDAI. To receive the benefit, you are requested to please reregister yourself by using valid Aadhaar number.",
+        "text":"Dear {{farmer_name}}, As per our records, the Aadhaar number provided by you has been CANCELLED BY UIDAI. To receive the benefit, you are requested to please reregister yourself by using valid Aadhaar number.",
         "types":["payment","aadhaar"]
     },
     "Institutional Land holder": {
-        "text":"Dear Beneficiary, you have not received your payment as you have been marked as an institutional land holder by State. As per the PM KISAN guidelines, institutional land holders are not eligible to avail the benefits of PM KISAN.",
+        "text":"Dear {{farmer_name}}, you have not received your payment as you have been marked as an institutional land holder by State. As per the PM KISAN guidelines, institutional land holders are not eligible to avail the benefits of PM KISAN.",
         "types":["payment"]
     },
     "Former Constitutional Post Holder": {
-        "text":"Dear Beneficiary, you have not received your payment as you have been marked as an Former Constitutional Post Holder by State. As per the PM KISAN guidelines, Former Constitutional Post Holder are not eligible to avail the benefits of PM KISAN.",
+        "text":"Dear {{farmer_name}}, you have not received your payment as you have been marked as an Former Constitutional Post Holder by State. As per the PM KISAN guidelines, Former Constitutional Post Holder are not eligible to avail the benefits of PM KISAN.",
         "types":["payment"]
     },
     "Constitutional Position Holder": {
-        "text":"Dear Beneficiary, you have not received your payment as you have been marked as an Constitutional Position Holder by State. As per the PM KISAN guidelines, Constitutional Position Holder are not eligible to avail the benefits of PM KISAN.",
+        "text":"Dear {{farmer_name}}, you have not received your payment as you have been marked as an Constitutional Position Holder by State. As per the PM KISAN guidelines, Constitutional Position Holder are not eligible to avail the benefits of PM KISAN.",
         "types":["payment"]
     },
     "Employees of State/Central/ Local Bodies/ PSU": {
-        "text":"Dear Beneficiary, you have not received your payment as you have been marked as an Employees of State or Centralor Local Bodies or PSU by the State. As per the PM KISAN guidelines, Employees of State or Centralor Local Bodiesor PSU are not eligible to avail the benefits of PM KISAN.",
+        "text":"Dear {{farmer_name}}, you have not received your payment as you have been marked as an Employees of State or Centralor Local Bodies or PSU by the State. As per the PM KISAN guidelines, Employees of State or Centralor Local Bodiesor PSU are not eligible to avail the benefits of PM KISAN.",
         "types":["payment"]
     },
     "Superannuated/Retired Pensioner": {
-        "text":"Dear Beneficiary, you have not received your payment as you have been marked as an Superannuated or Retired Pensioner by the State. As per the PM KISAN guidelines, Superannuated or Retired Pensioners are not eligible to avail the benefits of PM KISAN.",
+        "text":"Dear {{farmer_name}}, you have not received your payment as you have been marked as an Superannuated or Retired Pensioner by the State. As per the PM KISAN guidelines, Superannuated or Retired Pensioners are not eligible to avail the benefits of PM KISAN.",
         "types":["payment"]
     },
     "Registered Professional": {
-        "text":"Dear Beneficiary, you have not received your payment as you have been marked as an Registered Professional by the State. As per the PM KISAN guidelines, Registered Professionals are not eligible to avail the benefits of PM KISAN.",
+        "text":"Dear {{farmer_name}}, you have not received your payment as you have been marked as an Registered Professional by the State. As per the PM KISAN guidelines, Registered Professionals are not eligible to avail the benefits of PM KISAN.",
         "types":["payment"]
     },
     "NRI": {
-        "text":"Dear Beneficiary, you have not received your payment as you have been marked as an NRI by the State. As per the PM KISAN guidelines, NRIs are not eligible to avail the benefits of PM KISAN.",
+        "text":"Dear {{farmer_name}}, you have not received your payment as you have been marked as an NRI by the State. As per the PM KISAN guidelines, NRIs are not eligible to avail the benefits of PM KISAN.",
         "types":["payment"]
     },
     "Beneficiary does not belongs to our state": {
-        "text":"Dear Beneficiary, as per our record, you have been marked  ineligible by State as your land details belong to another State. To receive benefits under PM KISAN, request you to please visit PM KISAN nodal officer of your district or block office and update your land details of the State from which you have registered.",
+        "text":"Dear {{farmer_name}}, as per our record, you have been marked  ineligible by State as your land details belong to another State. To receive benefits under PM KISAN, request you to please visit PM KISAN nodal officer of your district or block office and update your land details of the State from which you have registered.",
         "types":["payment"]
     },
     "Land Ownership does not stand in his/her name.": {
-        "text":"Dear Beneficiary, you have not received your payment as you have been marked as the land ownership does not stand in your name by the State. As per the PM KISAN guidelines, only agricultural land owners can avail the benefits of PM KISAN.",
+        "text":"Dear {{farmer_name}}, you have not received your payment as you have been marked as the land ownership does not stand in your name by the State. As per the PM KISAN guidelines, only agricultural land owners can avail the benefits of PM KISAN.",
         "types":["payment"]
     },
     "Head of the family already receives the benefit of the scheme.": {
-        "text":"Dear Beneficiary, your payment has been stopped as you have been marked as Ineligible by the State. It has been identified that the head of your family already receives the benefit of the scheme, which makes you ineligible to receive further benefits under the same scheme.",
+        "text":"Dear {{farmer_name}}, your payment has been stopped as you have been marked as Ineligible by the State. It has been identified that the head of your family already receives the benefit of the scheme, which makes you ineligible to receive further benefits under the same scheme.",
         "types":["payment"]
     },
     "Farmer got land less (due to sale purchase)": {
-        "text":"Dear Beneficiary, your payment has been stopped by the State as you have been identified as a landless farmer. As per the PM KISAN guidelines,  only agricultural land owners can avail the benefits of PM KISAN.",
+        "text":"Dear {{farmer_name}}, your payment has been stopped by the State as you have been identified as a landless farmer. As per the PM KISAN guidelines,  only agricultural land owners can avail the benefits of PM KISAN.",
         "types":["payment"]
     },
     "Land use other than agriculture (If land use change other than agriculture)": {
-        "text":"Dear Beneficiary, you have not received your payment as it has been found that your Land is not being used for agriculture. As per the PM KISAN guidelines,only agricultural land owners can avail the benefits of PM KISAN.",
+        "text":"Dear {{farmer_name}}, you have not received your payment as it has been found that your Land is not being used for agriculture. As per the PM KISAN guidelines,only agricultural land owners can avail the benefits of PM KISAN.",
         "types":["payment"]
     },
     "Untraceable Beneficiary": {
-        "text":"Dear Beneficiary, you have not received your payment as you have been marked as untraceable by State. If this status is not true, you may revoke it by completing your e-KYC through biometric or face authentication to continue as a beneficiary under the scheme.",
+        "text":"Dear {{farmer_name}}, you have not received your payment as you have been marked as untraceable by State. If this status is not true, you may revoke it by completing your e-KYC through biometric or face authentication to continue as a beneficiary under the scheme.",
         "types":["payment"]
     },
     "Underage": {
-        "text":"Dear Beneficiary, you have not received your payment as you are underage. To avail the benefits under PM KISAN you are requested to register after attaining the age of 18.",
+        "text":"Dear {{farmer_name}}, you have not received your payment as you are underage. To avail the benefits under PM KISAN you are requested to register after attaining the age of 18.",
         "types":["payment"]
     },
     "Land Owner After 01-02-2019": {
-        "text":"Dear Beneficiary, you have not received your payment as you have become the owner of the land after 01.02.2029. As per the PM KISAN guidelines, agricultural land owners after 01.02.2019 are not eligible to avail the benefits of PM KISAN.",
+        "text":"Dear {{farmer_name}}, you have not received your payment as you have become the owner of the land after 01.02.2029. As per the PM KISAN guidelines, agricultural land owners after 01.02.2019 are not eligible to avail the benefits of PM KISAN.",
         "types":["payment"]
     },
     "FTO not processed, Stop payment after RFT": {
-        "text":"Dear Beneficiary, you have not received your payment as your payment has been stopped and your FTO has not been generated.",
+        "text":"Dear {{farmer_name}}, you have not received your payment as your payment has been stopped and your FTO has not been generated.",
         "types":["payment"]
     },
     "FTO not processed, Aadhaar Not Authenticated": {
-        "text":"Dear Beneficiary, your payment has not been processed as your FTO is pending due to the non-seeding of your Aadhaar number.",
+        "text":"Dear {{farmer_name}}, your payment has not been processed as your FTO is pending due to the non-seeding of your Aadhaar number.",
         "types":["payment"]
     },
     "FTO not processed, Aadhar is not seeded": {
-        "text":"Dear Beneficiary, As per our records, your Aadhaar is linked with your bank account and is under validation. Your payment will be processed shortly.",
+        "text":"Dear {{farmer_name}}, As per our records, your Aadhaar is linked with your bank account and is under validation. Your payment will be processed shortly.",
         "types":["payment"]
     },
     "FTO not processed, Beneficiary is under re-validation with PFMS": {
-        "text":"Dear Sandhya, As per our records, your Aadhaar is not linked with your bank account. Therefore, benefits have not been released. Please link your Aadhaar with your bank account from your nearest bank branch and enable it for DBT.",
+        "text":"Dear {{farmer_name}}, As per our records, your Aadhaar is not linked with your bank account. Therefore, benefits have not been released. Please link your Aadhaar with your bank account from your nearest bank branch and enable it for DBT.",
         "types":["payment"]
     }
 }
