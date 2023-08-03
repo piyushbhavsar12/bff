@@ -159,7 +159,7 @@ export const promptServices = {
         if(errors.Rsponce == "True"){
             Object.entries(errors).forEach(([key, value]) => {
             if(key!="Rsponce" && key != "Message"){
-                if(value && PMKissanProtalErrors[`${value}`]["types"].indexOf(context.queryType)!=-1){
+                if(value && PMKissanProtalErrors[`${value}`] && PMKissanProtalErrors[`${value}`]["types"].indexOf(context.queryType)!=-1){
                     console.log(`ERRORVALUE: ${key} ${value}`);
                     userErrors.push(PMKissanProtalErrors[`${value}`]["text"].replace('{{farmer_name}}',res.d.output['BeneficiaryName']))
                 }
