@@ -32,7 +32,7 @@ export const promptServices = {
             let response: any = await aiToolsService.textClassification(context.query)
             if (response.error) throw new Error(`${response.error}, please try again.`)
             if (response == "LABEL_2"){
-                throw new Error("Please enter a question related to PM Kisan portal:")
+                throw new Error("Currently, I don't have the information you're looking for. However, I'm constantly learning and improving. Please feel free to ask me something else related to PMKISAN payment related queries, and I'll do my best to assist you.")
             }
             if (response=="LABEL_1") return "payment"
             if (response=="LABEL_0") return "aadhaar"

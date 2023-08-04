@@ -123,3 +123,14 @@ export const wordToNumber = (word) => {
       }
     }
   }
+
+  export const formatStringsToTable = (tableData: Array<string>) => {
+    let formattedString = `<table class="aadhar-table"><tbody>`
+    tableData.forEach((text)=>{
+      let td = text.split('-')
+      console.log(td)
+      formattedString+= `<tr><td>${td[0].trim()} :</td><td>${td[1].trim()}</td></tr>`
+    })
+    formattedString+=`</tbody></table>`
+    return formattedString;
+  }

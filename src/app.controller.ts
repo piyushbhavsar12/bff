@@ -6,7 +6,7 @@ import { botFlowMachine1, botFlowMachine2, botFlowMachine3 } from "./xstate/prom
 import { Language } from "./language";
 import { ConfigService } from "@nestjs/config";
 import { AiToolsService } from "./modules/aiTools/ai-tools.service";
-import { wordToNumber } from "./common/utils";
+import { formatStringsToTable, wordToNumber } from "./common/utils";
 import { ConversationService } from "./modules/conversation/conversation.service";
 import { PrismaService } from "./global-services/prisma.service";
 import { CustomLogger } from "./common/logger";
@@ -323,8 +323,10 @@ export class AppController {
           if(compareText[compareText.length-1].slice(0,12)=="Registration"){
             textToaudio = ""
           } else {
-            textToaudio = resArray[resArray.length-1]
+            textToaudio = resArray.pop() 
           }
+          verboseLogger("Array to convert",resArray)
+          result.text = `${formatStringsToTable(resArray)}\n${textToaudio}`
         }
         verboseLogger("textToaudio =",textToaudio)
         result['audio'] = await this.aiToolsService.textToSpeech(textToaudio,isNumber ? Language.en : prompt.inputLanguage)
