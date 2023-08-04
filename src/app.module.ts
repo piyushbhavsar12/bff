@@ -8,12 +8,14 @@ import { APP_PIPE } from "@nestjs/core";
 import { CustomLogger } from "./common/logger";
 import { ConversationService } from "./modules/conversation/conversation.service";
 import { ConversationModule } from "./modules/conversation/conversation.module";
+import { PrometheusModule } from "@willsoto/nestjs-prometheus";
 
 @Module({
   imports: [
     ConfigModule.forRoot(),
     UserModule,
-    ConversationModule
+    ConversationModule,
+    PrometheusModule.register()
   ],
   controllers: [AppController],
   providers: [
