@@ -342,7 +342,7 @@ export class AppController {
       configid
     )
 
-    await this.prismaService.message.create({
+    let msg = await this.prismaService.message.create({
       data:{
         text: result?.text ? result?.text : result.error? result.error : null,
         audio: result?.audio?.text ? result?.audio?.text : null,
@@ -351,7 +351,7 @@ export class AppController {
         flowId: configid || '3'
       }
     })
-
+    result["messageId"] = msg.id
     verboseLogger("current state while returning response =", botFlowService.state.context.currentState)
     verboseLogger("response text", result.text)
     verboseLogger("response textInEnglish", result.textInEnglish)
