@@ -10,6 +10,12 @@ import { formatStringsToTable, wordToNumber } from "./common/utils";
 import { ConversationService } from "./modules/conversation/conversation.service";
 import { PrismaService } from "./global-services/prisma.service";
 import { CustomLogger } from "./common/logger";
+import { Counter } from "prom-client";
+
+const promptCount: Counter<string> = new Counter({
+  name: 'prompt_api_count',
+  help: 'Counts the API requests of /prompt API',
+});
 
 export class PromptDto {
   @IsNotEmpty()
@@ -69,6 +75,7 @@ export class AppController {
 
   @Post("/prompt/:configid")
   async prompt(@Body() promptDto: any, @Headers() headers, @Param("configid") configid: string): Promise<any> {
+    promptCount.inc(1)
     //get userId from headers
     const userId = headers["user-id"]
     //setup loggers

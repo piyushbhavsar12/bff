@@ -5,7 +5,20 @@ import { Language } from '../../language';
 import { isMostlyEnglish } from 'src/common/utils';
 const fetch = require('node-fetch'); 
 const { Headers } = fetch;
+import { Counter } from "prom-client";
 
+const bhashiniCounter: Counter<string> = new Counter({
+  name: 'bhashini_api_count',
+  help: 'Counts the API requests in Bhashini service',
+});
+const bhashiniSuccessCounter: Counter<string> = new Counter({
+  name: 'bhashini_api_success_count',
+  help: 'Counts the successful API requests in Bhashini service',
+});
+const bhashiniFailureCounter: Counter<string> = new Counter({
+  name: 'bhashini_api_failure_count',
+  help: 'Counts the failed API requests in Bhashini service',
+});
 @Injectable()
 export class AiToolsService {
   private logger: CustomLogger;
@@ -34,6 +47,7 @@ export class AiToolsService {
     };
 
     try {
+        bhashiniCounter.inc(1)
         let response:any = await fetch(
             'https://meity-auth.ulcacontrib.org/ulca/apis/v0/model/compute',
             requestOptions
@@ -42,17 +56,20 @@ export class AiToolsService {
         let language: Language;
         if(response.output && response.output.length){
           language = response.output[0]?.langPrediction[0]?.langCode as Language
+          bhashiniSuccessCounter.inc(1)
           return {
             language: language || 'unk',
             error: null
           }
         } else {
+          bhashiniFailureCounter.inc(1)
           return {
             language: 'unk',
             error: null
           }
         }
     } catch (error) {
+        bhashiniFailureCounter.inc(1)
         if(isMostlyEnglish(text?.replace("?","")?.trim())) {
             return {
                 language: Language.en,
@@ -247,10 +264,13 @@ export class AiToolsService {
       redirect: 'follow'
     };
     try{
+      bhashiniCounter.inc(1)
       let response  = await fetch(this.configService.get("ULCA_CONFIG_URL"), requestOptions)
       response = await response.json()
+      bhashiniSuccessCounter.inc(1)
       return response
     } catch(error) {
+      bhashiniFailureCounter.inc(1)
       console.log(error);
       return {
         error
@@ -285,10 +305,13 @@ export class AiToolsService {
     };
 
     try{
+      bhashiniCounter.inc(1)
       let response  = await fetch(url, requestOptions)
       response = await response.json()
+      bhashiniSuccessCounter.inc(1)
       return response
     } catch(error) {
+      bhashiniFailureCounter.inc(1)
       console.log(error);
       return {
         error

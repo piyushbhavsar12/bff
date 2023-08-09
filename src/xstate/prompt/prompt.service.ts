@@ -32,8 +32,8 @@ export const promptServices = {
             let response: any = await aiToolsService.textClassification(context.query)
             if (response.error) throw new Error(`${response.error}, please try again.`)
             if (response == "LABEL_2") return "invalid"
-            if (response=="LABEL_1") return "payment"
-            if (response=="LABEL_0") return "aadhaar"
+            if (response == "LABEL_1") return "payment"
+            if (response == "LABEL_0") return "aadhaar"
             return response;
         } catch (error){
             return Promise.reject(error)
