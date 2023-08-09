@@ -18,6 +18,8 @@ export const promptGuards = {
     
     resendOTP: (_,event) => event.data.query == "resend OTP",
 
-    ifOTPHasBeenVerified: (context,_) => context.isOTPVerified
+    ifOTPHasBeenVerified: (context,_) => context.isOTPVerified,
+
+    ifInvalidClassifier: (_,event) => event.data == "invalid"
 
 }

@@ -4,5 +4,6 @@
     "label.popUpTitle2": "Enter your last 4 digits of Aadhaar",
     "lable.noRecordsFound": "No records were found for <user_identifier>, Please enter valid Mobile/Aadhaar/Benificiary Id again.",
     "label.popUpTitle3": "Dear Beneficiary, request you to kindly enter the one time password that has been received by you.",
-    "message.invalid_otp": "Invalid Otp"
+    "message.invalid_otp": "Invalid Otp",
+    "message.invalid_question":"Currently, I don't have the information you're looking for. However, I'm constantly learning and improving. Please feel free to ask me something else related to PMKISAN payment related queries, and I'll do my best to assist you."
 }

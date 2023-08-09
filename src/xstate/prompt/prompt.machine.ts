@@ -61,6 +61,16 @@ export const botFlowMachine1 = createMachine(
           src: "questionClassifier",
           onDone: [
             {
+              cond: "ifInvalidClassifier",
+              target: "getUserQuestion",
+              actions: [
+                assign({
+                  response: () => engMessage["message.invalid_question"],
+                  type:"pause"
+                })
+              ]
+            },
+            {
               target: 'askingAadhaarNumber',
               actions: [
                 assign({
@@ -378,6 +388,16 @@ export const botFlowMachine2 = createMachine(
         invoke: {
           src: "questionClassifier",
           onDone: [
+            {
+              cond: "ifInvalidClassifier",
+              target: "getUserQuestion",
+              actions: [
+                assign({
+                  response: () => engMessage["message.invalid_question"],
+                  type:"pause"
+                })
+              ]
+            },
             {
               target: 'askingAadhaarNumber',
               actions: [
@@ -861,6 +881,16 @@ export const botFlowMachine3 = createMachine(
         invoke: {
           src: "questionClassifier",
           onDone: [
+            {
+              cond: "ifInvalidClassifier",
+              target: "getUserQuestion",
+              actions: [
+                assign({
+                  response: () => engMessage["message.invalid_question"],
+                  type:"pause"
+                })
+              ]
+            },
             {
               target: 'checkIfOTPHasBeenVerified',
               actions: [
