@@ -11,6 +11,7 @@ import { ConversationService } from "./modules/conversation/conversation.service
 import { PrismaService } from "./global-services/prisma.service";
 import { CustomLogger } from "./common/logger";
 import { Counter } from "prom-client";
+const uuid = require('uuid');
 
 const promptCount: Counter<string> = new Counter({
   name: 'prompt_api_count',
@@ -210,6 +211,7 @@ export class AppController {
         error: null
       }
       res['audio'] = await this.aiToolsService.textToSpeech(res.text,prompt.inputLanguage)
+      res['messageId'] = uuid.v4()
       return res
     } else {
       //translate to english
