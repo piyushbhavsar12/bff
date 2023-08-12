@@ -41,4 +41,5 @@ model Message {
   userId    String   @db.Uuid
   user      User     @relation(fields: [userId], references: [id])
   flowId    String
+  reaction              Int       @default(0) @db.SmallInt 
 }

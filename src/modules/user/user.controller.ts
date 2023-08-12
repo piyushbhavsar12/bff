@@ -1,8 +1,8 @@
 import { Body, Controller, Get, Param, Post, Headers } from '@nestjs/common';
 import { UserService } from './user.service';
-import { ConfigService } from '@nestjs/config';
 import { CustomLogger } from 'src/common/logger';
 import { PrismaService } from 'src/global-services/prisma.service';
+import { Message } from '@prisma/client';
 const { v5: uuidv5 } = require('uuid');
 
 @Controller('user')
@@ -115,5 +115,20 @@ export class UserController {
       "status": "OK",
       "data": user.messages
     }
+  }
+
+  @Get("message/like/:id")
+  async likeQuery(@Param('id') id: string): Promise<Message> {
+    return this.userService.likeQuery(id);
+  }
+
+  @Get("message/dislike/:id")
+  async dislikeQuery(@Param('id') id: string): Promise<Message> {
+    return this.userService.dislikeQuery(id);
+  }
+
+  @Get("message/removelike/:id")
+  async removeLike(@Param('id') id: string): Promise<Message> {
+    return this.userService.removeReactionOnQuery(id);
   }
 }

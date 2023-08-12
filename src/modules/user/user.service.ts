@@ -4,6 +4,7 @@ import { ConfigService } from "@nestjs/config";
 import { CustomLogger } from "../../common/logger";
 import axios from "axios";
 import { decryptRequest, encryptRequest } from "../../common/utils";
+import { Message } from "@prisma/client";
 
 
 @Injectable()
@@ -169,5 +170,47 @@ export class UserService {
       }
     }
     return res
+  }
+
+  async likeQuery(id): Promise<Message> {
+    // try {
+      await this.prisma.$queryRawUnsafe(`
+        UPDATE "Message" SET 
+        "reaction" = 1
+        WHERE "id" = '${id}'`);
+    // } catch {
+    //   return null;
+    // }
+    return this.prisma.$queryRawUnsafe(`
+      SELECT * from "Message" where id = '${id}'
+    `);
+  }
+
+  async dislikeQuery(id): Promise<Message> {
+    try {
+      await this.prisma.$queryRawUnsafe(`
+        UPDATE "Message" SET 
+        "reaction" = -1
+        WHERE "id" = '${id}'`);
+    } catch {
+      return null;
+    }
+    return this.prisma.$queryRawUnsafe(`
+      SELECT * from "Message" where id = '${id}'
+    `);
+  }
+
+  async removeReactionOnQuery(id): Promise<Message> {
+    try {
+      await this.prisma.$queryRawUnsafe(`
+        UPDATE "Message" SET 
+        "reaction" = 0
+        WHERE "id" = '${id}'`);
+    } catch {
+      return null;
+    }
+    return this.prisma.$queryRawUnsafe(`
+      SELECT * from "Message" where id = '${id}'
+    `);
   }
 }
