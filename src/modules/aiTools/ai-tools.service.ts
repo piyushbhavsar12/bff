@@ -285,7 +285,7 @@ export class AiToolsService {
     myHeaders.append("Content-Type", "application/json");
     config['serviceId']=serviceId
     if(task == 'tts'){
-      config['gender']='female'
+      config['gender']='male'
       config['samplingRate']=8000
     }
     var raw = JSON.stringify({
