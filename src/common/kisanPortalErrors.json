@@ -36,7 +36,7 @@
         "types":["payment"]
     },
     "UID NEVER ENABLE FOR DBT": {
-        "text":"Dear {{farmer_name}}, As per our records, your bank account is not linked with your Aadhaar number. Therefore, benefits have not been released. Please link your Aadhaar with your bank account in your bank and enable it for DBT payment",
+        "text":"Dear {{farmer_name}}, I have checked your account and found that your bank account is not linked with your Aadhaar number. Therefore, benefits have not been released. I suggest you to link your Aadhaar with your bank account in your bank and enable it for DBT payment to continue to avail the benefits.",
         "types":["payment","aadhar"]
     },
     "NPCI Not Seeded": {
@@ -44,7 +44,7 @@
         "types":["payment","aadhaar"]
     },
     "UID is Disable for DBT": {
-        "text":"Dear {{farmer_name}}, I have checked your status and found that DBT is not enabled in your bank account. Therefore, benefit have not been released. I suggest you to please visit your bank and enable it for DBT mode.",
+        "text":"Dear {{farmer_name}}, I have checked your status and found that your bank account is not linked with your Aadhaar number. Therefore, benefits have not been released. I suggest you to link your Aadhaar with your bank account in your bank and enable it for DBT payment to continue availing the benefits of PM KISAN scheme",
         "types":["payment","aadhaar"]
     },
     "UID is CANCELLED BY UIDAI": {
@@ -80,7 +80,7 @@
         "types":["payment"]
     },
     "Beneficiary does not belongs to our state": {
-        "text":"Dear {{farmer_name}}, I have checked your status and found that you have been marked as *Belong to another State*. I suggest you to visit your district/ block nodal office and correct your details to receive the benefit of the scheme.",
+        "text":"Dear {{farmer_name}}, I have checked your status and found that you have been marked as \"does not belong to our state\" by the State. As per guidelines, you are required to register from the State where your land is located. If this information is incorrect, I suggest you visit your district/ block nodal office to continue receiving the benefits of the scheme.",
         "types":["payment"]
     },
     "Land Ownership does not stand in his/her name.": {
