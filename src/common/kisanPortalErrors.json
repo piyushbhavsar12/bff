@@ -146,5 +146,14 @@
     "Dormant Account": {
         "text":"Dear {{farmer_name}}, I have checked your status and found that the payment was processed on <<>> but amount was not credited due to inactive bank account. I suggest you to seed your Aadhaar with your active bank account from your nearest bank branch and enable it for DBT also to continue to avail the benefit of the PM KISAN scheme.",
         "types":["payment"]
+    },
+    "Demo Auth Fail (Incorrect Aadhaar)": {
+        "text":"Dear {{farmer_name}}, I checked your record and found that your Aadhaar number in PM KISAN is incorrect. Therefore, benefits have not been released. Please visit PM KISAN nodal officer of your district/block office for further details.",
+        "types":["payment"]
+    },
+    "Land Seeding, KYS": {
+        "text":"Dear {{farmer_name}}, I checked your record and found that your Land details were not uploaded by the State/UT Government. I suggest you visit the Block/Tehsil/District Office and get it updated on the PM-KISAN portal",
+        "types":["payment"]
     }
+    
 }
