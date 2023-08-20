@@ -16,7 +16,7 @@
         "types":["scheme","payment"]
     },
     "Not a Landowner": {
-        "text":"Dear {{farmer_name}}, I have checked your status and found that you have been marked as a *Landless farmer* by the State. If this information is not correct, I suggest you to kindly visit your nearest district/ block office and get your land details updated on the PMKISAN portal.",
+        "text":"Dear {{farmer_name}}, I have checked your status and found that you have been marked as a *Landless farmer* by the State. If this information is not correct, I suggest you to kindly visit your nearest district/ block office and get your land details updated on the PM KISAN portal.",
         "types":["payment"]
     },
     "Internal stopped by State Department": {
@@ -92,7 +92,7 @@
         "types":["payment"]
     },
     "Farmer got land less (due to sale purchase)": {
-        "text":"Dear {{farmer_name}}, I have checked our records and found your payment has been stopped by the State as you have been marked as a *landless farmer*. If this information is not correct, I suggest you to kindly visit your nearest district/ block office and  get  your land details updated on the PMKISAN portal.",
+        "text":"Dear {{farmer_name}}, I have checked our records and found your payment has been stopped by the State as you have been marked as a *landless farmer*. If this information is not correct, I suggest you to kindly visit your nearest district/ block office and  get  your land details updated on the PM KISAN portal.",
         "types":["payment"]
     },
     "Land use other than agriculture (If land use change other than agriculture)": {
