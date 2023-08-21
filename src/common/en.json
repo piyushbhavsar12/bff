@@ -1,9 +1,9 @@
 {
-    "label.popUpTitle": "Dear Beneficiary, Thank for reaching out to us with your query. In order to provide you with the correct resolution, we kindly request you to provide us with your details.\n\nAadhaar Number or PM KISAN Registration ID or Mobile Number",
+    "label.popUpTitle": "Dear Beneficiary, to access your details, I request you to enter your Aadhaar Number or PM KISAN Registration ID or Mobile Number.",
     "label.popUpTitleValid": "We kindly request you to provide us with your valid Aadhaar Number / PM KISAN ID / Phone no.",
     "label.popUpTitle2": "Enter your last 4 digits of Aadhaar",
     "lable.noRecordsFound": "No records were found for <user_identifier>, Please enter valid Mobile/Aadhaar/Benificiary Id again.",
     "label.popUpTitle3": "Dear Beneficiary, request you to kindly enter the one time password that has been received by you.",
     "message.invalid_otp": "Invalid Otp",
-    "message.invalid_question":"For such query, I am not trained yet. I hope that shortly, I would be able to address all your concerns/queries."
+    "message.invalid_question":"Sorry, for such query, I am still working. You may try some other query (queries). I hope shortly I would be able to address all your concerns. "
 }
