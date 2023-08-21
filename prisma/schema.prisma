@@ -33,13 +33,14 @@ model User {
 }
 
 model Message {
-  id        String   @id @default(uuid())
-  createdAt DateTime @default(now())
-  text      String?
-  audio     String?
-  type      String
-  userId    String   @db.Uuid
-  user      User     @relation(fields: [userId], references: [id])
-  flowId    String
-  reaction              Int       @default(0) @db.SmallInt 
+  id              String   @id @default(uuid())
+  createdAt       DateTime @default(now())
+  text            String?
+  audio           String?
+  type            String
+  userId          String   @db.Uuid
+  user            User     @relation(fields: [userId], references: [id])
+  flowId          String
+  reaction        Int       @default(0) @db.SmallInt 
+  messageType     String?
 }

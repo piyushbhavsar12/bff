@@ -79,6 +79,7 @@ export class AppController {
     promptCount.inc(1)
     //get userId from headers
     const userId = headers["user-id"]
+    let messageType = 'intermediate_response'
     //setup loggers
     let verboseLogger = this.logger.logWithCustomFields({
       userId: userId,
@@ -163,7 +164,8 @@ export class AppController {
         audio: type=="Audio"?promptDto.media.text:null,
         type: "User",
         userId,
-        flowId: configid || '3'
+        flowId: configid || '3',
+        messageType
       }
     })
     //get flow
@@ -327,6 +329,7 @@ export class AppController {
       try{
         let textToaudio = result.text
         if(botFlowService.state.context.currentState == 'endFlow'){
+          messageType = "final_response"
           let resArray = result.text.split("\n")
           let compareText = result.textInEnglish.split('\n')
           if(compareText[compareText.length-1].slice(0,12)=="Registration"){
@@ -357,10 +360,12 @@ export class AppController {
         audio: result?.audio?.text ? result?.audio?.text : null,
         type: "System",
         userId,
-        flowId: configid || '3'
+        flowId: configid || '3',
+        messageType
       }
     })
     result["messageId"] = msg.id
+    result["messageType"] = messageType
     verboseLogger("current state while returning response =", botFlowService.state.context.currentState)
     verboseLogger("response text", result.text)
     verboseLogger("response textInEnglish", result.textInEnglish)
