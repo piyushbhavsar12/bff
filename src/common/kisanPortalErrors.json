@@ -36,7 +36,7 @@
         "types":["payment"]
     },
     "UID NEVER ENABLE FOR DBT": {
-        "text":"Dear {{farmer_name}}, I have checked your account and found that your bank account is not linked with your Aadhaar number. Therefore, benefits have not been released. I suggest you to link your Aadhaar with your bank account in your bank and enable it for DBT payment to continue to avail the benefits.",
+        "text":"Dear {{farmer_name}}, I have checked your account and found that your bank account is not linked with your Aadhaar number. Therefore, benefits have not been released. I suggest you to link your Aadhaar with the bank account and enable it for DBT payment to continue to avail the benefits.",
         "types":["payment","aadhar"]
     },
     "NPCI Not Seeded": {
@@ -120,7 +120,7 @@
         "types":["payment"]
     },
     "FTO not processed, Aadhar is not seeded": {
-        "text":"Dear {{farmer_name}}, I have checked your account and found that your payment has not been processed as your F.T.O is pending due to the non-seeding of your Aadhaar number. I suggest you to seed  Aadhaar with your bank account from your nearest bank branch and enable it for DBT also to continue to avail the benefit under the PM KISAN scheme.",
+        "text":"Dear {{farmer_name}}, I have checked your account and found that your payment has not been processed due to the non-seeding of your Aadhaar number. I suggest you to seed Aadhaar with your bank account from your nearest bank branch and enable it for DBT also to continue to avail the benefit under the PM KISAN scheme.",
         "types":["payment"]
     },
     "FTO not processed, Beneficiary is under re-validation with PFMS": {
