@@ -1,5 +1,5 @@
 {
-    "label.popUpTitle": "Dear Beneficiary, to access your details, I request you to enter your Aadhaar Number or PM KISAN Registration ID or Mobile Number.",
+    "label.popUpTitle": "Dear Beneficiary, to access your details, I request you to enter your Aadhaar Number or PM KISAN Registration Number or Mobile Number.",
     "label.popUpTitleValid": "We kindly request you to provide us with your valid Aadhaar Number / PM KISAN ID / Phone no.",
     "label.popUpTitle2": "Enter your last 4 digits of Aadhaar",
     "lable.noRecordsFound": "No records were found for <user_identifier>, Please enter valid Mobile/Aadhaar/Benificiary Id again.",
