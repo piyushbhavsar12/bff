@@ -8,67 +8,62 @@ export function isMostlyEnglish(text: string): boolean {
   return englishCharacterPercentage >= 90;
 }
 
-export const wordToNumber = (word) => {
-    word = word?.replace('.','')
-    const numberWords = {
-      zero: 0,
-      one: 1,
-      two: 2,
-      three: 3,
-      four: 4,
-      five: 5,
-      six: 6,
-      seven: 7,
-      eight: 8,
-      nine: 9,
-      ten: 10,
-      eleven: 11,
-      twelve: 12,
-      thirteen: 13,
-      fourteen: 14,
-      fifteen: 15,
-      sixteen: 16,
-      seventeen: 17,
-      eighteen: 18,
-      nineteen: 19,
-      twenty: 20,
-      thirty: 30,
-      forty: 40,
-      fifty: 50,
-      sixty: 60,
-      seventy: 70,
-      eighty: 80,
-      ninety: 90,
-      hundred: 100,
-      thousand: 1000,
-      million: 1000000,
-      billion: 1000000000,
-      trillion: 1000000000000,
+export const wordToNumber = (input) => {
+    // Map of words to numbers
+    const wordToNum = {
+        'zero': 0,
+        'one': 1,
+        'two': 2,
+        'three': 3,
+        'four': 4,
+        'five': 5,
+        'six': 6,
+        'seven': 7,
+        'eight': 8,
+        'nine': 9
     };
 
-    const words = word.toLowerCase().split(/[ ,]+/);
-    let currentNumber = '';
+    // Remove punctuation, extra spaces, and common noise words
+    input = input.replace(/[.,:;?!-]/g, '').replace(/\s+/g, ' ').trim().replace(/(and|is|the|this|with|for|it|its|ok|sure|yes|please|use|enter|login|received|needed|code|verify|access|confirm|your|needed|remember|need|forget)/gi, '');
 
-    for (let i = 0; i < words.length; i++) {
-      const word = words[i];
-      // skip these words
-      if (word === 'and' || word === 'or') continue;
+    // Convert "double", "triple" (and their misspellings) followed by a word or a number
+    const repetitionReplacement = (match, count, word) => {
+        let repeatCount = 1;
+        if (count.toLowerCase().startsWith('dou')) repeatCount = 2;
+        if (count.toLowerCase().startsWith('tri') || 
+            count.toLowerCase().startsWith('ter') || 
+            count.toLowerCase() === 'thriple') {
+            repeatCount = 3;
+        }
+        
+        if (wordToNum[word.toLowerCase()] !== undefined) {
+            return wordToNum[word.toLowerCase()].toString().repeat(repeatCount);
+        }
+        if (!isNaN(parseInt(word))) {
+            return word.repeat(repeatCount);
+        }
+        return match;  // if it's neither a word nor a number, return the match as is
+    };
+    input = input.replace(/(double|triple|trible|trouble|terrible|terribel|terribal|thriple|single)\s+(\w+)/gi, repetitionReplacement);
 
-      if (numberWords[word] || numberWords[word] === 0) {
-        currentNumber += numberWords[word];
-      } else if (word === 'and') {
-        continue;
-      } else if (word.includes('-')) {
-        const hyphenWords = word.split('-');
-        const first = hyphenWords[0];
-        const second = hyphenWords[1];
-        currentNumber += numberWords[first] + numberWords[second];
-      }else{
-        currentNumber+=word
-      }
+    // Convert words directly followed by digits (like "One234")
+    for (let word in wordToNum) {
+        const regex = new RegExp(word + "(\\d+)", "gi");
+        input = input.replace(regex, (_, digits) => wordToNum[word] + digits);
     }
 
-    return currentNumber.replace('NaN','');
+    // Convert standalone words to numbers
+    let numStr = input.split(' ').map(word => {
+        if (wordToNum[word.toLowerCase()] !== undefined) {
+            return wordToNum[word.toLowerCase()];
+        }
+        return word;
+    }).join('');
+
+    // Remove any non-numeric characters
+    numStr = numStr.replace(/[^\d]/g, '');
+
+    return numStr;
   }
 
   export const encryptRequest = async (text:string) => {
