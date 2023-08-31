@@ -4,18 +4,24 @@ import { AppService } from "./app.service";
 import { PrismaService } from "./global-services/prisma.service";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { UserModule } from "./modules/user/user.module";
-import { APP_PIPE } from "@nestjs/core";
+import { APP_GUARD, APP_PIPE } from "@nestjs/core";
 import { CustomLogger } from "./common/logger";
 import { ConversationService } from "./modules/conversation/conversation.service";
 import { ConversationModule } from "./modules/conversation/conversation.module";
 import { PrometheusModule } from "@willsoto/nestjs-prometheus";
+import { RateLimiterGuard } from './rate-limiter.guard';
+import { ThrottlerModule } from '@nestjs/throttler';
 
 @Module({
   imports: [
     ConfigModule.forRoot(),
     UserModule,
     ConversationModule,
-    PrometheusModule.register()
+    PrometheusModule.register(),
+    ThrottlerModule.forRoot({
+      ttl: 60, // Time in seconds for the window (e.g., 60 seconds)
+      limit: 10, // Maximum requests per window
+    }),
   ],
   controllers: [AppController],
   providers: [
@@ -27,7 +33,11 @@ import { PrometheusModule } from "@willsoto/nestjs-prometheus";
       provide: APP_PIPE,
       useClass: ValidationPipe,
     },
-    CustomLogger
+    CustomLogger,
+    {
+      provide: APP_GUARD,
+      useClass: RateLimiterGuard,
+    },
   ],
 })
 export class AppModule {}
