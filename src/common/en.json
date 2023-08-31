@@ -5,5 +5,8 @@
     "lable.noRecordsFound": "No records were found for <user_identifier>, Please enter valid Mobile/Aadhaar/Benificiary Id again.",
     "label.popUpTitle3": "Dear Beneficiary, request you to kindly enter the one time password that has been received by you on your registered mobile number.",
     "message.invalid_otp": "Your entered One Time Password is wrong. Please enter the correct one. If you want me to re-send One Time Password, please click the below button.",
-    "message.invalid_question":"Sorry, for such query, I am still working. You may try some other query (queries). I hope shortly I would be able to address all your concerns. "
+    "message.invalid_question":"Sorry, for such query, I am still working. You may try some other query (queries). I hope shortly I would be able to address all your concerns. ",
+    "label.popUpTitle.short": "Enter your Aadhaar Number / Registration Number / Mobile Number",
+    "label.popUpTitle2.short": "Enter your last 4 digits of Aadhaar",
+    "label.popUpTitle3.short": "Enter your One Time Password."
 }

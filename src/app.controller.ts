@@ -12,6 +12,9 @@ import { PrismaService } from "./global-services/prisma.service";
 import { CustomLogger } from "./common/logger";
 import { Counter } from "prom-client";
 const uuid = require('uuid');
+const path = require('path');
+const filePath = path.resolve(__dirname, './common/en.json');
+const engMessage = require(filePath);
 
 const promptCount: Counter<string> = new Counter({
   name: 'prompt_api_count',
@@ -308,6 +311,26 @@ export class AppController {
     prompt.inputLanguage = promptDto.inputLanguage
 
     if(result.text){
+      let placeholder;
+      if(
+        result.text==engMessage["label.popUpTitle"] || 
+        result.text==engMessage["label.popUpTitleValid"] ||
+        result.text==engMessage["label.noRecordsFound"]
+      ){
+        placeholder = engMessage["label.popUpTitle.short"]
+      } else if(
+        result.text==engMessage["label.popUpTitle2"]
+      ){
+        placeholder = engMessage["label.popUpTitle2.short"]
+      }else if(
+        result.text==engMessage["label.popUpTitle3"]
+      ){
+        placeholder = engMessage["label.popUpTitle3.short"]
+      }else if(
+        result.text==engMessage["label.invalid_question"]
+      ){
+        placeholder = engMessage["label.popUpTitle.short"]
+      }
       if(prompt.inputLanguage != Language.en && !isNumber) {
         try {
           let response = await this.aiToolsService.translate(
@@ -325,6 +348,25 @@ export class AppController {
           errorLogger(error)
           return { error: "Sorry, We are unable to translate given input, please try again" }
         }
+      }
+      if(prompt.inputLanguage != Language.en && placeholder){
+        try {
+          let response = await this.aiToolsService.translate(
+            Language.en,
+            prompt.inputLanguage as Language,
+            placeholder
+          )
+          if(!response['text']){
+            errorLogger("Sorry, We are unable to translate given input, please try again")
+            result.error = "Sorry, We are unable to translate given input, please try again"
+          }
+          result['placeholder'] = response["text"]
+        } catch(error){
+          errorLogger(error)
+          return { error: "Sorry, We are unable to translate given input, please try again" }
+        }
+      } else if(placeholder) {
+        result['placeholder'] = placeholder
       }
       try{
         let textToaudio = result.text
