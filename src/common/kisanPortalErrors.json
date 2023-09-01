@@ -100,7 +100,7 @@
         "types":["payment"]
     },
     "Untraceable Beneficiary": {
-        "text":"Dear {{farmer_name}}, As per our records you have been marked as untraceable by State. If this information is not correct, you may revoke this status by completing your e-KYC through biometric or face authentication. Once eKYC is updated, you may get  the benefit of the PM KISAN scheme, if otherwise eligible.",
+        "text":"Dear {{farmer_name}}, As per our records you have been marked as untraceable by State. If this information is not correct, you may revoke this status by completing your e-KYC through biometric or face authentication. Once e-KYC is updated, you may get  the benefit of the PM KISAN scheme, if otherwise eligible.",
         "types":["payment"]
     },
     "Underage": {
