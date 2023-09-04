@@ -11,59 +11,97 @@ export function isMostlyEnglish(text: string): boolean {
 export const wordToNumber = (input) => {
     // Map of words to numbers
     const wordToNum = {
-        'zero': 0,
-        'one': 1,
-        'two': 2,
-        'three': 3,
-        'four': 4,
-        'five': 5,
-        'six': 6,
-        'seven': 7,
-        'eight': 8,
-        'nine': 9
-    };
+      'zero': 0,
+      'one': 1,
+      'two': 2,
+      'three': 3,
+      'four': 4,
+      'five': 5,
+      'six': 6,
+      'seven': 7,
+      'eight': 8,
+      'nine': 9,
+      'a': 'A',
+      'b': 'B',
+      'c': 'C',
+      'd': 'D',
+      'e': 'E',
+      'f': 'F',
+      'g': 'G',
+      'h': 'H',
+      'i': 'I',
+      'j': 'J',
+      'k': 'K',
+      'l': 'L',
+      'm': 'M',
+      'n': 'N',
+      'o': 'O',
+      'p': 'P',
+      'q': 'Q',
+      'r': 'R',
+      's': 'S',
+      't': 'T',
+      'u': 'U',
+      'v': 'V',
+      'w': 'W',
+      'x': 'X',
+      'y': 'Y',
+      'z': 'Z'
+  };
 
-    // Remove punctuation, extra spaces, and common noise words
-    input = input.replace(/[.,:;?!-]/g, '').replace(/\s+/g, ' ').trim().replace(/(and|is|the|this|with|for|it|its|ok|sure|yes|please|use|enter|login|received|needed|code|verify|access|confirm|your|needed|remember|need|forget)/gi, '');
+  // Remove punctuation, extra spaces, and common noise words
+  input = input.replace(/[.,:;?!-]/g, '').replace(/\s+/g, ' ').trim().replace(/(and|is|the|this|with|for|it|its|ok|sure|yes|please|use|enter|login|received|needed|code|verify|access|confirm|your|needed|remember|need|forget)/gi, '');
 
-    // Convert "double", "triple" (and their misspellings) followed by a word or a number
-    const repetitionReplacement = (match, count, word) => {
-        let repeatCount = 1;
-        if (count.toLowerCase().startsWith('dou')) repeatCount = 2;
-        if (count.toLowerCase().startsWith('tri') || 
-            count.toLowerCase().startsWith('ter') || 
-            count.toLowerCase() === 'thriple') {
-            repeatCount = 3;
-        }
-        
-        if (wordToNum[word.toLowerCase()] !== undefined) {
-            return wordToNum[word.toLowerCase()].toString().repeat(repeatCount);
-        }
-        if (!isNaN(parseInt(word))) {
-            return word.repeat(repeatCount);
-        }
-        return match;  // if it's neither a word nor a number, return the match as is
-    };
-    input = input.replace(/(double|triple|trible|trouble|terrible|terribel|terribal|thriple|single)\s+(\w+)/gi, repetitionReplacement);
+  // Convert "double", "triple" (and their misspellings) followed by a word or a number
+  const repetitionReplacement = (match, count, word) => {
+      let repeatCount = 1;
+      if (count.toLowerCase().startsWith('dou')) repeatCount = 2;
+      if (count.toLowerCase().startsWith('tri') || 
+          count.toLowerCase().startsWith('ter') || 
+          count.toLowerCase() === 'thriple') {
+          repeatCount = 3;
+      }
+      
+      if (wordToNum[word.toLowerCase()] !== undefined) {
+          return wordToNum[word.toLowerCase()].toString().repeat(repeatCount);
+      }
+      if (!isNaN(parseInt(word))) {
+          return word.repeat(repeatCount);
+      }
+      return match;  // if it's neither a word nor a number, return the match as is
+  };
+  input = input.replace(/(double|triple|trible|trouble|terrible|terribel|terribal|thriple|single)\s+(\w+)/gi, repetitionReplacement);
 
-    // Convert words directly followed by digits (like "One234")
-    for (let word in wordToNum) {
-        const regex = new RegExp(word + "(\\d+)", "gi");
-        input = input.replace(regex, (_, digits) => wordToNum[word] + digits);
+   // Convert words directly followed by digits (like "One234")
+  for (let word in wordToNum) {
+      const regex = new RegExp(word + "(\\d+)", "gi");
+      input = input.replace(regex, (_, digits) => wordToNum[word] + digits);
+  }
+
+  // Convert standalone words to numbers or alphabets
+  let sanitizedStr = input.split(' ').map(word => {
+      if (wordToNum[word.toLowerCase()] !== undefined) {
+          return wordToNum[word.toLowerCase()];
+      }
+      return word;
+  }).join('');
+
+  // Ensure the format: <2 alphabets><9 digits>
+  const formatRegex = /^([a-zA-Z]{2})(\d{9})$/;
+  if (!formatRegex.test(sanitizedStr)) {
+  
+    if(/[a-zA-Z]+/.test(sanitizedStr.slice(0,2))) {
+      sanitizedStr = sanitizedStr.slice(0,2) + sanitizedStr.slice(2).replace(/[^\d]/g, '');
+      
+      if(sanitizedStr.slice(2).length == 9) {
+        return sanitizedStr
+      }
     }
 
-    // Convert standalone words to numbers
-    let numStr = input.split(' ').map(word => {
-        if (wordToNum[word.toLowerCase()] !== undefined) {
-            return wordToNum[word.toLowerCase()];
-        }
-        return word;
-    }).join('');
+    return sanitizedStr.replace(/[^\d]/g, '')
+  }
 
-    // Remove any non-numeric characters
-    numStr = numStr.replace(/[^\d]/g, '');
-
-    return numStr;
+  return sanitizedStr;
   }
 
   export const encryptRequest = async (text:string) => {
