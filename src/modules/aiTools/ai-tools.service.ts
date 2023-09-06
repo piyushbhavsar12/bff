@@ -1,32 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { CustomLogger } from '../../common/logger';
 import { Language } from '../../language';
 import { isMostlyEnglish } from 'src/common/utils';
+import { MonitoringService } from '../monitoring/monitoring.service';
 const fetch = require('node-fetch'); 
 const { Headers } = fetch;
-import { Counter } from "prom-client";
-
-const bhashiniCounter: Counter<string> = new Counter({
-  name: 'bhashini_api_count',
-  help: 'Counts the API requests in Bhashini service',
-});
-const bhashiniSuccessCounter: Counter<string> = new Counter({
-  name: 'bhashini_api_success_count',
-  help: 'Counts the successful API requests in Bhashini service',
-});
-const bhashiniFailureCounter: Counter<string> = new Counter({
-  name: 'bhashini_api_failure_count',
-  help: 'Counts the failed API requests in Bhashini service',
-});
 @Injectable()
 export class AiToolsService {
-  private logger: CustomLogger;
   constructor(
-    private configService: ConfigService
-  ) {
-    this.logger = new CustomLogger("AiToolsService");
-  }
+    private configService: ConfigService,
+    private readonly monitoringService: MonitoringService
+  ) {}
   async detectLanguage(text: string): Promise<any> {
     var myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/json");
@@ -47,7 +31,7 @@ export class AiToolsService {
     };
 
     try {
-        bhashiniCounter.inc(1)
+        this.monitoringService.incrementBhashiniCounter()
         let response:any = await fetch(
             'https://meity-auth.ulcacontrib.org/ulca/apis/v0/model/compute',
             requestOptions
@@ -56,20 +40,20 @@ export class AiToolsService {
         let language: Language;
         if(response.output && response.output.length){
           language = response.output[0]?.langPrediction[0]?.langCode as Language
-          bhashiniSuccessCounter.inc(1)
+          this.monitoringService.incrementBhashiniSuccessCounter()
           return {
             language: language || 'unk',
             error: null
           }
         } else {
-          bhashiniFailureCounter.inc(1)
+          this.monitoringService.incrementBhashiniFailureCounter()
           return {
             language: 'unk',
             error: null
           }
         }
     } catch (error) {
-        bhashiniFailureCounter.inc(1)
+        this.monitoringService.incrementBhashiniFailureCounter()
         if(isMostlyEnglish(text?.replace("?","")?.trim())) {
             return {
                 language: Language.en,
@@ -264,13 +248,13 @@ export class AiToolsService {
       redirect: 'follow'
     };
     try{
-      bhashiniCounter.inc(1)
+      this.monitoringService.incrementBhashiniCounter()
       let response  = await fetch(this.configService.get("ULCA_CONFIG_URL"), requestOptions)
       response = await response.json()
-      bhashiniSuccessCounter.inc(1)
+      this.monitoringService.incrementBhashiniSuccessCounter()
       return response
     } catch(error) {
-      bhashiniFailureCounter.inc(1)
+      this.monitoringService.incrementBhashiniFailureCounter()
       console.log(error);
       return {
         error
@@ -305,13 +289,13 @@ export class AiToolsService {
     };
 
     try{
-      bhashiniCounter.inc(1)
+      this.monitoringService.incrementBhashiniCounter()
       let response  = await fetch(url, requestOptions)
       response = await response.json()
-      bhashiniSuccessCounter.inc(1)
+      this.monitoringService.incrementBhashiniSuccessCounter()
       return response
     } catch(error) {
-      bhashiniFailureCounter.inc(1)
+      this.monitoringService.incrementBhashiniFailureCounter()
       console.log(error);
       return {
         error

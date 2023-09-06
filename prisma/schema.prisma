@@ -44,3 +44,10 @@ model Message {
   reaction        Int       @default(0) @db.SmallInt 
   messageType     String?
 }
+
+model Metrics {
+  id              Int @id @default(autoincrement())
+  createdAt       DateTime @default(now())
+  name            String @unique
+  value           String
+}

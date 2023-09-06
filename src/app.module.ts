@@ -11,13 +11,21 @@ import { ConversationModule } from "./modules/conversation/conversation.module";
 import { PrometheusModule } from "@willsoto/nestjs-prometheus";
 import { RateLimiterGuard } from './rate-limiter.guard';
 import { ThrottlerModule } from '@nestjs/throttler';
+import { MonitoringModule } from "./modules/monitoring/monitoring.module";
+import { PromptModule } from "./xstate/prompt/prompt.module";
 
 @Module({
   imports: [
     ConfigModule.forRoot(),
     UserModule,
     ConversationModule,
-    PrometheusModule.register(),
+    MonitoringModule,
+    PrometheusModule.register({
+      defaultMetrics:{
+        enabled: false
+      }
+    }),
+    PromptModule,
     ThrottlerModule.forRoot({
       ttl: 60, // Time in seconds for the window (e.g., 60 seconds)
       limit: 10, // Maximum requests per window

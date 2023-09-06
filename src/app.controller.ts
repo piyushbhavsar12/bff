@@ -2,7 +2,6 @@ import { Controller, Get, Post, Headers, Body, Param } from "@nestjs/common";
 import { AppService, Prompt } from "./app.service";
 import { IsNotEmpty,IsUUID, IsOptional } from 'class-validator';
 import { interpret } from "xstate";
-import { botFlowMachine1, botFlowMachine2, botFlowMachine3 } from "./xstate/prompt/prompt.machine";
 import { Language } from "./language";
 import { ConfigService } from "@nestjs/config";
 import { AiToolsService } from "./modules/aiTools/ai-tools.service";
@@ -10,16 +9,12 @@ import { formatStringsToTable, wordToNumber } from "./common/utils";
 import { ConversationService } from "./modules/conversation/conversation.service";
 import { PrismaService } from "./global-services/prisma.service";
 import { CustomLogger } from "./common/logger";
-import { Counter } from "prom-client";
+import { MonitoringService } from "./modules/monitoring/monitoring.service";
+import { PromptServices } from "./xstate/prompt/prompt.service";
 const uuid = require('uuid');
 const path = require('path');
 const filePath = path.resolve(__dirname, './common/en.json');
 const engMessage = require(filePath);
-
-const promptCount: Counter<string> = new Counter({
-  name: 'prompt_api_count',
-  help: 'Counts the API requests of /prompt API',
-});
 
 export class PromptDto {
   @IsNotEmpty()
@@ -60,15 +55,18 @@ export class AppController {
   private aiToolsService: AiToolsService
   private conversationService: ConversationService
   private prismaService: PrismaService
+  private promptService: PromptServices
   private logger: CustomLogger
   
   constructor(
-    private readonly appService: AppService
+    private readonly appService: AppService,
+    private readonly monitoringService: MonitoringService
   ) {
     this.prismaService = new PrismaService()
     this.configService = new ConfigService()
-    this.aiToolsService = new AiToolsService(this.configService)
+    this.aiToolsService = new AiToolsService(this.configService,this.monitoringService)
     this.conversationService = new ConversationService(this.prismaService,this.configService)
+    this.promptService = new PromptServices(this.prismaService,this.configService,this.aiToolsService)
     this.logger = new CustomLogger("AppController");
   }
 
@@ -79,7 +77,7 @@ export class AppController {
 
   @Post("/prompt/:configid")
   async prompt(@Body() promptDto: any, @Headers() headers, @Param("configid") configid: string): Promise<any> {
-    promptCount.inc(1)
+    this.monitoringService.incrementPromptCount()
     //get userId from headers
     const userId = headers["user-id"]
     let messageType = 'intermediate_response'
@@ -175,16 +173,16 @@ export class AppController {
     let botFlowMachine;
     switch(configid){
       case '1':
-        botFlowMachine = botFlowMachine1
+        botFlowMachine = this.promptService.getXstateMachine("botFlowMachine1")
         break
       case '2':
-        botFlowMachine = botFlowMachine2
+        botFlowMachine = this.promptService.getXstateMachine("botFlowMachine2")
         break
       case '3':
-        botFlowMachine = botFlowMachine3
+        botFlowMachine = this.promptService.getXstateMachine("botFlowMachine3")
         break
       default:
-        botFlowMachine = botFlowMachine3
+        botFlowMachine = this.promptService.getXstateMachine("botFlowMachine3")
     }
 
     let defaultContext = {

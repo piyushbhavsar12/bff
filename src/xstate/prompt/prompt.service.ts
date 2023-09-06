@@ -1,35 +1,39 @@
 import { ConfigService } from "@nestjs/config";
 import { AiToolsService } from "../../modules/aiTools/ai-tools.service";
-import { CustomLogger } from "../../common/logger";
 import { AADHAAR_GREETING_MESSAGE } from "../../common/constants";
 import { UserService } from "../../modules/user/user.service";
-import { PrismaService } from "../../global-services/prisma.service";
 import axios from "axios";
 import { decryptRequest, encryptRequest } from "../../common/utils";
+import { PrismaService } from "src/global-services/prisma.service";
+import { Injectable } from "@nestjs/common";
+import { botFlowMachine1, botFlowMachine2, botFlowMachine3 } from "./prompt.machine";
+import { createMachine } from "xstate";
+import { promptActions } from "./prompt.actions";
+import { promptGuards } from "./prompt.gaurds";
 const path = require('path');
 const filePath = path.resolve(__dirname, '../../common/kisanPortalErrors.json');
 const PMKissanProtalErrors = require(filePath);
 
-const prismaService = new PrismaService()
-const configService = new ConfigService()
-const aiToolsService = new AiToolsService(configService)
-const userService = new UserService(
-    prismaService,
-    configService
-)
-const logger = new CustomLogger('promptService')
+@Injectable()
+export class PromptServices {
+    private userService: UserService;
+    constructor(
+        private prismaService: PrismaService,
+        private configService: ConfigService,
+        private aiToolsService: AiToolsService,
+    ){
+        this.userService = new UserService(this.prismaService, this.configService)
+    }
 
-export const promptServices = {
-
-    getInput: async (context)=> {
+    async getInput (context) {
         console.log("getInput",context)
         return context
-    },
+    }
 
-    questionClassifier: async (context) => {
+    async questionClassifier (context) {
         console.log("questionClassifier")
         try{
-            let response: any = await aiToolsService.textClassification(context.query)
+            let response: any = await this.aiToolsService.textClassification(context.query)
             if (response.error) throw new Error(`${response.error}, please try again.`)
             if (response == "LABEL_2") return "invalid"
             if (response == "LABEL_1") return "payment"
@@ -38,15 +42,15 @@ export const promptServices = {
         } catch (error){
             return Promise.reject(error)
         }
-    },
+    }
 
-    logError: async (_, event) =>{
+    async logError (_, event) {
         console.log("logError")
         console.log(event.data)
         return event.data
-    },
+    }
 
-    validateAadhaarNumber: async (context, event) => {
+    async validateAadhaarNumber (context, event) {
         try{
             console.log("validating user identifier")
             const userIdentifier = `${context.userAadhaarNumber}${context.lastAadhaarDigits}`;
@@ -55,13 +59,13 @@ export const promptServices = {
             console.log(/^[6-9]\d{9}$/.test(userIdentifier.substring(0,10)))
             let res;
             if(/^[6-9]\d{9}$/.test(userIdentifier)) {
-                res = await userService.sendOTP(userIdentifier,"Mobile")
+                res = await this.userService.sendOTP(userIdentifier,"Mobile")
             } else if(userIdentifier.length==14 && /^[6-9]\d{9}$/.test(userIdentifier.substring(0,10))){
-                res = await userService.sendOTP(userIdentifier,"MobileAadhar")
+                res = await this.userService.sendOTP(userIdentifier,"MobileAadhar")
             } else if(userIdentifier.length==12 && /^\d+$/.test(userIdentifier)){
-                res = await userService.sendOTP(userIdentifier,"Aadhar")
+                res = await this.userService.sendOTP(userIdentifier,"Aadhar")
             } else if(userIdentifier.length == 11) { 
-                res = await userService.sendOTP(userIdentifier,"Ben_id")
+                res = await this.userService.sendOTP(userIdentifier,"Ben_id")
             } else {
                 return Promise.resolve('Please enter a valid Beneficiary ID/Aadhaar Number/Phone number');
             }
@@ -74,21 +78,21 @@ export const promptServices = {
             return Promise.reject(new Error('Something went wrong.'))
         }
         
-    },
+    }
 
-    validateOTP: async (context, event) => {
+    async validateOTP (context, event) {
         const userIdentifier = `${context.userAadhaarNumber}${context.lastAadhaarDigits}`;
         const otp = context.otp;
         let res;
         // Perform OTP validation logic here
         if(/^[6-9]\d{9}$/.test(userIdentifier)) {
-            res = await userService.verifyOTP(userIdentifier,otp,"Mobile")
+            res = await this.userService.verifyOTP(userIdentifier,otp,"Mobile")
         } else if(userIdentifier.length==14 && /^[6-9]\d{9}$/.test(userIdentifier.substring(0,10))){
-            res = await userService.verifyOTP(userIdentifier,otp,"MobileAadhar")
+            res = await this.userService.verifyOTP(userIdentifier,otp,"MobileAadhar")
         } else if(userIdentifier.length==12 && /^\d+$/.test(userIdentifier)){
-            res = await userService.verifyOTP(userIdentifier,otp,"Aadhar")
+            res = await this.userService.verifyOTP(userIdentifier,otp,"Aadhar")
         } else if(userIdentifier.length == 11) { 
-            res = await userService.verifyOTP(userIdentifier,otp,"Ben_id")
+            res = await this.userService.verifyOTP(userIdentifier,otp,"Ben_id")
         } else {
             return Promise.reject(new Error('Something went wrong, Please try again by asking your question.'));
         }
@@ -97,24 +101,24 @@ export const promptServices = {
         } else {
             return Promise.reject(new Error('Something went wrong, Please try again by asking your question.'));
         }
-    },
+    }
 
-    fetchUserData: async (context, event) => {
+    async fetchUserData (context, event) {
         const userIdentifier = `${context.userAadhaarNumber}${context.lastAadhaarDigits}`;
         let res;
         let type='Mobile'
         if(/^[6-9]\d{9}$/.test(userIdentifier)) {
             type='Mobile'
-            res = await userService.getUserData(userIdentifier,"Mobile")
+            res = await this.userService.getUserData(userIdentifier,"Mobile")
         } else if(userIdentifier.length==14 && /^[6-9]\d{9}$/.test(userIdentifier.substring(0,10))){
             type='MobileAadhar'
-            res = await userService.getUserData(userIdentifier,"MobileAadhar")
+            res = await this.userService.getUserData(userIdentifier,"MobileAadhar")
         } else if(userIdentifier.length==12 && /^\d+$/.test(userIdentifier)){
             type = "Aadhar"
-            res = await userService.getUserData(userIdentifier,"Aadhar")
+            res = await this.userService.getUserData(userIdentifier,"Aadhar")
         } else if(userIdentifier.length == 11) { 
             type = "Ben_id"
-            res = await userService.getUserData(userIdentifier,"Ben_id")
+            res = await this.userService.getUserData(userIdentifier,"Ben_id")
         }else {
             return Promise.reject(new Error('Please enter a valid Beneficiary ID/Aadhaar Number/Phone number'));
         }
@@ -133,7 +137,7 @@ export const promptServices = {
         console.log("using...",userIdentifier, type)
         let userErrors = [];
         try {
-        let encryptedData = await encryptRequest(`{\"Types\":\"${type}",\"Values\":\"${userIdentifier}\",\"Token\":\"${configService.get("PM_KISSAN_TOKEN")}\"}`)
+        let encryptedData = await encryptRequest(`{\"Types\":\"${type}",\"Values\":\"${userIdentifier}\",\"Token\":\"${this.configService.get("PM_KISSAN_TOKEN")}\"}`)
         let data = JSON.stringify({
             "EncryptedRequest": `${encryptedData.d.encryptedvalu}@${encryptedData.d.token}`
         });
@@ -142,7 +146,7 @@ export const promptServices = {
         let config = {
             method: 'post',
             maxBodyLength: Infinity,
-            url: `${configService.get("PM_KISAN_BASE_URL")}/ChatbotBeneficiaryStatus`,
+            url: `${this.configService.get("PM_KISAN_BASE_URL")}/ChatbotBeneficiaryStatus`,
             headers: { 
             'Content-Type': 'application/json'
             },
@@ -169,6 +173,54 @@ export const promptServices = {
         console.log(error)
         }
         return `${userDetails}${userErrors.join("\n")}`
-        
+    }
+
+    allFunctions() {
+        return {
+            getInput: this.getInput.bind(this),
+            questionClassifier: this.questionClassifier.bind(this),
+            logError: this.logError.bind(this),
+            validateAadhaarNumber: this.validateAadhaarNumber.bind(this),
+            validateOTP: this.validateOTP.bind(this),
+            fetchUserData: this.fetchUserData.bind(this)
+        }
+    }
+
+    getXstateMachine(name:string){
+        let machine
+        switch(name){
+            case "botFlowMachine1":
+                machine = createMachine(
+                    botFlowMachine1,{
+                    actions: promptActions,
+                    services: this.allFunctions(),
+                    guards: promptGuards
+                })
+                break
+            case "botFlowMachine2":
+                machine = createMachine(
+                    botFlowMachine2,{
+                    actions: promptActions,
+                    services: this.allFunctions(),
+                    guards: promptGuards
+                })
+                break
+            case "botFlowMachine3":
+                machine = createMachine(
+                    botFlowMachine3,{
+                    actions: promptActions,
+                    services: this.allFunctions(),
+                    guards: promptGuards
+                })
+                break
+            default:
+                machine = createMachine(
+                    botFlowMachine3,{
+                    actions: promptActions,
+                    services: this.allFunctions(),
+                    guards: promptGuards
+                })
+        }
+        return machine
     }
 }
