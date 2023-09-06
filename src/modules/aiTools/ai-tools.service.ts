@@ -134,7 +134,10 @@ export class AiToolsService {
         {
           "language": {
               "sourceLanguage": language
-          }
+          },
+          "postProcessors": [
+            "itn"
+          ],
         },
         {
           "audio":[

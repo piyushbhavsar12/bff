@@ -240,12 +240,15 @@ export class AppController {
       }
 
       if(type == 'Audio' && ['askingAadhaarNumber','askingOTP','askLastAaadhaarDigits','confirmInput2','confirmInput3','confirmInput4'].indexOf(botFlowService.state.context.currentState) != -1) {
-        let number = wordToNumber(prompt.inputTextInEnglish)
-        if(/\d/.test(number)){
-          isNumber = true
-          prompt.inputTextInEnglish = number.toUpperCase()
-          verboseLogger("english text to numbers conversion =",prompt.inputTextInEnglish)
-        }
+        // let number = wordToNumber(prompt.inputTextInEnglish)
+        let number = prompt.inputTextInEnglish.replace(/\s/g, '')
+        prompt.inputTextInEnglish = number.toUpperCase()
+        isNumber = true
+        // if(/\d/.test(number)){
+        //   isNumber = true
+        //   prompt.inputTextInEnglish = number.toUpperCase()
+        //   verboseLogger("english text to numbers conversion =",prompt.inputTextInEnglish)
+        // }
       }
     }
 
