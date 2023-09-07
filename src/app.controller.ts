@@ -11,6 +11,7 @@ import { PrismaService } from "./global-services/prisma.service";
 import { CustomLogger } from "./common/logger";
 import { MonitoringService } from "./modules/monitoring/monitoring.service";
 import { PromptServices } from "./xstate/prompt/prompt.service";
+import { TelemetryService } from "./modules/telemetry/telemetry.service";
 const uuid = require('uuid');
 const path = require('path');
 const filePath = path.resolve(__dirname, './common/en.json');
@@ -60,7 +61,8 @@ export class AppController {
   
   constructor(
     private readonly appService: AppService,
-    private readonly monitoringService: MonitoringService
+    private readonly monitoringService: MonitoringService,
+    private readonly telemetryService: TelemetryService
   ) {
     this.prismaService = new PrismaService()
     this.configService = new ConfigService()
@@ -77,6 +79,7 @@ export class AppController {
 
   @Post("/prompt/:configid")
   async prompt(@Body() promptDto: any, @Headers() headers, @Param("configid") configid: string): Promise<any> {
+    let startTime = Date.now()
     this.monitoringService.incrementPromptCount()
     //get userId from headers
     const userId = headers["user-id"]
@@ -101,6 +104,36 @@ export class AppController {
       })
     }catch{
       verboseLogger("creating new user with id =",userId)
+      await this.telemetryService.capture({
+        eventName: "Conversation start",
+        eventType: "START_CONVERSATION",
+        producer:{
+          channel: "Bot",
+          deviceID: null,
+          producerID: userId,
+          platform: "nodejs",
+        },
+        platform: "nodejs",
+        sessionId: userId,
+        context: {
+          userID: userId,
+          conversationID: userId,
+          pageID: null,
+          rollup: undefined,
+        },
+        eventData:{
+          duration: `${Date.now() - startTime}`,
+          audioURL: null,
+          questionGenerated: null,
+          questionSubmitted: promptDto.text,
+          comparisonScore: 0,
+          answer: null,
+          logData: undefined,
+          errorData: undefined,
+        },
+        errorType: null,
+        tags: ['bot','conversation_start']     
+      })
     }
     if(!user) {
       user = await this.prismaService.user.create({
@@ -122,23 +155,121 @@ export class AppController {
     //handle text and audio
     if(promptDto.text){
       type = "Text"
+      let detectLanguageStartTime = Date.now();
       if(/^\d+$/.test(userInput)){
         prompt.inputLanguage = Language.en
       } else {
-        let response = await this.aiToolsService.detectLanguage(userInput)
-        prompt.inputLanguage = response["language"] as Language
+        try {
+          let response = await this.aiToolsService.detectLanguage(userInput)
+          prompt.inputLanguage = response["language"] as Language 
+        } catch (error) {
+          await this.telemetryService.capture({
+            eventName: "Detect language error",
+            eventType: "DETECT_LANGUAGE",
+            producer:{
+              channel: "Bot",
+              deviceID: null,
+              producerID: userId,
+              platform: "nodejs",
+            },
+            platform: "nodejs",
+            sessionId: userId,
+            context: {
+              userID: userId,
+              conversationID: userId,
+              pageID: null,
+              rollup: undefined,
+            },
+            eventData:{
+              duration: `${Date.now() - detectLanguageStartTime}`,
+              audioURL: null,
+              questionGenerated: null,
+              questionSubmitted: promptDto.text,
+              comparisonScore: 0,
+              answer: prompt.inputLanguage,
+              logData: undefined,
+              errorData: {
+                input: userInput,
+                error: error
+              },
+            },
+            errorType: "DETECT_LANGUAGE",
+            tags: ['bot','detect_language','error']     
+          })
+        }
         //@ts-ignore
         if(prompt.inputLanguage == 'unk'){
           prompt.inputLanguage = prompt.input.inputLanguage as Language
         }
         verboseLogger("Detected Language =", prompt.inputLanguage)
       }
+      await this.telemetryService.capture({
+        eventName: "Detect language",
+        eventType: "DETECT_LANGUAGE",
+        producer:{
+          channel: "Bot",
+          deviceID: null,
+          producerID: userId,
+          platform: "nodejs",
+        },
+        platform: "nodejs",
+        sessionId: userId,
+        context: {
+          userID: userId,
+          conversationID: userId,
+          pageID: null,
+          rollup: undefined,
+        },
+        eventData:{
+          duration: `${Date.now() - detectLanguageStartTime}`,
+          audioURL: null,
+          questionGenerated: null,
+          questionSubmitted: promptDto.text,
+          comparisonScore: 0,
+          answer: prompt.inputLanguage,
+          logData: undefined,
+          errorData: undefined
+        },
+        errorType: null,
+        tags: ['bot','detect_language']   
+      })
     } else if (promptDto.media){
+      let audioStartTime = Date.now();
       if(promptDto.media.category=="base64audio" && promptDto.media.text){
         type = "Audio"
         prompt.inputLanguage = promptDto.inputLanguage as Language
         let response = await this.aiToolsService.speechToText(promptDto.media.text,prompt.inputLanguage)
         if(response.error) {
+          await this.telemetryService.capture({
+            eventName: "Speech to text error",
+            eventType: "SPEECH_TO_TEXT_ERROR",
+            producer:{
+              channel: "Bhashini",
+              deviceID: null,
+              producerID: userId,
+              platform: "nodejs",
+            },
+            platform: "nodejs",
+            sessionId: userId,
+            context: {
+              userID: userId,
+              conversationID: userId,
+              pageID: null,
+              rollup: undefined,
+            },
+            eventData:{
+              duration: `${Date.now() - audioStartTime}`,
+              audioURL: null,
+              questionGenerated: null,
+              questionSubmitted: promptDto.text,
+              comparisonScore: 0,
+              answer: null,
+              logData: undefined,
+              errorData: undefined
+            },
+            errorType: "SPEECH_TO_TEXT",
+            tags: ['bot','speech_to_text','error']     
+          })
           errorLogger(response.error)
           return{
             text:"",
@@ -147,6 +278,39 @@ export class AppController {
         }
         userInput = response["text"]
         verboseLogger("speech to text =",userInput)
+        await this.telemetryService.capture({
+          eventName: "Speech to text",
+          eventType: "SPEECH_TO_TEXT",
+          producer:{
+            channel: "Bhashini",
+            deviceID: null,
+            producerID: userId,
+            platform: "nodejs",
+          },
+          platform: "nodejs",
+          sessionId: userId,
+          context: {
+            userID: userId,
+            conversationID: userId,
+            pageID: null,
+            rollup: undefined,
+          },
+          eventData:{
+            duration: `${Date.now() - audioStartTime}`,
+            audioURL: null,
+            questionGenerated: userInput,
+            questionSubmitted: userInput,
+            comparisonScore: 0,
+            answer: null,
+            logData: undefined,
+            errorData: {
+              language: prompt.inputLanguage,
+              error: response.error
+            },
+          },
+          errorType: "SPEECH_TO_TEXT",
+          tags: ['bot','speech_to_text']     
+        })
       } else {
         errorLogger("Unsupported media")
         return {
@@ -208,16 +372,85 @@ export class AppController {
     let isNumber = false;
 
     if(type == 'Audio' && (botFlowService.state.context.currentState == 'confirmInput1' || botFlowService.state.context.currentState == 'getUserQuestion')) {
+      let audioStartTime = Date.now();
       let res =  {
         text: userInput,
         textInEnglish: "",
         error: null
       }
       res['audio'] = await this.aiToolsService.textToSpeech(res.text,prompt.inputLanguage)
+      if(res['audio']['error']){
+        await this.telemetryService.capture({
+          eventName: "Text to speech error",
+          eventType: "TEXT_TO_SPEECH_ERROR",
+          producer:{
+            channel: "Bhashini",
+            deviceID: null,
+            producerID: userId,
+            platform: "nodejs",
+          },
+          platform: "nodejs",
+          sessionId: userId,
+          context: {
+            userID: userId,
+            conversationID: userId,
+            pageID: null,
+            rollup: undefined,
+          },
+          eventData:{
+            duration: `${Date.now() - audioStartTime}`,
+            audioURL: null,
+            questionGenerated: null,
+            questionSubmitted: res.text,
+            comparisonScore: 0,
+            answer: prompt.inputLanguage,
+            logData: undefined,
+            errorData: {
+              input:res.text,
+              language: prompt.inputLanguage,
+              error: res['audio']['error']
+            },
+          },
+          errorType: "TEXT_TO_SPEECH",
+          tags: ['bot','text_to_speech','error']     
+        })
+      } else {
+        await this.telemetryService.capture({
+          eventName: "Text to speech",
+          eventType: "TEXT_TO_SPEECH",
+          producer:{
+            channel: "Bhashini",
+            deviceID: null,
+            producerID: userId,
+            platform: "nodejs",
+          },
+          platform: "nodejs",
+          sessionId: userId,
+          context: {
+            userID: userId,
+            conversationID: userId,
+            pageID: null,
+            rollup: undefined,
+          },
+          eventData:{
+            duration: `${Date.now() - audioStartTime}`,
+            audioURL: null,
+            questionGenerated: null,
+            questionSubmitted: res.text,
+            comparisonScore: 0,
+            answer: prompt.inputLanguage,
+            logData: undefined,
+            errorData: undefined,
+          },
+          errorType: "TEXT_TO_SPEECH",
+          tags: ['bot','text_to_speech']     
+        })
+      }
       res['messageId'] = uuid.v4()
       return res
     } else {
       //translate to english
+      let translateStartTime = Date.now();
       if(prompt.inputLanguage != Language.en && userInput != 'resend OTP') {
         try {
           let response = await this.aiToolsService.translate(
@@ -226,12 +459,110 @@ export class AppController {
             userInput
           )
           if(!response['text']) {
+            await this.telemetryService.capture({
+              eventName: "Translate error",
+              eventType: "TRANSLATE_ERROR",
+              producer:{
+                channel: "Bhashini",
+                deviceID: null,
+                producerID: userId,
+                platform: "nodejs",
+              },
+              platform: "nodejs",
+              sessionId: userId,
+              context: {
+                userID: userId,
+                conversationID: userId,
+                pageID: null,
+                rollup: undefined,
+              },
+              eventData:{
+                duration: `${Date.now() - translateStartTime}`,
+                audioURL: null,
+                questionGenerated: null,
+                questionSubmitted: userInput,
+                comparisonScore: 0,
+                answer: null,
+                logData: undefined,
+                errorData: {
+                  input:userInput,
+                  language: prompt.inputLanguage,
+                  error: response['error']
+                },
+              },
+              errorType: "TRANSLATE",
+              tags: ['bot','translate','error']     
+            })
             errorLogger("Sorry, We are unable to translate given input, please try again")
             return { error: "Sorry, We are unable to translate given input, please try again" }
           }
           prompt.inputTextInEnglish = response["text"]
           verboseLogger("translated english text =", prompt.inputTextInEnglish)
+          await this.telemetryService.capture({
+            eventName: "Translate",
+            eventType: "TRANSLATE",
+            producer:{
+              channel: "Bhashini",
+              deviceID: null,
+              producerID: userId,
+              platform: "nodejs",
+            },
+            platform: "nodejs",
+            sessionId: userId,
+            context: {
+              userID: userId,
+              conversationID: userId,
+              pageID: null,
+              rollup: undefined,
+            },
+            eventData:{
+              duration: `${Date.now() - translateStartTime}`,
+              audioURL: null,
+              questionGenerated: null,
+              questionSubmitted: userInput,
+              comparisonScore: 0,
+              answer: prompt.inputTextInEnglish,
+              logData: undefined,
+              errorData: undefined
+            },
+            errorType: null,
+            tags: ['bot','translate']     
+          })
         } catch(error){
+          await this.telemetryService.capture({
+            eventName: "Translate error",
+            eventType: "TRANSLATE_ERROR",
+            producer:{
+              channel: "Bhashini",
+              deviceID: null,
+              producerID: userId,
+              platform: "nodejs",
+            },
+            platform: "nodejs",
+            sessionId: userId,
+            context: {
+              userID: userId,
+              conversationID: userId,
+              pageID: null,
+              rollup: undefined,
+            },
+            eventData:{
+              duration: `${Date.now() - translateStartTime}`,
+              audioURL: null,
+              questionGenerated: null,
+              questionSubmitted: userInput,
+              comparisonScore: 0,
+              answer: null,
+              logData: undefined,
+              errorData: {
+                input:userInput,
+                language: prompt.inputLanguage,
+                error: error
+              },
+            },
+           errorType: "TRANSLATE",
+            tags: ['bot','translate','error']     
+          })
           errorLogger("Sorry, We are unable to translate given input, please try again")
           return { error: "Sorry, We are unable to translate given input, please try again" }
         }
@@ -240,8 +571,11 @@ export class AppController {
       }
 
       if(type == 'Audio' && ['askingAadhaarNumber','askingOTP','askLastAaadhaarDigits','confirmInput2','confirmInput3','confirmInput4'].indexOf(botFlowService.state.context.currentState) != -1) {
-        // let number = wordToNumber(prompt.inputTextInEnglish)
-        let number = prompt.inputTextInEnglish.replace(/\s/g, '')
+        console.log("checkthis")
+        console.log(prompt.inputTextInEnglish)
+        let number = wordToNumber(prompt.inputTextInEnglish)
+        console.log(number)
+        // let number = prompt.inputTextInEnglish.replace(/\s/g, '')
         prompt.inputTextInEnglish = number.toUpperCase()
         isNumber = true
         // if(/\d/.test(number)){
@@ -333,24 +667,125 @@ export class AppController {
         placeholder = engMessage["label.popUpTitle.short"]
       }
       if(prompt.inputLanguage != Language.en && !isNumber) {
+        let translateStartTime = Date.now();
         try {
+          let inp = result.text
           let response = await this.aiToolsService.translate(
             Language.en,
             prompt.inputLanguage as Language,
             result.text
           )
           if(!response['text']){
+            await this.telemetryService.capture({
+              eventName: "Translate error",
+              eventType: "TRANSLATE_ERROR",
+              producer:{
+                channel: "Bhashini",
+                deviceID: null,
+                producerID: userId,
+                platform: "nodejs",
+              },
+              platform: "nodejs",
+              sessionId: userId,
+              context: {
+                userID: userId,
+                conversationID: userId,
+                pageID: null,
+                rollup: undefined,
+              },
+              eventData:{
+                duration: `${Date.now() - translateStartTime}`,
+                audioURL: null,
+                questionGenerated: null,
+                questionSubmitted: result.text,
+                comparisonScore: 0,
+                answer: null,
+                logData: undefined,
+                errorData: {
+                  input:userInput,
+                  language: prompt.inputLanguage,
+                  error: response['error']
+                },
+              },
+             errorType: "TRANSLATE",
+              tags: ['bot','translate','error']     
+            })
             errorLogger("Sorry, We are unable to translate given input, please try again")
             result.error = "Sorry, We are unable to translate given input, please try again"
           }
           result.text = response["text"]
           verboseLogger("input language translated text =",result.text)
+          await this.telemetryService.capture({
+            eventName: "Translate",
+            eventType: "TRANSLATE",
+            producer:{
+              channel: "Bhashini",
+              deviceID: null,
+              producerID: userId,
+              platform: "nodejs",
+            },
+            platform: "nodejs",
+            sessionId: userId,
+            context: {
+              userID: userId,
+              conversationID: userId,
+              pageID: null,
+              rollup: undefined,
+            },
+            eventData:{
+              duration: `${Date.now() - translateStartTime}`,
+              audioURL: null,
+              questionGenerated: null,
+              questionSubmitted: inp,
+              comparisonScore: 0,
+              answer: result.text,
+              logData: undefined,
+              errorData: undefined
+            },
+            errorType: null,
+            tags: ['bot','translate']     
+          })
         } catch(error){
+          await this.telemetryService.capture({
+            eventName: "Translate error",
+            eventType: "TRANSLATE_ERROR",
+            producer:{
+              channel: "Bhashini",
+              deviceID: null,
+              producerID: userId,
+              platform: "nodejs",
+            },
+            platform: "nodejs",
+            sessionId: userId,
+            context: {
+              userID: userId,
+              conversationID: userId,
+              pageID: null,
+              rollup: undefined,
+            },
+            eventData:{
+              duration: `${Date.now() - translateStartTime}`,
+              audioURL: null,
+              questionGenerated: null,
+              questionSubmitted: userInput,
+              comparisonScore: 0,
+              answer: null,
+              logData: undefined,
+              errorData: {
+                input:userInput,
+                language: prompt.inputLanguage,
+                error: error
+              },
+            },
+            errorType: "TRANSLATE",
+            tags: ['bot','translate','error']     
+          })
           errorLogger(error)
           return { error: "Sorry, We are unable to translate given input, please try again" }
         }
       }
       if(prompt.inputLanguage != Language.en && placeholder){
+        let translateStartTime = Date.now();
         try {
           let response = await this.aiToolsService.translate(
             Language.en,
@@ -358,11 +793,109 @@ export class AppController {
             placeholder
           )
           if(!response['text']){
+            await this.telemetryService.capture({
+              eventName: "Translate error",
+              eventType: "TRANSLATE_ERROR",
+              producer:{
+                channel: "Bhashini",
+                deviceID: null,
+                producerID: userId,
+                platform: "nodejs",
+              },
+              platform: "nodejs",
+              sessionId: userId,
+              context: {
+                userID: userId,
+                conversationID: userId,
+                pageID: null,
+                rollup: undefined,
+              },
+              eventData:{
+                duration: `${Date.now() - translateStartTime}`,
+                audioURL: null,
+                questionGenerated: null,
+                questionSubmitted: placeholder,
+                comparisonScore: 0,
+                answer: null,
+                logData: undefined,
+                errorData: {
+                  input:userInput,
+                  language: prompt.inputLanguage,
+                  error: response['error']
+                },
+              },
+              errorType: "TRANSLATE",
+              tags: ['bot','translate','error']     
+            })
             errorLogger("Sorry, We are unable to translate given input, please try again")
             result.error = "Sorry, We are unable to translate given input, please try again"
           }
           result['placeholder'] = response["text"]
+          await this.telemetryService.capture({
+            eventName: "Translate",
+            eventType: "TRANSLATE",
+            producer:{
+              channel: "Bhashini",
+              deviceID: null,
+              producerID: userId,
+              platform: "nodejs",
+            },
+            platform: "nodejs",
+            sessionId: userId,
+            context: {
+              userID: userId,
+              conversationID: userId,
+              pageID: null,
+              rollup: undefined,
+            },
+            eventData:{
+              duration: `${Date.now() - translateStartTime}`,
+              audioURL: null,
+              questionGenerated: null,
+              questionSubmitted: placeholder,
+              comparisonScore: 0,
+              answer: result['placeholder'],
+              logData: undefined,
+              errorData: undefined
+            },
+            errorType: null,
+            tags: ['bot','translate']     
+          })
         } catch(error){
+          await this.telemetryService.capture({
+            eventName: "Translate error",
+            eventType: "TRANSLATE_ERROR",
+            producer:{
+              channel: "Bhashini",
+              deviceID: null,
+              producerID: userId,
+              platform: "nodejs",
+            },
+            platform: "nodejs",
+            sessionId: userId,
+            context: {
+              userID: userId,
+              conversationID: userId,
+              pageID: null,
+              rollup: undefined,
+            },
+            eventData:{
+              duration: `${Date.now() - translateStartTime}`,
+              audioURL: null,
+              questionGenerated: null,
+              questionSubmitted: placeholder,
+              comparisonScore: 0,
+              answer: null,
+              logData: undefined,
+              errorData: {
+                input:userInput,
+                language: prompt.inputLanguage,
+                error: error
+              },
+            },
+            errorType: "TRANSLATE",
+            tags: ['bot','translate','error']     
+          })
           errorLogger(error)
           return { error: "Sorry, We are unable to translate given input, please try again" }
         }
@@ -384,7 +917,75 @@ export class AppController {
           result.text = `${formatStringsToTable(resArray)}\n${textToaudio}`
         }
         verboseLogger("textToaudio =",textToaudio)
+        let audioStartTime = Date.now();
         result['audio'] = await this.aiToolsService.textToSpeech(textToaudio,isNumber ? Language.en : prompt.inputLanguage)
+        if(result['audio']['error']){
+          await this.telemetryService.capture({
+            eventName: "Text to speech error",
+            eventType: "TEXT_TO_SPEECH_ERROR",
+            producer:{
+              channel: "Bhashini",
+              deviceID: null,
+              producerID: userId,
+              platform: "nodejs",
+            },
+            platform: "nodejs",
+            sessionId: userId,
+            context: {
+              userID: userId,
+              conversationID: userId,
+              pageID: null,
+              rollup: undefined,
+            },
+            eventData:{
+              duration: `${Date.now() - audioStartTime}`,
+              audioURL: null,
+              questionGenerated: null,
+              questionSubmitted: textToaudio,
+              comparisonScore: 0,
+              answer: null,
+              logData: undefined,
+              errorData: {
+                input:textToaudio,
+                language: prompt.inputLanguage,
+                error: result['audio']['error']
+              },
+            },
+            errorType: "TEXT_TO_SPEECH",
+            tags: ['bot','text_to_speech','error']     
+          })
+        } else {
+          await this.telemetryService.capture({
+            eventName: "Text to speech",
+            eventType: "TEXT_TO_SPEECH",
+            producer:{
+              channel: "Bhashini",
+              deviceID: null,
+              producerID: userId,
+              platform: "nodejs",
+            },
+            platform: "nodejs",
+            sessionId: userId,
+            context: {
+              userID: userId,
+              conversationID: userId,
+              pageID: null,
+              rollup: undefined,
+            },
+            eventData:{
+              duration: `${Date.now() - audioStartTime}`,
+              audioURL: null,
+              questionGenerated: null,
+              questionSubmitted: textToaudio,
+              comparisonScore: 0,
+              answer: null,
+              logData: undefined,
+              errorData: undefined
+            },
+            errorType: null,
+            tags: ['bot','text_to_speech']     
+          })
+        }
       } catch(error){
         result['audio'] = {text: "",error: error.message}
       }

@@ -9,6 +9,7 @@ export function isMostlyEnglish(text: string): boolean {
 }
 
 export const wordToNumber = (input) => {
+  input = input.toLowerCase()
     // Map of words to numbers
     const wordToNum = {
       'zero': 0,
@@ -76,6 +77,7 @@ export const wordToNumber = (input) => {
   for (let word in wordToNum) {
       const regex = new RegExp(word + "(\\d+)", "gi");
       input = input.replace(regex, (_, digits) => wordToNum[word] + digits);
+      input = input.replace(word,wordToNum[word])
   }
 
   // Convert standalone words to numbers or alphabets
@@ -91,11 +93,11 @@ export const wordToNumber = (input) => {
   if (!formatRegex.test(sanitizedStr)) {
   
     if(/[a-zA-Z]+/.test(sanitizedStr.slice(0,2))) {
-      sanitizedStr = sanitizedStr.slice(0,2) + sanitizedStr.slice(2).replace(/[^\d]/g, '');
-      
-      if(sanitizedStr.slice(2).length == 9) {
-        return sanitizedStr
-      }
+      sanitizedStr = sanitizedStr.slice(0,2) + sanitizedStr.slice(2).replace(/[^0-9]/g, '');;
+      return sanitizedStr
+      // if(sanitizedStr.slice(2).length == 9) {
+      //   return sanitizedStr
+      // }
     }
 
     return sanitizedStr.replace(/[^\d]/g, '')
