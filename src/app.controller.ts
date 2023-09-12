@@ -238,7 +238,12 @@ export class AppController {
       if(promptDto.media.category=="base64audio" && promptDto.media.text){
         type = "Audio"
         prompt.inputLanguage = promptDto.inputLanguage as Language
-        let response = await this.aiToolsService.speechToText(promptDto.media.text,prompt.inputLanguage)
+        let response;
+        if(['askingAadhaarNumber','askingOTP','askLastAaadhaarDigits','confirmInput2','confirmInput3','confirmInput4'].indexOf(conversation?.currentState) != -1) 
+          response = await this.aiToolsService.speechToText(promptDto.media.text,Language.en)
+        else
+          response = await this.aiToolsService.speechToText(promptDto.media.text,prompt.inputLanguage)
+
         if(response.error) {
           await this.telemetryService.capture({
             eventName: "Speech to text error",
