@@ -68,7 +68,7 @@ export class AppController {
     this.configService = new ConfigService()
     this.aiToolsService = new AiToolsService(this.configService,this.monitoringService)
     this.conversationService = new ConversationService(this.prismaService,this.configService)
-    this.promptService = new PromptServices(this.prismaService,this.configService,this.aiToolsService)
+    this.promptService = new PromptServices(this.prismaService,this.configService,this.aiToolsService, this.monitoringService)
     this.logger = new CustomLogger("AppController");
   }
 
@@ -80,7 +80,7 @@ export class AppController {
   @Post("/prompt/:configid")
   async prompt(@Body() promptDto: any, @Headers() headers, @Param("configid") configid: string): Promise<any> {
     let startTime = Date.now()
-    this.monitoringService.incrementPromptCount()
+    this.monitoringService.incrementTotalSessionsCount()
     //get userId from headers
     const userId = headers["user-id"]
     let messageType = 'intermediate_response'
@@ -234,6 +234,7 @@ export class AppController {
         tags: ['bot','detect_language']   
       })
     } else if (promptDto.media){
+      this.monitoringService.incrementMicUsedCount()
       let audioStartTime = Date.now();
       if(promptDto.media.category=="base64audio" && promptDto.media.text){
         type = "Audio"
@@ -276,6 +277,7 @@ export class AppController {
             tags: ['bot','speech_to_text','error']     
           })
           errorLogger(response.error)
+          this.monitoringService.incrementTotalFailureSessionsCount()
           return{
             text:"",
             error: "Something went wrong, please try again."
@@ -499,6 +501,7 @@ export class AppController {
               tags: ['bot','translate','error']     
             })
             errorLogger("Sorry, We are unable to translate given input, please try again")
+            this.monitoringService.incrementTotalFailureSessionsCount()
             return { error: "Sorry, We are unable to translate given input, please try again" }
           }
           prompt.inputTextInEnglish = response["text"]
@@ -569,6 +572,7 @@ export class AppController {
             tags: ['bot','translate','error']     
           })
           errorLogger("Sorry, We are unable to translate given input, please try again")
+          this.monitoringService.incrementTotalFailureSessionsCount()
           return { error: "Sorry, We are unable to translate given input, please try again" }
         }
       } else {
@@ -716,6 +720,7 @@ export class AppController {
               tags: ['bot','translate','error']     
             })
             errorLogger("Sorry, We are unable to translate given input, please try again")
+            this.monitoringService.incrementTotalFailureSessionsCount()
             result.error = "Sorry, We are unable to translate given input, please try again"
           }
           result.text = response["text"]
@@ -786,6 +791,7 @@ export class AppController {
             tags: ['bot','translate','error']     
           })
           errorLogger(error)
+          this.monitoringService.incrementTotalFailureSessionsCount()
           return { error: "Sorry, We are unable to translate given input, please try again" }
         }
       }
@@ -833,6 +839,7 @@ export class AppController {
               tags: ['bot','translate','error']     
             })
             errorLogger("Sorry, We are unable to translate given input, please try again")
+            this.monitoringService.incrementTotalFailureSessionsCount()
             result.error = "Sorry, We are unable to translate given input, please try again"
           }
           result['placeholder'] = response["text"]
@@ -902,6 +909,7 @@ export class AppController {
             tags: ['bot','translate','error']     
           })
           errorLogger(error)
+          this.monitoringService.incrementTotalFailureSessionsCount()
           return { error: "Sorry, We are unable to translate given input, please try again" }
         }
       } else if(placeholder) {
@@ -910,6 +918,33 @@ export class AppController {
       try{
         let textToaudio = result.text
         if(botFlowService.state.context.currentState == 'endFlow'){
+          this.monitoringService.incrementTotalSuccessfullSessionsCount();
+          switch(prompt.inputLanguage){
+            case Language.hi:
+              this.monitoringService.incrementTotalSessionsInHindiCount();
+              break;
+            case Language.ta:
+              this.monitoringService.incrementTotalSessionsInTamilCount();
+              break;
+            case Language.or:
+              this.monitoringService.incrementTotalSessionsInOdiaCount();
+              break;  
+            case Language.te:
+              this.monitoringService.incrementTotalSessionsInTeluguCount();
+              break;
+            case Language.mr:
+              this.monitoringService.incrementTotalSessionsInMarathiCount();
+              break;
+            case Language.bn:
+              this.monitoringService.incrementTotalSessionsInBanglaCount();
+              break;
+            case Language.en:
+              this.monitoringService.incrementTotalSessionsInEnglishCount();
+              break;
+            default:
+              this.monitoringService.incrementTotalSessionsInEnglishCount();
+              break;
+          }
           messageType = "final_response"
           let resArray = result.text.split("\n")
           let compareText = result.textInEnglish.split('\n')

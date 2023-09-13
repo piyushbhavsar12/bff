@@ -10,6 +10,7 @@ import { botFlowMachine1, botFlowMachine2, botFlowMachine3 } from "./prompt.mach
 import { createMachine } from "xstate";
 import { promptActions } from "./prompt.actions";
 import { promptGuards } from "./prompt.gaurds";
+import { MonitoringService } from "src/modules/monitoring/monitoring.service";
 const path = require('path');
 const filePath = path.resolve(__dirname, '../../common/kisanPortalErrors.json');
 const PMKissanProtalErrors = require(filePath);
@@ -21,8 +22,9 @@ export class PromptServices {
         private prismaService: PrismaService,
         private configService: ConfigService,
         private aiToolsService: AiToolsService,
+        private monitoringService: MonitoringService
     ){
-        this.userService = new UserService(this.prismaService, this.configService)
+        this.userService = new UserService(this.prismaService, this.configService, this.monitoringService)
     }
 
     async getInput (context) {
@@ -59,12 +61,15 @@ export class PromptServices {
             console.log(/^[6-9]\d{9}$/.test(userIdentifier.substring(0,10)))
             let res;
             if(/^[6-9]\d{9}$/.test(userIdentifier)) {
+                this.monitoringService.incrementMobileNumberCount()
                 res = await this.userService.sendOTP(userIdentifier,"Mobile")
             } else if(userIdentifier.length==14 && /^[6-9]\d{9}$/.test(userIdentifier.substring(0,10))){
                 res = await this.userService.sendOTP(userIdentifier,"MobileAadhar")
             } else if(userIdentifier.length==12 && /^\d+$/.test(userIdentifier)){
+                this.monitoringService.incrementAadhaarCount()
                 res = await this.userService.sendOTP(userIdentifier,"Aadhar")
             } else if(userIdentifier.length == 11) { 
+                this.monitoringService.incrementRegistrationIdCount()
                 res = await this.userService.sendOTP(userIdentifier,"Ben_id")
             } else {
                 return Promise.resolve('Please enter a valid Beneficiary ID/Aadhaar Number/Phone number');

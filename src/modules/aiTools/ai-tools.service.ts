@@ -31,7 +31,7 @@ export class AiToolsService {
     };
 
     try {
-        this.monitoringService.incrementBhashiniCounter()
+        this.monitoringService.incrementBhashiniCount()
         let response:any = await fetch(
             'https://meity-auth.ulcacontrib.org/ulca/apis/v0/model/compute',
             requestOptions
@@ -40,20 +40,20 @@ export class AiToolsService {
         let language: Language;
         if(response.output && response.output.length){
           language = response.output[0]?.langPrediction[0]?.langCode as Language
-          this.monitoringService.incrementBhashiniSuccessCounter()
+          this.monitoringService.incrementBhashiniSuccessCount()
           return {
             language: language || 'unk',
             error: null
           }
         } else {
-          this.monitoringService.incrementBhashiniFailureCounter()
+          this.monitoringService.incrementBhashiniFailureCount()
           return {
             language: 'unk',
             error: null
           }
         }
     } catch (error) {
-        this.monitoringService.incrementBhashiniFailureCounter()
+        this.monitoringService.incrementBhashiniFailureCount()
         if(isMostlyEnglish(text?.replace("?","")?.trim())) {
             return {
                 language: Language.en,
@@ -251,13 +251,13 @@ export class AiToolsService {
       redirect: 'follow'
     };
     try{
-      this.monitoringService.incrementBhashiniCounter()
+      this.monitoringService.incrementBhashiniCount()
       let response  = await fetch(this.configService.get("ULCA_CONFIG_URL"), requestOptions)
       response = await response.json()
-      this.monitoringService.incrementBhashiniSuccessCounter()
+      this.monitoringService.incrementBhashiniSuccessCount()
       return response
     } catch(error) {
-      this.monitoringService.incrementBhashiniFailureCounter()
+      this.monitoringService.incrementBhashiniFailureCount()
       console.log(error);
       return {
         error
@@ -292,13 +292,13 @@ export class AiToolsService {
     };
 
     try{
-      this.monitoringService.incrementBhashiniCounter()
+      this.monitoringService.incrementBhashiniCount()
       let response  = await fetch(url, requestOptions)
       response = await response.json()
-      this.monitoringService.incrementBhashiniSuccessCounter()
+      this.monitoringService.incrementBhashiniSuccessCount()
       return response
     } catch(error) {
-      this.monitoringService.incrementBhashiniFailureCounter()
+      this.monitoringService.incrementBhashiniFailureCount()
       console.log(error);
       return {
         error

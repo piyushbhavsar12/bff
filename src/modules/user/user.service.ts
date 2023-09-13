@@ -5,6 +5,7 @@ import { CustomLogger } from "../../common/logger";
 import axios from "axios";
 import { decryptRequest, encryptRequest } from "../../common/utils";
 import { Message } from "@prisma/client";
+import { MonitoringService } from "../monitoring/monitoring.service";
 
 
 @Injectable()
@@ -12,7 +13,8 @@ export class UserService {
   private logger: CustomLogger;
   constructor(
     private prisma: PrismaService,
-    private configService: ConfigService
+    private configService: ConfigService,
+    private monitoringService: MonitoringService
   ) {
     this.logger = new CustomLogger("UserService");
   }
@@ -181,6 +183,7 @@ export class UserService {
     // } catch {
     //   return null;
     // }
+    this.monitoringService.incrementPositveFeedbackCount()
     return this.prisma.$queryRawUnsafe(`
       SELECT * from "Message" where id = '${id}'
     `);
@@ -192,6 +195,7 @@ export class UserService {
         UPDATE "Message" SET 
         "reaction" = -1
         WHERE "id" = '${id}'`);
+        this.monitoringService.incrementNegativeFeedbackCount()
     } catch {
       return null;
     }
