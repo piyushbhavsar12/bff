@@ -580,10 +580,8 @@ export class AppController {
       }
 
       if(type == 'Audio' && ['askingAadhaarNumber','askingOTP','askLastAaadhaarDigits','confirmInput2','confirmInput3','confirmInput4'].indexOf(botFlowService.state.context.currentState) != -1) {
-        console.log("checkthis")
-        console.log(prompt.inputTextInEnglish)
-        let number = wordToNumber(prompt.inputTextInEnglish)
-        console.log(number)
+        let isOTP = ['askingOTP','askLastAaadhaarDigits','confirmInput3','confirmInput4'].indexOf(botFlowService.state.context.currentState) != -1
+        let number = wordToNumber(prompt.inputTextInEnglish, isOTP?'number':'benId')
         // let number = prompt.inputTextInEnglish.replace(/\s/g, '')
         prompt.inputTextInEnglish = number.toUpperCase()
         isNumber = true

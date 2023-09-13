@@ -8,7 +8,7 @@ export function isMostlyEnglish(text: string): boolean {
   return englishCharacterPercentage >= 90;
 }
 
-export const wordToNumber = (input) => {
+export const wordToNumber = (input,type='benId') => {
   input = input.toLowerCase()
     // Map of words to numbers
     const wordToNum = {
@@ -80,31 +80,45 @@ export const wordToNumber = (input) => {
       input = input.replace(word,wordToNum[word])
   }
 
-  // Convert standalone words to numbers or alphabets
-  let sanitizedStr = input.split(' ').map(word => {
-      if (wordToNum[word.toLowerCase()] !== undefined) {
-          return wordToNum[word.toLowerCase()];
+  if(type=='benId'){
+    // Convert standalone words to numbers or alphabets
+    let sanitizedStr = input.split(' ').map(word => {
+        if (wordToNum[word.toLowerCase()] !== undefined) {
+            return wordToNum[word.toLowerCase()];
+        }
+        return word;
+    }).join('');
+
+    // Ensure the format: <2 alphabets><9 digits>
+    const formatRegex = /^([a-zA-Z]{2})(\d{9})$/;
+    if (!formatRegex.test(sanitizedStr)) {
+
+      if(/[a-zA-Z]+/.test(sanitizedStr.slice(0,2))) {
+        sanitizedStr = sanitizedStr.slice(0,2) + sanitizedStr.slice(2).replace(/[^0-9]/g, '');;
+        return sanitizedStr
+        // if(sanitizedStr.slice(2).length == 9) {
+        //   return sanitizedStr
+        // }
       }
-      return word;
-  }).join('');
 
-  // Ensure the format: <2 alphabets><9 digits>
-  const formatRegex = /^([a-zA-Z]{2})(\d{9})$/;
-  if (!formatRegex.test(sanitizedStr)) {
-  
-    if(/[a-zA-Z]+/.test(sanitizedStr.slice(0,2))) {
-      sanitizedStr = sanitizedStr.slice(0,2) + sanitizedStr.slice(2).replace(/[^0-9]/g, '');;
-      return sanitizedStr
-      // if(sanitizedStr.slice(2).length == 9) {
-      //   return sanitizedStr
-      // }
+      return sanitizedStr.replace(/[^\d]/g, '')
     }
+    return sanitizedStr;
+  }else{
+      // Convert standalone words to numbers
+      let numStr = input.split(' ').map(word => {
+        if (wordToNum[word.toLowerCase()] !== undefined) {
+          return wordToNum[word.toLowerCase()];
+        }
+        return word;
+      }).join('');
 
-    return sanitizedStr.replace(/[^\d]/g, '')
-  }
+      // Remove any non-numeric characters
+      numStr = numStr.replace(/[^\d]/g, '');
 
-  return sanitizedStr;
+      return numStr;
   }
+}
 
   export const encryptRequest = async (text:string) => {
     try {
