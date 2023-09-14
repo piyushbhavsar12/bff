@@ -505,4 +505,30 @@ export class MonitoringService {
     }
   }
 
+  public async setMetrics(metricsToUpsert): Promise<void> {
+    const upsertedMetrics = [];
+    try{
+      for (const metric of metricsToUpsert) {
+        const existingMetric: any = await this.prismaService.metrics.findUnique({
+          where: { name: metric.name },
+        });
+  
+        if (existingMetric) {
+          const updatedMetric = await this.prismaService.metrics.update({
+            where: { id: existingMetric.id },
+            data: { value: metric.value },
+          });
+          upsertedMetrics.push(updatedMetric);
+        } else {
+          const createdMetric = await this.prismaService.metrics.create({
+            data: metric,
+          });
+          upsertedMetrics.push(createdMetric);
+        }
+      }
+    } catch(err){
+      console.log(err)
+    }
+  }
+
 }

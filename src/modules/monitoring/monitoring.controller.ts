@@ -121,6 +121,13 @@ export class MonitoringController {
     await this.monitoringService.onExit()
     return 'metrics saved'
   }
+
+  @Post('/set')
+  async set(@Body() metrics: any): Promise<any> {
+    await this.monitoringService.setMetrics(metrics)
+    return 'metrics set'
+  }
+
 }
 
 
