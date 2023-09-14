@@ -867,6 +867,16 @@ export const botFlowMachine3:any =
           src: "questionClassifier",
           onDone: [
             {
+              cond: "ifConvoStarterOrEnder",
+              target: "getUserQuestion",
+              actions: [
+                assign({
+                  response: () => engMessage["message.convoStarter"],
+                  type:"pause"
+                })
+              ]
+            },
+            {
               cond: "ifInvalidClassifier",
               target: "getUserQuestion",
               actions: [
