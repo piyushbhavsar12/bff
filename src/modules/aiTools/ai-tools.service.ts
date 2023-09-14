@@ -264,12 +264,14 @@ export class AiToolsService {
     };
     try{
       this.monitoringService.incrementBhashiniCount()
+      console.log(`${new Date()}: Waiting for ${this.configService.get("ULCA_CONFIG_URL")} (config API) to respond ...`)
       let response  = await fetch(this.configService.get("ULCA_CONFIG_URL"), requestOptions)
       if(response.status != 200){
         console.log(response)
-        throw new Error(`API call to '${this.configService.get("ULCA_CONFIG_URL")}' with config '${JSON.stringify(config,null,3)}' failed with status code ${response.status}`)
+        throw new Error(`${new Date()}: API call to '${this.configService.get("ULCA_CONFIG_URL")}' with config '${JSON.stringify(config,null,3)}' failed with status code ${response.status}`)
       }
       response = await response.json()
+      console.log(`${new Date()}: Responded succesfully`)
       this.monitoringService.incrementBhashiniSuccessCount()
       return response
     } catch(error) {
@@ -309,12 +311,14 @@ export class AiToolsService {
 
     try{
       this.monitoringService.incrementBhashiniCount()
+      console.log(`${new Date()}: Waiting for ${url} for task (${task}) to respond ...`)
       let response  = await fetch(url, requestOptions)
       if(response.status != 200){
         console.log(response)
-        throw new Error(`API call to '${url}' with config '${JSON.stringify(config,null,3)}' failed with status code ${response.status}`)
+        throw new Error(`${new Date()}: API call to '${url}' with config '${JSON.stringify(config,null,3)}' failed with status code ${response.status}`)
       }
       response = await response.json()
+      console.log(`${new Date()}: Responded succesfully`)
       this.monitoringService.incrementBhashiniSuccessCount()
       return response
     } catch(error) {
