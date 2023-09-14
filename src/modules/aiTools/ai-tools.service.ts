@@ -100,6 +100,10 @@ export class AiToolsService {
             ]
           }
         )
+        if(response["error"]){
+          console.log(response["error"])
+          throw new Error(response["error"])
+        }
         textArray[i]=response?.pipelineResponse[0]?.output[0]?.target
       }
       return {
@@ -147,6 +151,10 @@ export class AiToolsService {
           ]
         }
       )
+      if(response["error"]){
+        console.log(response["error"])
+        throw new Error(response["error"])
+      }
       return {
         text: response?.pipelineResponse[0]?.output[0]?.source,
         error: null
@@ -189,6 +197,10 @@ export class AiToolsService {
           ]
         }
       )
+      if(response["error"]){
+        console.log(response["error"])
+        throw new Error(response["error"])
+      }
       return {
         text: response?.pipelineResponse[0]?.audio[0]?.audioContent,
         error: null
@@ -253,6 +265,10 @@ export class AiToolsService {
     try{
       this.monitoringService.incrementBhashiniCount()
       let response  = await fetch(this.configService.get("ULCA_CONFIG_URL"), requestOptions)
+      if(response.status != 200){
+        console.log(response)
+        throw new Error(`API call to '${this.configService.get("ULCA_CONFIG_URL")}' with config '${JSON.stringify(config,null,3)}' failed with status code ${response.status}`)
+      }
       response = await response.json()
       this.monitoringService.incrementBhashiniSuccessCount()
       return response
@@ -294,6 +310,10 @@ export class AiToolsService {
     try{
       this.monitoringService.incrementBhashiniCount()
       let response  = await fetch(url, requestOptions)
+      if(response.status != 200){
+        console.log(response)
+        throw new Error(`API call to '${url}' with config '${JSON.stringify(config,null,3)}' failed with status code ${response.status}`)
+      }
       response = await response.json()
       this.monitoringService.incrementBhashiniSuccessCount()
       return response

@@ -1,5 +1,5 @@
 
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Post, Body, Get } from '@nestjs/common';
 import { MonitoringService } from './monitoring.service';
 
 @Controller('custom/metrics')
@@ -114,6 +114,12 @@ export class MonitoringController {
         }
     }
     return count;
+  }
+
+  @Post('/save')
+  async save(): Promise<any> {
+    await this.monitoringService.onExit()
+    return 'metrics saved'
   }
 }
 

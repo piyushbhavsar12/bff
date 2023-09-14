@@ -270,7 +270,10 @@ export class AppController {
               comparisonScore: 0,
               answer: null,
               logData: undefined,
-              errorData: undefined
+              errorData: {
+                language: prompt.inputLanguage,
+                error: response.error
+              },
             },
             errorType: "SPEECH_TO_TEXT",
             tags: ['bot','speech_to_text','error']     
@@ -309,10 +312,7 @@ export class AppController {
             comparisonScore: 0,
             answer: null,
             logData: undefined,
-            errorData: {
-              language: prompt.inputLanguage,
-              error: response.error
-            },
+            errorData: null
           },
           errorType: "SPEECH_TO_TEXT",
           tags: ['bot','speech_to_text']     
