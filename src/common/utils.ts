@@ -116,6 +116,9 @@ export const wordToNumber = (input,type='benId') => {
       // Remove any non-numeric characters
       numStr = numStr.replace(/[^\d]/g, '');
 
+      if(type=='otp')
+      numStr = `${numStr}`.slice(0,4)
+
       return numStr;
   }
 }
