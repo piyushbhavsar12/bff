@@ -234,7 +234,6 @@ export class AppController {
         tags: ['bot','detect_language']   
       })
     } else if (promptDto.media){
-      this.monitoringService.incrementMicUsedCount()
       let audioStartTime = Date.now();
       if(promptDto.media.category=="base64audio" && promptDto.media.text){
         type = "Audio"

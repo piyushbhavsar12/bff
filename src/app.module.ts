@@ -15,6 +15,7 @@ import { MonitoringModule } from "./modules/monitoring/monitoring.module";
 import { PromptModule } from "./xstate/prompt/prompt.module";
 import { TelemetryModule } from "./modules/telemetry/telemetry.module";
 import { TelemetryService } from "./modules/telemetry/telemetry.service";
+import { MonitoringController } from "./modules/monitoring/monitoring.controller";
 
 @Module({
   imports: [
@@ -41,6 +42,7 @@ import { TelemetryService } from "./modules/telemetry/telemetry.service";
     ConfigService,
     ConversationService,
     TelemetryService,
+    MonitoringController,
     {
       provide: APP_PIPE,
       useClass: ValidationPipe,

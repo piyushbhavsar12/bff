@@ -14,7 +14,7 @@ export class MonitoringService {
       { name: 'totalSessions' },
       { name: 'totalSuccessfullSessions' },
       { name: 'totalFailureSessions' },
-      // { name: 'totalIncompleteSessions' },
+      { name: 'totalIncompleteSessions' },
       { name: 'totalSessionsInHindi' },
       { name: 'totalSessionsInTamil' },
       { name: 'totalSessionsInOdia' },
@@ -28,7 +28,9 @@ export class MonitoringService {
       { name: "positveFeedbackCount" },
       { name: "negativeFeedbackCount" },
       { name: "micUsedCount" },
-      { name: "directMessageTypedCount" }
+      { name: "directMessageTypedCount" },
+      { name: "internalServerErrorCount" },
+      { name: "badGatewayCount" }
     ];
     for (const metric of metricsToUpsert){
       const existingMetric: any = await this.prismaService.metrics.findUnique({
@@ -54,9 +56,9 @@ export class MonitoringService {
           case 'totalFailureSessions' :
             this.totalFailureSessionsCounter.inc(parseInt(existingMetric.value));
             break;
-          // case 'totalIncompleteSessions':
-          //   this.totalIncompleteSessionsCounter.inc(parseInt(existingMetric.value));
-          //   break
+          case 'totalIncompleteSessions':
+            this.totalIncompleteSessionsCounter.inc(parseInt(existingMetric.value));
+            break
           case 'totalSessionsInHindi':
             this.totalSessionsInHindiCounter.inc(parseInt(existingMetric.value));
             break;
@@ -99,6 +101,12 @@ export class MonitoringService {
           case "directMessageTypedCount":
             this.directMessageTypedCounter.inc(parseInt(existingMetric.value));
             break;
+          case "internalServerErrorCount":
+            this.internalServerErrorCounter.inc(parseInt(existingMetric.value));
+            break;
+          case "badGatewayCount":
+            this.badGatewayCounter.inc(parseInt(existingMetric.value));
+            break;
           default:
             break;
         }
@@ -106,107 +114,117 @@ export class MonitoringService {
     }
   }
 
-  public bhashiniCounter: Counter<string> = new Counter({
+  private bhashiniCounter: Counter<string> = new Counter({
     name: 'bhashini_api_count',
     help: 'Counts the API requests in Bhashini service',
   });
-  public bhashiniSuccessCounter: Counter<string> = new Counter({
+  private bhashiniSuccessCounter: Counter<string> = new Counter({
     name: 'bhashini_api_success_count',
     help: 'Counts the successful API requests in Bhashini service',
   });
-  public bhashiniFailureCounter: Counter<string> = new Counter({
+  private bhashiniFailureCounter: Counter<string> = new Counter({
     name: 'bhashini_api_failure_count',
     help: 'Counts the failed API requests in Bhashini service',
   });
 
-  public totalSessionsCounter: Counter<string> = new Counter({
+  private totalSessionsCounter: Counter<string> = new Counter({
     name: 'total_sessions_count',
     help: 'Counts the API requests of /prompt API',
   });
 
-  public totalSuccessfullSessionsCounter: Counter<string> = new Counter({
+  private totalSuccessfullSessionsCounter: Counter<string> = new Counter({
     name: 'total_successfull_sessions_count',
     help: 'Counts the API requests of /prompt API',
   });
 
-  public totalFailureSessionsCounter: Counter<string> = new Counter({
+  private totalFailureSessionsCounter: Counter<string> = new Counter({
     name: 'total_failure_sessionsCounter',
     help: 'Counts the API requests of /prompt API',
   });
 
-  // public totalIncompleteSessionsCounter: Counter<string> = new Counter({
-  //   name: 'total_incomplete_sessions_count',
-  //   help: 'Counts the API requests of /prompt API',
-  // });
+  private totalIncompleteSessionsCounter: Counter<string> = new Counter({
+    name: 'total_incomplete_sessions_count',
+    help: 'Counts the API requests of /prompt API',
+  });
 
-  public totalSessionsInHindiCounter: Counter<string> = new Counter({
+  private totalSessionsInHindiCounter: Counter<string> = new Counter({
     name: 'total_sessions_in_hindi_count',
     help: 'Counts the API requests of /prompt API',
   });
 
-  public totalSessionsInTamilCounter: Counter<string> = new Counter({
+  private totalSessionsInTamilCounter: Counter<string> = new Counter({
     name: 'total_sessions_in_tamil_count',
     help: 'Counts the API requests of /prompt API',
   });
 
-  public totalSessionsInOdiaCounter: Counter<string> = new Counter({
+  private totalSessionsInOdiaCounter: Counter<string> = new Counter({
     name: 'total_sessions_in_odia_count',
     help: 'Counts the API requests of /prompt API',
   });
 
-  public totalSessionsInTeluguCounter: Counter<string> = new Counter({
+  private totalSessionsInTeluguCounter: Counter<string> = new Counter({
     name: 'total_sessions_in_telugu_count',
     help: 'Counts the API requests of /prompt API',
   });
 
-  public totalSessionsInMarathiCounter: Counter<string> = new Counter({
+  private totalSessionsInMarathiCounter: Counter<string> = new Counter({
     name: 'total_sessions_in_marathi_count',
     help: 'Counts the API requests of /prompt API',
   });
 
-  public totalSessionsInBanglaCounter: Counter<string> = new Counter({
+  private totalSessionsInBanglaCounter: Counter<string> = new Counter({
     name: 'total_sessions_in_bangla_count',
     help: 'Counts the API requests of /prompt API',
   });
   
-  public totalSessionsInEnglishCounter: Counter<string> = new Counter({
+  private totalSessionsInEnglishCounter: Counter<string> = new Counter({
     name: 'total_sessions_in_english_count',
     help: 'Counts the API requests of /prompt API',
   });
 
-  public aadhaarCounter: Counter<string> = new Counter({
+  private aadhaarCounter: Counter<string> = new Counter({
     name: 'aadhaar_count',
     help: 'Counts the API requests of /prompt API',
   });
 
-  public registrationIdCounter: Counter<string> = new Counter({
+  private registrationIdCounter: Counter<string> = new Counter({
     name: 'registration_id_count',
     help: 'Counts the API requests of /prompt API',
   });
 
-  public mobileNumberCounter: Counter<string> = new Counter({
+  private mobileNumberCounter: Counter<string> = new Counter({
     name: 'mobile_number_count',
     help: 'Counts the API requests of /prompt API',
   });
 
-  public positveFeedbackCounter: Counter<string> = new Counter({
+  private positveFeedbackCounter: Counter<string> = new Counter({
     name: 'positve_feedback_count',
     help: 'Counts the API requests of /prompt API',
   });
 
-  public negativeFeedbackCounter: Counter<string> = new Counter({
+  private negativeFeedbackCounter: Counter<string> = new Counter({
     name: 'negative_feedback_count',
     help: 'Counts the API requests of /prompt API',
   });
 
-  public micUsedCounter: Counter<string> = new Counter({
+  private micUsedCounter: Counter<string> = new Counter({
     name: 'mic_used_count',
     help: 'Counts the API requests of /prompt API',
   });
 
-  public directMessageTypedCounter: Counter<string> = new Counter({
+  private directMessageTypedCounter: Counter<string> = new Counter({
     name: 'direct_message_typed_count',
     help: 'Counts the API requests of /prompt API',
+  });
+
+  private internalServerErrorCounter: Counter<string> = new Counter({
+    name: 'internal_server_error_count',
+    help: 'Counts the internal server errors',
+  });
+
+  private badGatewayCounter: Counter<string> = new Counter({
+    name: 'bad_gateway_count',
+    help: 'Counts the bat gateway errors',
   });
 
   public async getBhashiniCount() {
@@ -239,10 +257,10 @@ export class MonitoringService {
     return count.values[0].value;
   }
 
-  // public async getTotalIncompleteSessionsCount() {
-  //   let count = await this.totalIncompleteSessionsCounter.get();
-  //   return count.values[0].value;
-  // }
+  public async getTotalIncompleteSessionsCount() {
+    let count = await this.totalIncompleteSessionsCounter.get();
+    return count.values[0].value;
+  }
 
   public async getTotalSessionsInHindiCount() {
     let count = await this.totalSessionsInHindiCounter.get();
@@ -313,6 +331,16 @@ export class MonitoringService {
     let count = await this.directMessageTypedCounter.get();
     return count.values[0].value;
   }
+
+  public async getInternalServerErrorCount() {
+    let count = await this.internalServerErrorCounter.get();
+    return count.values[0].value;
+  }
+
+  public async getBadGatewayCount() {
+    let count = await this.badGatewayCounter.get();
+    return count.values[0].value;
+  }
   
 
   public incrementBhashiniCount(): void {
@@ -339,9 +367,9 @@ export class MonitoringService {
     this.totalFailureSessionsCounter.inc();
   }
 
-  // public incrementTotalIncompleteSessionsCount() {
-  //   this.totalIncompleteSessionsCounter.inc();
-  // }
+  public incrementTotalIncompleteSessionsCount() {
+    this.totalIncompleteSessionsCounter.inc();
+  }
 
   public incrementTotalSessionsInHindiCount() {
     this.totalSessionsInHindiCounter.inc();
@@ -399,6 +427,14 @@ export class MonitoringService {
     this.directMessageTypedCounter.inc();
   }
 
+  public incrementInternalServerErrorCount() {
+    this.internalServerErrorCounter.inc();
+  }
+
+  public incrementBadGatewayCount() {
+    this.badGatewayCounter.inc();
+  }
+
   public async onExit(): Promise<void> {
     const metricsToUpsert: any = [
       { name: 'bhashiniCount', value: `${await this.getBhashiniCount()}`},
@@ -407,7 +443,7 @@ export class MonitoringService {
       { name: 'totalSessions', value: `${await this.getTotalSessionsCount()}` },
       { name: 'totalSuccessfullSession', value: `${await this.getTotalSuccessfullSessionsCount()}` },
       { name: 'totalFailureSessions', value: `${await this.getTotalFailureSessionsCount()}` },
-      // { name: 'totalIncompleteSessions', value: `${await this.getTotalIncompleteSessionsCount()}` },
+      { name: 'totalIncompleteSessions', value: `${await this.getTotalIncompleteSessionsCount()}` },
       { name: 'totalSessionsInHindi', value: `${await this.getTotalSessionsInHindiCount()}` },
       { name: 'totalSessionsInTamil', value: `${await this.getTotalSessionsInTamilCount()}` },
       { name: 'totalSessionsInOdia', value: `${await this.getTotalSessionsInOdiaCount()}` },
@@ -421,7 +457,9 @@ export class MonitoringService {
       { name: "positveFeedbackCount", value: `${await this.getPositveFeedbackCount()}` },
       { name: "negativeFeedbackCount", value: `${await this.getNegativeFeedbackCount()}` },
       { name: "micUsedCount", value: `${await this.getMicUsedCount()}` },
-      { name: "directMessageTypedCount", value: `${await this.getDirectMessageTypedCount()}` }
+      { name: "directMessageTypedCount", value: `${await this.getDirectMessageTypedCount()}` },
+      { name: "internalServerErrorCount", value: `${await this.getInternalServerErrorCount()}` },
+      { name: "badGatewayCount", value: `${await this.getBadGatewayCount()}` }
     ];
     const upsertedMetrics = [];
     try{
