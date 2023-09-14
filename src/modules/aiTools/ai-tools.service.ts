@@ -318,7 +318,7 @@ export class AiToolsService {
         throw new Error(`${new Date()}: API call to '${url}' with config '${JSON.stringify(config,null,3)}' failed with status code ${response.status}`)
       }
       response = await response.json()
-      console.log(`${new Date()}: Responded succesfully`)
+      console.log(`${new Date()}: Responded succesfully.`)
       this.monitoringService.incrementBhashiniSuccessCount()
       return response
     } catch(error) {
