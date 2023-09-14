@@ -96,6 +96,10 @@ export class MonitoringController {
                 this.monitoringService.incrementDirectMessageTypedCount();
                 count = await this.monitoringService.getDirectMessageTypedCount();
                 break;
+            case "sampleQueryUsedCount":
+                this.monitoringService.incrementSampleQueryUsedCount();
+                count = await this.monitoringService.getSampleQueryUsedCount();
+                break;
             case "internalServerError":
                 this.monitoringService.incrementInternalServerErrorCount();
                 count = await this.monitoringService.getInternalServerErrorCount();

@@ -29,6 +29,7 @@ export class MonitoringService {
       { name: "negativeFeedbackCount" },
       { name: "micUsedCount" },
       { name: "directMessageTypedCount" },
+      { name: "sampleQueryUsedCount" },
       { name: "internalServerErrorCount" },
       { name: "badGatewayCount" }
     ];
@@ -100,6 +101,9 @@ export class MonitoringService {
             break;
           case "directMessageTypedCount":
             this.directMessageTypedCounter.inc(parseInt(existingMetric.value));
+            break;
+          case "sampleQueryUsedCount":
+            this.sampleQueryUsedCounter.inc(parseInt(existingMetric.value));
             break;
           case "internalServerErrorCount":
             this.internalServerErrorCounter.inc(parseInt(existingMetric.value));
@@ -217,6 +221,11 @@ export class MonitoringService {
     help: 'Counts the API requests of /prompt API',
   });
 
+  private sampleQueryUsedCounter: Counter<string> = new Counter({
+    name: 'sample_query_used_count',
+    help: 'Counts number of times user used sample query',
+  });
+
   private internalServerErrorCounter: Counter<string> = new Counter({
     name: 'internal_server_error_count',
     help: 'Counts the internal server errors',
@@ -332,6 +341,11 @@ export class MonitoringService {
     return count.values[0].value;
   }
 
+  public async getSampleQueryUsedCount() {
+    let count = await this.sampleQueryUsedCounter.get();
+    return count.values[0].value;
+  }
+
   public async getInternalServerErrorCount() {
     let count = await this.internalServerErrorCounter.get();
     return count.values[0].value;
@@ -427,6 +441,10 @@ export class MonitoringService {
     this.directMessageTypedCounter.inc();
   }
 
+  public incrementSampleQueryUsedCount() {
+    this.sampleQueryUsedCounter.inc();
+  }
+
   public incrementInternalServerErrorCount() {
     this.internalServerErrorCounter.inc();
   }
@@ -458,6 +476,7 @@ export class MonitoringService {
       { name: "negativeFeedbackCount", value: `${await this.getNegativeFeedbackCount()}` },
       { name: "micUsedCount", value: `${await this.getMicUsedCount()}` },
       { name: "directMessageTypedCount", value: `${await this.getDirectMessageTypedCount()}` },
+      { name: "sampleQueryUsedCount", value: `${await this.getSampleQueryUsedCount()}` },
       { name: "internalServerErrorCount", value: `${await this.getInternalServerErrorCount()}` },
       { name: "badGatewayCount", value: `${await this.getBadGatewayCount()}` }
     ];
