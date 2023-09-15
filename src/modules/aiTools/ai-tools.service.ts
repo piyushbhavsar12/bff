@@ -3,8 +3,9 @@ import { ConfigService } from '@nestjs/config';
 import { Language } from '../../language';
 import { isMostlyEnglish } from 'src/common/utils';
 import { MonitoringService } from '../monitoring/monitoring.service';
-const fetch = require('node-fetch'); 
-const { Headers } = fetch;
+const fetch = require('../../common/fetch');
+const nodefetch = require('node-fetch');
+const { Headers } = require('node-fetch');
 @Injectable()
 export class AiToolsService {
   constructor(
@@ -260,7 +261,13 @@ export class AiToolsService {
       method: 'POST',
       headers: myHeaders,
       body: raw,
-      redirect: 'follow'
+      redirect: 'follow',
+      retry: 4, 
+      pause: 0,
+      callback: retry => { 
+        console.log(`Re-Trying: ${retry}`);
+      },
+      timeout: 10000
     };
     try{
       this.monitoringService.incrementBhashiniCount()
@@ -302,11 +309,18 @@ export class AiToolsService {
       ],
       "inputData": input
     });
+
     var requestOptions: any = {
       method: 'POST',
       headers: myHeaders,
       body: raw,
-      redirect: 'follow'
+      redirect: 'follow',
+      retry: 4, 
+      pause:0,
+      callback: retry => {
+        console.log(`Re-Trying: ${retry}`);
+      },
+      timeout: 10000
     };
 
     try{
