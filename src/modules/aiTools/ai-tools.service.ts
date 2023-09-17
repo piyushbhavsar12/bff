@@ -267,7 +267,7 @@ export class AiToolsService {
       callback: retry => { 
         console.log(`Re-Trying: ${retry}`);
       },
-      timeout: 10000
+      timeout: 40000
     };
     try{
       this.monitoringService.incrementBhashiniCount()
@@ -320,7 +320,7 @@ export class AiToolsService {
       callback: retry => {
         console.log(`Re-Trying: ${retry}`);
       },
-      timeout: 10000
+      timeout: 40000
     };
 
     try{
