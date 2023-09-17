@@ -583,7 +583,7 @@ export class AppController {
         let number = wordToNumber(prompt.inputTextInEnglish, isOTP ? 'otp':'benId')
         // let number = prompt.inputTextInEnglish.replace(/\s/g, '')
         prompt.inputTextInEnglish = number.toUpperCase()
-        if(prompt.inputTextInEnglish == "") prompt.inputTextInEnglish = '1111'
+        if(prompt.inputTextInEnglish == "") prompt.inputTextInEnglish = isOTP ? '1111' : 'AB123123123'
         isNumber = true
         // if(/\d/.test(number)){
         //   isNumber = true
