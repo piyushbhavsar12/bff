@@ -83,6 +83,13 @@ export class AppController {
     this.monitoringService.incrementTotalSessionsCount()
     //get userId from headers
     const userId = headers["user-id"]
+    console.log("userId =",userId)
+    if(!userId){
+      return {
+        "text":"",
+        "error": "'user-id' should not be empty"
+      }
+    }
     let messageType = 'intermediate_response'
     //setup loggers
     let verboseLogger = this.logger.logWithCustomFields({
