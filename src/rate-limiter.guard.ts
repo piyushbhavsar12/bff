@@ -9,6 +9,8 @@ export class RateLimiterGuard extends ThrottlerGuard {
     console.log("canActivate")
     console.log(request.context.config.url)
 
+    return true;
+
     // Check if the request path is "/metrics"
     if (request.context.config.url === '/metrics') {
       return true; // Bypass rate limiting for "/metrics"
