@@ -80,7 +80,6 @@ export class AppController {
   @Post("/prompt/:configid")
   async prompt(@Body() promptDto: any, @Headers() headers, @Param("configid") configid: string): Promise<any> {
     let startTime = Date.now()
-    this.monitoringService.incrementTotalSessionsCount()
     //get userId from headers
     const userId = headers["user-id"]
     console.log("userId =",userId)
@@ -110,6 +109,7 @@ export class AppController {
         }
       })
     }catch{
+      this.monitoringService.incrementTotalSessionsCount()
       verboseLogger("creating new user with id =",userId)
       await this.telemetryService.capture({
         eventName: "Conversation start",
