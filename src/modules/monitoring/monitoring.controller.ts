@@ -108,6 +108,42 @@ export class MonitoringController {
                 this.monitoringService.incrementBadGatewayCount();
                 count = await this.monitoringService.getBadGatewayCount();
                 break;
+            case "gatewayTimeoutCount":
+                this.monitoringService.incrementGatewayTimeoutCount();
+                count = await this.monitoringService.getGatewayTimeoutCount();
+                break;
+            case "somethingWentWrongCount":
+                this.monitoringService.incrementSomethingWentWrongCount();
+                count = await this.monitoringService.getSomethingWentWrongCount();
+                break;
+            case "unsupportedMediaCount":
+                this.monitoringService.incrementUnsupportedMediaCount();
+                count = await this.monitoringService.getUnsupportedMediaCount();
+                break;
+            case "unableToTranslateCount":
+                this.monitoringService.incrementUnableToTranslateCount();
+                count = await this.monitoringService.getUnableToTranslateCount();
+                break;
+            case "somethingWentWrongTryAgainCount":
+                this.monitoringService.incrementSomethingWentWrongTryAgainCount();
+                count = await this.monitoringService.getSomethingWentWrongTryAgainCount();
+                break;
+            case "unableToGetUserDetailsCount":
+                this.monitoringService.incrementUnableToGetUserDetailsCount();
+                count = await this.monitoringService.getUnableToGetUserDetailsCount();
+                break;
+            case "noUserRecordsFoundCount":
+                this.monitoringService.incrementNoUserRecordsFoundCount();
+                count = await this.monitoringService.getNoUserRecordsFoundCount();
+                break;
+            case "untrainedQueryCount":
+                this.monitoringService.incrementUntrainedQueryCount();
+                count = await this.monitoringService.getUntrainedQueryCount();
+                break;
+            case "resentOTPCount":
+                this.monitoringService.incrementResentOTPCount();
+                count = await this.monitoringService.getResentOTPCount();
+                break;
             default:
                 count = `'${metric}' metric does not exist`
                 break;

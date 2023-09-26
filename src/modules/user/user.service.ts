@@ -152,6 +152,7 @@ export class UserService {
         res.d.output = JSON.parse(decryptedData.d.decryptedvalue)
         res["status"] = res.d.output.Rsponce != "False" ? "OK" : "NOT_OK" 
       } else {
+        this.monitoringService.incrementUnableToGetUserDetailsCount()
         res = {
           d: {
             output: {
@@ -162,6 +163,7 @@ export class UserService {
         }
       }
     } catch (error) {
+      this.monitoringService.incrementUnableToGetUserDetailsCount()
       return {
         d: {
           output: {

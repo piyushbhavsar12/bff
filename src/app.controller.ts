@@ -287,6 +287,7 @@ export class AppController {
           })
           errorLogger(response.error)
           this.monitoringService.incrementTotalFailureSessionsCount()
+          this.monitoringService.incrementSomethingWentWrongTryAgainCount()
           return{
             text:"",
             error: "Something went wrong, please try again."
@@ -325,6 +326,7 @@ export class AppController {
           tags: ['bot','speech_to_text']     
         })
       } else {
+        this.monitoringService.incrementUnsupportedMediaCount()
         errorLogger("Unsupported media")
         return {
           text: "",
@@ -464,6 +466,9 @@ export class AppController {
     } else {
       //translate to english
       let translateStartTime = Date.now();
+      if(userInput == 'resend OTP'){
+        this.monitoringService.incrementResentOTPCount()
+      }
       if(prompt.inputLanguage != Language.en && userInput != 'resend OTP') {
         try {
           let response = await this.aiToolsService.translate(
@@ -508,6 +513,7 @@ export class AppController {
             })
             errorLogger("Sorry, We are unable to translate given input, please try again")
             this.monitoringService.incrementTotalFailureSessionsCount()
+            this.monitoringService.incrementUnableToTranslateCount()
             return { error: "Sorry, We are unable to translate given input, please try again" }
           }
           prompt.inputTextInEnglish = response["text"]
@@ -579,6 +585,7 @@ export class AppController {
           })
           errorLogger("Sorry, We are unable to translate given input, please try again")
           this.monitoringService.incrementTotalFailureSessionsCount()
+          this.monitoringService.incrementUnableToTranslateCount()
           return { error: "Sorry, We are unable to translate given input, please try again" }
         }
       } else {
@@ -726,6 +733,7 @@ export class AppController {
             })
             errorLogger("Sorry, We are unable to translate given input, please try again")
             this.monitoringService.incrementTotalFailureSessionsCount()
+            this.monitoringService.incrementUnableToTranslateCount()
             result.error = "Sorry, We are unable to translate given input, please try again"
           }
           result.text = response["text"]
@@ -797,6 +805,7 @@ export class AppController {
           })
           errorLogger(error)
           this.monitoringService.incrementTotalFailureSessionsCount()
+          this.monitoringService.incrementUnableToTranslateCount()
           return { error: "Sorry, We are unable to translate given input, please try again" }
         }
       }
@@ -845,6 +854,7 @@ export class AppController {
             })
             errorLogger("Sorry, We are unable to translate given input, please try again")
             this.monitoringService.incrementTotalFailureSessionsCount()
+            this.monitoringService.incrementUnableToTranslateCount()
             result.error = "Sorry, We are unable to translate given input, please try again"
           }
           result['placeholder'] = response["text"]
@@ -915,6 +925,7 @@ export class AppController {
           })
           errorLogger(error)
           this.monitoringService.incrementTotalFailureSessionsCount()
+          this.monitoringService.incrementUnableToTranslateCount()
           return { error: "Sorry, We are unable to translate given input, please try again" }
         }
       } else if(placeholder) {

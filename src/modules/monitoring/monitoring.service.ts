@@ -31,7 +31,16 @@ export class MonitoringService {
       { name: "directMessageTypedCount" },
       { name: "sampleQueryUsedCount" },
       { name: "internalServerErrorCount" },
-      { name: "badGatewayCount" }
+      { name: "badGatewayCount" },
+      { name: "gatewayTimeoutCount" },
+      { name: "somethingWentWrongCount" },
+      { name: "unsupportedMediaCount" },
+      { name: "unableToTranslateCount" },
+      { name: "somethingWentWrongTryAgainCount" },
+      { name: "unableToGetUserDetailsCount" },
+      { name: "noUserRecordsFoundCount" },
+      { name: "untrainedQueryCount" },
+      { name: "resentOTPCount" },
     ];
     for (const metric of metricsToUpsert){
       const existingMetric: any = await this.prismaService.metrics.findUnique({
@@ -110,6 +119,33 @@ export class MonitoringService {
             break;
           case "badGatewayCount":
             this.badGatewayCounter.inc(parseInt(existingMetric.value));
+            break;
+          case "gatewayTimeoutCount":
+            this.gatewayTimeoutCounter.inc(parseInt(existingMetric.value));
+            break;
+          case "somethingWentWrongCount":
+            this.somethingWentWrongCounter.inc(parseInt(existingMetric.value));
+            break;
+          case "unsupportedMediaCount":
+            this.unsupportedMediaCounter.inc(parseInt(existingMetric.value));
+            break;
+          case "unableToTranslateCount":
+            this.unableToTranslateCounter.inc(parseInt(existingMetric.value));
+            break;
+          case "somethingWentWrongTryAgainCount":
+            this.somethingWentWrongTryAgainCounter.inc(parseInt(existingMetric.value));
+            break;
+          case "unableToGetUserDetailsCount":
+            this.unableToGetUserDetailsCounter.inc(parseInt(existingMetric.value));
+            break;
+          case  "noUserRecordsFoundCount":
+            this.noUserRecordsFoundCounter.inc(parseInt(existingMetric.value));
+            break;
+          case "untrainedQueryCount":
+            this.untrainedQueryCounter.inc(parseInt(existingMetric.value));
+            break;
+          case "resentOTPCount":
+            this.resentOTPCounter.inc(parseInt(existingMetric.value));
             break;
           default:
             break;
@@ -236,6 +272,51 @@ export class MonitoringService {
     help: 'Counts the bat gateway errors',
   });
 
+  private gatewayTimeoutCounter: Counter<string> = new Counter({
+    name: 'gateway_timeout_count',
+    help: 'gateway timeout count'
+  })
+
+  private somethingWentWrongCounter: Counter<string> = new Counter({
+    name: 'something_went_wrong_count',
+    help: 'something went wrong count'
+  })
+
+  private unsupportedMediaCounter: Counter<string> = new Counter({
+    name: 'unsupported_media_count',
+    help: 'unsupported media count'
+  })
+
+  private unableToTranslateCounter: Counter<string> = new Counter({
+    name: 'unable_to_translate_count',
+    help: 'unable to translate count'
+  })
+
+  private somethingWentWrongTryAgainCounter: Counter<string> = new Counter({
+    name: 'something_went_wrong_try_again_count',
+    help: 'something went wrong try again count'
+  })
+
+  private unableToGetUserDetailsCounter: Counter<string> = new Counter({
+    name: 'unable_to_get_user_details_count',
+    help: 'unable to get user details count'
+  })
+
+  private noUserRecordsFoundCounter: Counter<string> = new Counter({
+    name: 'no_user_records_found_count',
+    help: 'no user records found count'
+  })
+
+  private untrainedQueryCounter: Counter<string> = new Counter({
+    name: 'untrained_query_count',
+    help: 'untrained query count'
+  })
+
+  private resentOTPCounter: Counter<string> = new Counter({
+    name: 'resent_otp_count',
+    help: 'resent otp count'
+  })
+
   public async getBhashiniCount() {
     let count = await this.bhashiniCounter.get();
     return count.values[0].value;
@@ -355,7 +436,51 @@ export class MonitoringService {
     let count = await this.badGatewayCounter.get();
     return count.values[0].value;
   }
-  
+
+  public async getGatewayTimeoutCount() {
+    let count = await this.gatewayTimeoutCounter.get();
+    return count.values[0].value;
+  }
+
+  public async getSomethingWentWrongCount() {
+    let count = await this.somethingWentWrongCounter.get();
+    return count.values[0].value;
+  }
+
+  public async getUnsupportedMediaCount() {
+    let count = await this.unsupportedMediaCounter.get();
+    return count.values[0].value;
+  }
+
+  public async getUnableToTranslateCount() {
+    let count = await this.unableToTranslateCounter.get();
+    return count.values[0].value;
+  }
+
+  public async getSomethingWentWrongTryAgainCount() {
+    let count = await this.somethingWentWrongTryAgainCounter.get();
+    return count.values[0].value;
+  }
+
+  public async getUnableToGetUserDetailsCount() {
+    let count = await this.unableToGetUserDetailsCounter.get();
+    return count.values[0].value;
+  }
+
+  public async getNoUserRecordsFoundCount() {
+    let count = await this.noUserRecordsFoundCounter.get();
+    return count.values[0].value;
+  }
+
+  public async getUntrainedQueryCount() {
+    let count = await this.untrainedQueryCounter.get();
+    return count.values[0].value;
+  }
+
+  public async getResentOTPCount() {
+    let count = await this.untrainedQueryCounter.get();
+    return count.values[0].value;
+  }
 
   public incrementBhashiniCount(): void {
     this.bhashiniCounter.inc();
@@ -453,6 +578,42 @@ export class MonitoringService {
     this.badGatewayCounter.inc();
   }
 
+  public incrementGatewayTimeoutCount() {
+    this.gatewayTimeoutCounter.inc();
+  }
+
+  public incrementSomethingWentWrongCount() {
+    this.somethingWentWrongCounter.inc();
+  }
+
+  public incrementUnsupportedMediaCount() {
+    this.unsupportedMediaCounter.inc();
+  }
+
+  public incrementUnableToTranslateCount() {
+    this.unableToTranslateCounter.inc();
+  }
+
+  public incrementSomethingWentWrongTryAgainCount() {
+    this.somethingWentWrongTryAgainCounter.inc();
+  }
+
+  public incrementUnableToGetUserDetailsCount() {
+    this.unableToGetUserDetailsCounter.inc();
+  }
+
+  public incrementNoUserRecordsFoundCount() {
+    this.noUserRecordsFoundCounter.inc();
+  }
+
+  public incrementUntrainedQueryCount() {
+    this.untrainedQueryCounter.inc();
+  }
+
+  public incrementResentOTPCount() {
+    this.resentOTPCounter.inc();
+  }
+
   public async onExit(): Promise<void> {
     const metricsToUpsert: any = [
       { name: 'bhashiniCount', value: `${await this.getBhashiniCount()}`},
@@ -478,7 +639,16 @@ export class MonitoringService {
       { name: "directMessageTypedCount", value: `${await this.getDirectMessageTypedCount()}` },
       { name: "sampleQueryUsedCount", value: `${await this.getSampleQueryUsedCount()}` },
       { name: "internalServerErrorCount", value: `${await this.getInternalServerErrorCount()}` },
-      { name: "badGatewayCount", value: `${await this.getBadGatewayCount()}` }
+      { name: "badGatewayCount", value: `${await this.getBadGatewayCount()}` },
+      { name: "gatewayTimeoutCount", value: `${await this.getGatewayTimeoutCount()}` },
+      { name: "somethingWentWrongCount", value: `${await this.getSomethingWentWrongCount()}` },
+      { name: "unsupportedMediaCount", value: `${await this.getUnsupportedMediaCount()}` },
+      { name: "unableToTranslateCount", value: `${await this.getUnableToTranslateCount()}` },
+      { name: "somethingWentWrongTryAgainCount", value: `${await this.getSomethingWentWrongTryAgainCount()}` },
+      { name: "unableToGetUserDetailsCount", value: `${await this.getUnableToGetUserDetailsCount()}` },
+      { name: "noUserRecordsFoundCount", value: `${await this.getNoUserRecordsFoundCount()}` },
+      { name: "untrainedQueryCount", value: `${await this.getUntrainedQueryCount()}` },
+      { name: "resentOTPCount", value: `${await this.getResentOTPCount()}` },
     ];
     const upsertedMetrics = [];
     try{

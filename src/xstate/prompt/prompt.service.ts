@@ -37,7 +37,10 @@ export class PromptServices {
         try{
             let response: any = await this.aiToolsService.textClassification(context.query)
             if (response.error) throw new Error(`${response.error}, please try again.`)
-            if (response == "LABEL_2") return "invalid"
+            if (response == "LABEL_2") {
+                this.monitoringService.incrementUntrainedQueryCount()
+                return "invalid"
+            }
             if (response == "LABEL_1") return "payment"
             if (response == "LABEL_0") return "payment"
             if (response == "LABEL_3") return "convo_starter"
@@ -77,8 +80,12 @@ export class PromptServices {
                 return Promise.resolve('Please enter a valid Beneficiary ID/Aadhaar Number/Phone number');
             }
             if(res) {
+                if(res.d.output.Message == `No Record Found for this (${context.userAadhaarNumber}) Aadhar/Ben_id/Mobile.`){
+                    this.monitoringService.incrementNoUserRecordsFoundCount()
+                }
                 return Promise.resolve(res.d.output.Message);
             }
+            this.monitoringService.incrementSomethingWentWrongCount()
             throw new Error('Something went wrong.')
         } catch (error) {
             console.log(error)
