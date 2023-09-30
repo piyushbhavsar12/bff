@@ -99,7 +99,7 @@ export class AppController {
       userId: userId,
       flowId: configid
     },"error")
-    verboseLogger("User input", promptDto)
+    // verboseLogger("User input", promptDto)
     //create or get user and conversation
     let user;
     try{
