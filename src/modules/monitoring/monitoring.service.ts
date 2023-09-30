@@ -620,7 +620,7 @@ export class MonitoringService {
       { name: 'bhashiniSuccessCount', value: `${await this.getBhashiniSuccessCount()}`},
       { name: 'bhashiniFailureCount', value: `${await this.getBhashiniFailureCount()}`},
       { name: 'totalSessions', value: `${await this.getTotalSessionsCount()}` },
-      { name: 'totalSuccessfullSession', value: `${await this.getTotalSuccessfullSessionsCount()}` },
+      { name: 'totalSuccessfullSessions', value: `${await this.getTotalSuccessfullSessionsCount()}` },
       { name: 'totalFailureSessions', value: `${await this.getTotalFailureSessionsCount()}` },
       { name: 'totalIncompleteSessions', value: `${await this.getTotalIncompleteSessionsCount()}` },
       { name: 'totalSessionsInHindi', value: `${await this.getTotalSessionsInHindiCount()}` },
