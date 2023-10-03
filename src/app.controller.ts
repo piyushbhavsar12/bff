@@ -341,7 +341,8 @@ export class AppController {
     await this.prismaService.message.create({
       data:{
         text: type=="Text"?promptDto.text:null,
-        audio: type=="Audio"?promptDto.media.text:null,
+        // audio: type=="Audio"?promptDto.media.text:null,
+        audio: null,
         type: "User",
         userId,
         flowId: configid || '3',
@@ -627,7 +628,7 @@ export class AppController {
           currentState: state.value
         };
         botFlowService.state.context = updatedContext;
-        console.log('Current context:', state.context);
+        // console.log('Current context:', state.context);
         if(state.context.type=="pause"){
           verboseLogger("paused state", state.value)
           resolve(state)
@@ -1057,7 +1058,8 @@ export class AppController {
     let msg = await this.prismaService.message.create({
       data:{
         text: result?.text ? result?.text : result.error? result.error : null,
-        audio: result?.audio?.text ? result?.audio?.text : null,
+        // audio: result?.audio?.text ? result?.audio?.text : null,
+        audio: null,
         type: "System",
         userId,
         flowId: configid || '3',

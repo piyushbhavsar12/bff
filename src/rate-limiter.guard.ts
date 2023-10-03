@@ -6,8 +6,6 @@ import { Request } from 'express';
 export class RateLimiterGuard extends ThrottlerGuard {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
-    console.log("canActivate")
-    console.log(request.context.config.url)
 
     return true;
 

@@ -157,7 +157,6 @@ export const wordToNumber = (input,type='benId') => {
       var raw = JSON.stringify({
         "DecryptedRequest": `${text}@${token}`
       });
-      console.log(raw)
 
       var requestOptions: any = {
         method: 'POST',
@@ -180,7 +179,6 @@ export const wordToNumber = (input,type='benId') => {
     let formattedString = `<table class="aadhar-table"><tbody>`
     tableData.forEach((text)=>{
       let td = text.split('-')
-      console.log(td)
       formattedString+= `<tr><td>${td[0].trim()} :</td><td>${td[1].trim()}</td></tr>`
     })
     formattedString+=`</tbody></table>`

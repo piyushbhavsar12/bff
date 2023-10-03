@@ -82,7 +82,6 @@ export class AiToolsService {
         }
       }
       let bhashiniConfig: any = await this.getBhashiniConfig('translation',config)
-      console.log('bhashiniConfig',bhashiniConfig)
       
       let textArray = text.split("\n")
       for(let i=0;i<textArray.length;i++){
