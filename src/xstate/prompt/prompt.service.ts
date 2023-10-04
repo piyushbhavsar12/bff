@@ -182,9 +182,15 @@ export class PromptServices {
             }
             });
         }
+        if(!userErrors.length){
+            userErrors.push(PMKissanProtalErrors["No Errors"]["text"]
+                .replace('{{farmer_name}}',res.d.output['BeneficiaryName'])
+                .replace('{{latest_installment_paid}}',res.d.output['LatestInstallmentPaid'])
+            )
+        }
         } catch (error) {
-        console.log("ChatbotBeneficiaryStatus error")
-        console.log(error)
+            console.log("ChatbotBeneficiaryStatus error")
+            console.log(error)
         }
         return `${userDetails}${userErrors.join("\n")}`
     }

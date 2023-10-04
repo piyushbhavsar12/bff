@@ -1,4 +1,5 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, CACHE_MANAGER, Inject } from '@nestjs/common';
+import { Cache } from 'cache-manager';
 import { ConfigService } from '@nestjs/config';
 import { Language } from '../../language';
 import { isMostlyEnglish } from 'src/common/utils';
@@ -10,7 +11,8 @@ const { Headers } = require('node-fetch');
 export class AiToolsService {
   constructor(
     private configService: ConfigService,
-    private readonly monitoringService: MonitoringService
+    private readonly monitoringService: MonitoringService,
+    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
   ) {}
   async detectLanguage(text: string): Promise<any> {
     var myHeaders = new Headers();
@@ -239,6 +241,12 @@ export class AiToolsService {
   }
 
   async getBhashiniConfig(task,config) {
+    const cacheKey = `getBhashiniConfig:${JSON.stringify({ task, config })}`;
+
+    const cachedData = await this.cacheManager.get(cacheKey);
+    if (cachedData) {
+      return cachedData;
+    }
     var myHeaders = new Headers();
     myHeaders.append("userID", this.configService.get("ULCA_USER_ID"));
     myHeaders.append("ulcaApiKey", this.configService.get("ULCA_API_KEY"));
@@ -279,6 +287,7 @@ export class AiToolsService {
       response = await response.json()
       console.log(`${new Date()}: Responded succesfully`)
       this.monitoringService.incrementBhashiniSuccessCount()
+      await this.cacheManager.set(cacheKey, response, 86400);
       return response
     } catch(error) {
       this.monitoringService.incrementBhashiniFailureCount()
@@ -290,6 +299,13 @@ export class AiToolsService {
   }
 
   async computeBhashini(authorization, task, serviceId, url, config, input) {
+    const cacheKey = `computeBhashini:${JSON.stringify({ task, serviceId, url, config, input })}`;
+    if(task != 'asr'){
+      const cachedData = await this.cacheManager.get(cacheKey);
+      if (cachedData) {
+        return cachedData;
+      }
+    }
     var myHeaders = new Headers();
     myHeaders.append("Accept", " */*");
     myHeaders.append("Authorization", authorization);
@@ -333,6 +349,9 @@ export class AiToolsService {
       response = await response.json()
       console.log(`${new Date()}: Responded succesfully.`)
       this.monitoringService.incrementBhashiniSuccessCount()
+      if(task != 'asr') {
+        await this.cacheManager.set(cacheKey, response, 7200);
+      }
       return response
     } catch(error) {
       this.monitoringService.incrementBhashiniFailureCount()

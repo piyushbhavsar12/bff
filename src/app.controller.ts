@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Headers, Body, Param } from "@nestjs/common";
+import { Controller, Get, Post, Headers, Body, Param, CACHE_MANAGER, Inject } from "@nestjs/common";
 import { AppService, Prompt } from "./app.service";
 import { IsNotEmpty,IsUUID, IsOptional } from 'class-validator';
 import { interpret } from "xstate";
@@ -12,6 +12,7 @@ import { CustomLogger } from "./common/logger";
 import { MonitoringService } from "./modules/monitoring/monitoring.service";
 import { PromptServices } from "./xstate/prompt/prompt.service";
 import { TelemetryService } from "./modules/telemetry/telemetry.service";
+import { Cache } from 'cache-manager'
 const uuid = require('uuid');
 const path = require('path');
 const filePath = path.resolve(__dirname, './common/en.json');
@@ -62,11 +63,12 @@ export class AppController {
   constructor(
     private readonly appService: AppService,
     private readonly monitoringService: MonitoringService,
-    private readonly telemetryService: TelemetryService
+    private readonly telemetryService: TelemetryService,
+    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
   ) {
     this.prismaService = new PrismaService()
     this.configService = new ConfigService()
-    this.aiToolsService = new AiToolsService(this.configService,this.monitoringService)
+    this.aiToolsService = new AiToolsService(this.configService,this.monitoringService, this.cacheManager)
     this.conversationService = new ConversationService(this.prismaService,this.configService)
     this.promptService = new PromptServices(this.prismaService,this.configService,this.aiToolsService, this.monitoringService)
     this.logger = new CustomLogger("AppController");

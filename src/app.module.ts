@@ -1,4 +1,4 @@
-import { Module, ValidationPipe } from "@nestjs/common";
+import { CacheModule, Module, ValidationPipe } from "@nestjs/common";
 import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
 import { PrismaService } from "./global-services/prisma.service";
@@ -34,6 +34,7 @@ import { MonitoringController } from "./modules/monitoring/monitoring.controller
       ttl: 60, // Time in seconds for the window (e.g., 60 seconds)
       limit: 10, // Maximum requests per window
     }),
+    CacheModule.register()
   ],
   controllers: [AppController],
   providers: [

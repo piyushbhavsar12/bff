@@ -154,6 +154,9 @@
     "Land Seeding, KYS": {
         "text":"Dear {{farmer_name}}, I checked your record and found that your Land details were not uploaded by the State/UT Government. I suggest you visit the Block/Tehsil/District Office and get it updated on the PM-KISAN portal",
         "types":["payment"]
+    },
+    "No Errors": {
+        "text": "Dear {{farmer_name}}, I have checked your status and found No specific issue with your PMKISAN account. If this information is not correct, I suggest you to please contact the concerned District/Block nodal officer to complain the issue."
     }
     
 }
