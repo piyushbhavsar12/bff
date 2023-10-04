@@ -3,7 +3,7 @@ import { AiToolsService } from "../../modules/aiTools/ai-tools.service";
 import { AADHAAR_GREETING_MESSAGE } from "../../common/constants";
 import { UserService } from "../../modules/user/user.service";
 import axios from "axios";
-import { decryptRequest, encryptRequest } from "../../common/utils";
+import { decryptRequest, encryptRequest, titleCase } from "../../common/utils";
 import { PrismaService } from "src/global-services/prisma.service";
 import { Injectable } from "@nestjs/common";
 import { botFlowMachine1, botFlowMachine2, botFlowMachine3 } from "./prompt.machine";
@@ -14,6 +14,7 @@ import { MonitoringService } from "src/modules/monitoring/monitoring.service";
 const path = require('path');
 const filePath = path.resolve(__dirname, '../../common/kisanPortalErrors.json');
 const PMKissanProtalErrors = require(filePath);
+import * as moment from "moment";
 
 @Injectable()
 export class PromptServices {
@@ -177,15 +178,16 @@ export class PromptServices {
             if(key!="Rsponce" && key != "Message"){
                 if(value && PMKissanProtalErrors[`${value}`] && PMKissanProtalErrors[`${value}`]["types"].indexOf(context.queryType)!=-1){
                     console.log(`ERRORVALUE: ${key} ${value}`);
-                    userErrors.push(PMKissanProtalErrors[`${value}`]["text"].replace('{{farmer_name}}',res.d.output['BeneficiaryName']))
+                    userErrors.push(PMKissanProtalErrors[`${value}`]["text"].replace('{{farmer_name}}',titleCase(res.d.output['BeneficiaryName'])))
                 }
             }
             });
         }
         if(!userErrors.length){
             userErrors.push(PMKissanProtalErrors["No Errors"]["text"]
-                .replace('{{farmer_name}}',res.d.output['BeneficiaryName'])
+                .replace('{{farmer_name}}',titleCase(res.d.output['BeneficiaryName']))
                 .replace('{{latest_installment_paid}}',res.d.output['LatestInstallmentPaid'])
+                .replace('{{Reg_Date (DD-MM-YYYY)}}', moment(res.d.output['DateOfRegistration']).format('DD-MM-YYYY'))
             )
         }
         } catch (error) {

@@ -156,7 +156,7 @@
         "types":["payment"]
     },
     "No Errors": {
-        "text": "Dear {{farmer_name}}, I have checked your status and found No specific issue with your PMKISAN account. If this information is not correct, I suggest you to please contact the concerned District/Block nodal officer to complain the issue."
+        "text": "Dear {{farmer_name}}, I have checked your account and found that you received all the instalments till now from your PM KISAN registration date {{Reg_Date (DD-MM-YYYY)}}. You will receive your next instalment payment soon in your Aadhaar seeded bank account."
     }
     
 }
