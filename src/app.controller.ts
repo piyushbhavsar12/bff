@@ -112,7 +112,7 @@ export class AppController {
       })
     }catch{
       this.monitoringService.incrementTotalSessionsCount()
-      verboseLogger("creating new user with id =",userId)
+      // verboseLogger("creating new user with id =",userId)
       await this.telemetryService.capture({
         eventName: "Conversation start",
         eventType: "START_CONVERSATION",
@@ -210,7 +210,7 @@ export class AppController {
         if(prompt.inputLanguage == 'unk'){
           prompt.inputLanguage = prompt.input.inputLanguage as Language
         }
-        verboseLogger("Detected Language =", prompt.inputLanguage)
+        // verboseLogger("Detected Language =", prompt.inputLanguage)
       }
       await this.telemetryService.capture({
         eventName: "Detect language",
@@ -296,7 +296,7 @@ export class AppController {
           }
         }
         userInput = response["text"]
-        verboseLogger("speech to text =",userInput)
+        // verboseLogger("speech to text =",userInput)
         await this.telemetryService.capture({
           eventName: "Speech to text",
           eventType: "SPEECH_TO_TEXT",
@@ -386,7 +386,7 @@ export class AppController {
     }
 
     let botFlowService = interpret(botFlowMachine.withContext(conversation || defaultContext)).start();
-    verboseLogger("current state when API hit =", botFlowService.state.context.currentState)
+    // verboseLogger("current state when API hit =", botFlowService.state.context.currentState)
     let isNumber = false;
 
     if(type == 'Audio' && (botFlowService.state.context.currentState == 'confirmInput1' || botFlowService.state.context.currentState == 'getUserQuestion')) {
@@ -520,7 +520,7 @@ export class AppController {
             return { error: "Sorry, We are unable to translate given input, please try again" }
           }
           prompt.inputTextInEnglish = response["text"]
-          verboseLogger("translated english text =", prompt.inputTextInEnglish)
+          // verboseLogger("translated english text =", prompt.inputTextInEnglish)
           await this.telemetryService.capture({
             eventName: "Translate",
             eventType: "TRANSLATE",
@@ -623,7 +623,7 @@ export class AppController {
 
     await new Promise((resolve) => {
       botFlowService.subscribe((state) => {
-        verboseLogger('Current state:', state.value);
+        // verboseLogger('Current state:', state.value);
         updatedContext = {
           ...state.context,
           //@ts-ignore
@@ -632,7 +632,7 @@ export class AppController {
         botFlowService.state.context = updatedContext;
         // console.log('Current context:', state.context);
         if(state.context.type=="pause"){
-          verboseLogger("paused state", state.value)
+          // verboseLogger("paused state", state.value)
           resolve(state)
         }
       });
@@ -643,13 +643,13 @@ export class AppController {
           state:'Done'
         };
         botFlowService.state.context = updatedContext;
-        verboseLogger("state done")
+        // verboseLogger("state done")
         resolve(state)
       })
     });
 
-    verboseLogger("final response",botFlowService.getSnapshot().context.response)
-    verboseLogger("final error",botFlowService.getSnapshot().context.error)
+    // verboseLogger("final response",botFlowService.getSnapshot().context.response)
+    // verboseLogger("final error",botFlowService.getSnapshot().context.error)
     let result = {
       textInEnglish: botFlowService.getSnapshot().context.response,
       text: botFlowService.getSnapshot().context.response,
@@ -740,7 +740,7 @@ export class AppController {
             result.error = "Sorry, We are unable to translate given input, please try again"
           }
           result.text = response["text"]
-          verboseLogger("input language translated text =",result.text)
+          // verboseLogger("input language translated text =",result.text)
           await this.telemetryService.capture({
             eventName: "Translate",
             eventType: "TRANSLATE",
@@ -972,10 +972,10 @@ export class AppController {
           } else {
             textToaudio = resArray.pop() 
           }
-          verboseLogger("Array to convert",resArray)
+          // verboseLogger("Array to convert",resArray)
           result.text = `${formatStringsToTable(resArray)}\n${textToaudio}`
         }
-        verboseLogger("textToaudio =",textToaudio)
+        // verboseLogger("textToaudio =",textToaudio)
         let audioStartTime = Date.now();
         result['audio'] = await this.aiToolsService.textToSpeech(textToaudio,isNumber ? Language.en : prompt.inputLanguage)
         if(result['audio']['error']){
@@ -1071,9 +1071,25 @@ export class AppController {
     result["messageId"] = msg.id
     result["messageType"] = messageType
     verboseLogger("current state while returning response =", botFlowService.state.context.currentState)
-    verboseLogger("response text", result.text)
-    verboseLogger("response textInEnglish", result.textInEnglish)
-    verboseLogger("response error", result.error)
+    switch(botFlowService.state.context.currentState){
+      case 'askingAadhaarNumber':
+        this.monitoringService.incrementStage3Count()
+        break;
+      case 'askingOTP':
+        this.monitoringService.incrementStage4Count()
+        break;
+      case 'endFlow':
+        if(!result.error){
+          this.monitoringService.incrementStage5Count()
+        }
+        break;
+      default:
+        break;
+    }
+    
+    // verboseLogger("response text", result.text)
+    // verboseLogger("response textInEnglish", result.textInEnglish)
+    // verboseLogger("response error", result.error)
     return result;
   }
 }

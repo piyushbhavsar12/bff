@@ -41,6 +41,11 @@ export class MonitoringService {
       { name: "noUserRecordsFoundCount" },
       { name: "untrainedQueryCount" },
       { name: "resentOTPCount" },
+      { name: "stage1Count" },
+      { name: "stage2Count" },  
+      { name: "stage3Count" },
+      { name: "stage4Count" },
+      { name: "stage5Count" },
     ];
     for (const metric of metricsToUpsert){
       const existingMetric: any = await this.prismaService.metrics.findUnique({
@@ -146,6 +151,21 @@ export class MonitoringService {
             break;
           case "resentOTPCount":
             this.resentOTPCounter.inc(parseInt(existingMetric.value));
+            break;
+          case "stage1Count":
+            this.stage1Counter.inc(parseInt(existingMetric.value));
+            break;
+          case "stage2Count":
+            this.stage2Counter.inc(parseInt(existingMetric.value));
+            break;
+          case "stage3Count":
+            this.stage3Counter.inc(parseInt(existingMetric.value));
+            break;
+          case "stage4Count":
+            this.stage4Counter.inc(parseInt(existingMetric.value));
+            break;
+          case "stage5Count":
+            this.stage5Counter.inc(parseInt(existingMetric.value));
             break;
           default:
             break;
@@ -317,6 +337,31 @@ export class MonitoringService {
     help: 'resent otp count'
   })
 
+  private stage1Counter: Counter<string> = new Counter({
+    name: 'stage_1_count',
+    help: 'Count of sessions which are at stage 1'
+  })
+
+  private stage2Counter: Counter<string> = new Counter({
+    name: 'stage_2_count',
+    help: 'Count of sessions which are at stage 2'
+  })
+
+  private stage3Counter: Counter<string> = new Counter({
+    name: 'stage_3_count',
+    help: 'Count of sessions which are at stage 3'
+  })
+
+  private stage4Counter: Counter<string> = new Counter({
+    name: 'stage_4_count',
+    help: 'Count of sessions which are at stage 4'
+  })
+
+  private stage5Counter: Counter<string> = new Counter({
+    name: 'stage_5_count',
+    help: 'Count of sessions which are at stage 5'
+  })
+
   public async getBhashiniCount() {
     let count = await this.bhashiniCounter.get();
     return count.values[0].value;
@@ -482,6 +527,31 @@ export class MonitoringService {
     return count.values[0].value;
   }
 
+  public async getStage1Count() {
+    let count = await this.stage1Counter.get();
+    return count.values[0].value;
+  }
+
+  public async getStage2Count() {
+    let count = await this.stage2Counter.get();
+    return count.values[0].value;
+  }
+
+  public async getStage3Count() {
+    let count = await this.stage3Counter.get();
+    return count.values[0].value;
+  }
+
+  public async getStage4Count() {
+    let count = await this.stage4Counter.get();
+    return count.values[0].value;
+  }
+
+  public async getStage5Count() {
+    let count = await this.stage5Counter.get();
+    return count.values[0].value;
+  }
+
   public incrementBhashiniCount(): void {
     this.bhashiniCounter.inc();
   }
@@ -614,6 +684,26 @@ export class MonitoringService {
     this.resentOTPCounter.inc();
   }
 
+  public incrementStage1Count() {
+    this.stage1Counter.inc();
+  }
+
+  public incrementStage2Count() {
+    this.stage2Counter.inc();
+  }
+
+  public incrementStage3Count() {
+    this.stage3Counter.inc();
+  }
+
+  public incrementStage4Count() {
+    this.stage4Counter.inc();
+  }
+
+  public incrementStage5Count() {
+    this.stage5Counter.inc();
+  }
+
   public async onExit(): Promise<void> {
     const metricsToUpsert: any = [
       { name: 'bhashiniCount', value: `${await this.getBhashiniCount()}`},
@@ -649,6 +739,11 @@ export class MonitoringService {
       { name: "noUserRecordsFoundCount", value: `${await this.getNoUserRecordsFoundCount()}` },
       { name: "untrainedQueryCount", value: `${await this.getUntrainedQueryCount()}` },
       { name: "resentOTPCount", value: `${await this.getResentOTPCount()}` },
+      { name: "stage1Count", value: `${await this.getStage1Count()}` },
+      { name: "stage2Count", value: `${await this.getStage2Count()}` },
+      { name: "stage3Count", value: `${await this.getStage3Count()}` },
+      { name: "stage4Count", value: `${await this.getStage4Count()}` },
+      { name: "stage5Count", value: `${await this.getStage5Count()}` },
     ];
     const upsertedMetrics = [];
     try{

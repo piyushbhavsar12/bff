@@ -144,6 +144,26 @@ export class MonitoringController {
                 this.monitoringService.incrementResentOTPCount();
                 count = await this.monitoringService.getResentOTPCount();
                 break;
+            case "stage1Count":
+                this.monitoringService.incrementStage1Count();
+                count = await this.monitoringService.getStage1Count();
+                break;
+            case "stage2Count":
+                this.monitoringService.incrementStage2Count();
+                count = await this.monitoringService.getStage2Count();
+                break;
+            case "stage3Count":
+                this.monitoringService.incrementStage3Count();
+                count = await this.monitoringService.getStage3Count();
+                break;
+            case "stage4Count":
+                this.monitoringService.incrementStage4Count();
+                count = await this.monitoringService.getStage4Count();
+                break;
+            case "stage5Count":
+                this.monitoringService.incrementStage5Count();
+                count = await this.monitoringService.getStage5Count();
+                break;
             default:
                 count = `'${metric}' metric does not exist`
                 break;
