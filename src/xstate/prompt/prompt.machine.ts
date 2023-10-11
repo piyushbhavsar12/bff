@@ -442,7 +442,7 @@ export const botFlowMachine2: any =
               actions:[
                 assign({
                   query: (_,event) => event.data.query,
-                  userAadhaarNumber: (_, event) => {console.log("setting user aadhaar"); return `${event.data.query}`},
+                  userAadhaarNumber: (_, event) => {return `${event.data.query}`},
                   type:''
                 })
               ]
@@ -581,7 +581,7 @@ export const botFlowMachine2: any =
               actions:[
                 assign({
                   query: (_,event) => event.data.query,
-                  lastAadhaarDigits: (_context, event) => {console.log("setting user aadhaar"); return `${event.data.query}`},
+                  lastAadhaarDigits: (_context, event) => {return `${event.data.query}`},
                   type:''
                 })
               ]
@@ -728,6 +728,7 @@ export const botFlowMachine2: any =
             actions: [
               assign({
                 response: (_, event) => event.data,
+                userAadhaarNumber: "",
                 type: ''
               })
             ]
@@ -737,6 +738,7 @@ export const botFlowMachine2: any =
             actions: [
               assign({
                 error: (_, event) => event.data.message,
+                userAadhaarNumber: "",
                 type: ''
               })
             ]
@@ -746,7 +748,14 @@ export const botFlowMachine2: any =
       error: {
         invoke: {
           src: 'logError',
-          onDone: 'endFlow',
+          onDone: {
+            target: 'endFlow',
+            actions: [
+              assign({
+                userAadhaarNumber: ""
+              })
+            ]
+          }
         }
       },
       endFlow: {
@@ -957,7 +966,7 @@ export const botFlowMachine3:any =
               actions:[
                 assign({
                   query: (_,event) => event.data.query,
-                  userAadhaarNumber: (_, event) => {console.log("setting user aadhaar"); return `${event.data.query}`},
+                  userAadhaarNumber: (_, event) => {return `${event.data.query}`},
                   type:''
                 })
               ]
@@ -1096,7 +1105,7 @@ export const botFlowMachine3:any =
               actions:[
                 assign({
                   query: (_,event) => event.data.query,
-                  lastAadhaarDigits: (_context, event) => {console.log("setting user aadhaar"); return `${event.data.query}`},
+                  lastAadhaarDigits: (_context, event) => {return `${event.data.query}`},
                   type:''
                 })
               ]
@@ -1222,7 +1231,7 @@ export const botFlowMachine3:any =
             },
             {
               target: 'fetchingUserData',
-              actions: 'updateUserAsValidated'
+              // actions: 'updateUserAsValidated'
             }
           ],
           onError: {
@@ -1244,6 +1253,9 @@ export const botFlowMachine3:any =
             actions: [
               assign({
                 response: (_, event) => event.data,
+                userAadhaarNumber: "",
+                lastAadhaarDigits: "",
+                isOTPVerified: false,
                 type: ''
               })
             ]
@@ -1252,6 +1264,9 @@ export const botFlowMachine3:any =
             target: 'error',
             actions: [
               assign({
+                userAadhaarNumber: "",
+                lastAadhaarDigits: "",
+                isOTPVerified: false,
                 error: (_, event) => event.data.message,
                 type: ''
               })
@@ -1262,7 +1277,17 @@ export const botFlowMachine3:any =
       error: {
         invoke: {
           src: 'logError',
-          onDone: 'endFlow',
+          onDone: {
+            target: 'endFlow',
+            actions: [
+              assign({
+                userAadhaarNumber: "",
+                lastAadhaarDigits: "",
+                isOTPVerified: false,
+                type: ''
+              })
+            ]
+          }
         }
       },
       endFlow: {

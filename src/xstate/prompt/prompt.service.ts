@@ -29,12 +29,10 @@ export class PromptServices {
     }
 
     async getInput (context) {
-        console.log("getInput",context)
         return context
     }
 
     async questionClassifier (context) {
-        console.log("questionClassifier")
         try{
             let response: any = await this.aiToolsService.textClassification(context.query)
             if (response.error) throw new Error(`${response.error}, please try again.`)
@@ -60,11 +58,7 @@ export class PromptServices {
 
     async validateAadhaarNumber (context, event) {
         try{
-            console.log("validating user identifier")
             const userIdentifier = `${context.userAadhaarNumber}${context.lastAadhaarDigits}`;
-            console.log("userIdentifier",userIdentifier)
-            console.log(userIdentifier.length)
-            console.log(/^[6-9]\d{9}$/.test(userIdentifier.substring(0,10)))
             let res;
             if(/^[6-9]\d{9}$/.test(userIdentifier)) {
                 this.monitoringService.incrementMobileNumberCount()
@@ -145,7 +139,14 @@ export class PromptServices {
             res.d.output['FatherName'],
             res.d.output['DOB'],
             res.d.output['Address'],
-            res.d.output['DateOfRegistration']
+            res.d.output['DateOfRegistration'],
+            res.d.output['LatestInstallmentPaid'],
+            res.d.output['Reg_No'],
+            res.d.output['StateName'],
+            res.d.output['DistrictName'],
+            res.d.output['SubDistrictName'],
+            res.d.output['VillageName'],
+            res.d.output['eKYC_Status']
         )
 
         console.log("ChatbotBeneficiaryStatus")

@@ -17,6 +17,7 @@ const uuid = require('uuid');
 const path = require('path');
 const filePath = path.resolve(__dirname, './common/en.json');
 const engMessage = require(filePath);
+const argon2 = require('argon2');
 
 export class PromptDto {
   @IsNotEmpty()
@@ -339,18 +340,6 @@ export class AppController {
       }
     }
 
-    //Save user message
-    await this.prismaService.message.create({
-      data:{
-        text: type=="Text"?promptDto.text:null,
-        // audio: type=="Audio"?promptDto.media.text:null,
-        audio: null,
-        type: "User",
-        userId,
-        flowId: configid || '3',
-        messageType
-      }
-    })
     //get flow
     let botFlowMachine;
     switch(configid){
@@ -382,11 +371,38 @@ export class AppController {
       inputLanguage: prompt.inputLanguage,
       lastAadhaarDigits:'',
       state:'onGoing',
-      isOTPVerified: user.isVerified
+      isOTPVerified: false
     }
 
     let botFlowService = interpret(botFlowMachine.withContext(conversation || defaultContext)).start();
     // verboseLogger("current state when API hit =", botFlowService.state.context.currentState)
+    if((botFlowService.state.context.currentState == "askingAadhaarNumber" || botFlowService.state.context.currentState == "confirmInput2") && type=="Text" ){
+      let hashedAadhaar = await argon2.hash(promptDto.text);
+      console.log("you have entered aadhaar", hashedAadhaar)
+      await this.prismaService.message.create({
+        data:{
+          text: hashedAadhaar,
+          // audio: type=="Audio"?promptDto.media.text:null,
+          audio: null,
+          type: "User",
+          userId,
+          flowId: configid || '3',
+          messageType
+        }
+      })
+    }else {
+      await this.prismaService.message.create({
+        data:{
+          text: type=="Text"?promptDto.text:null,
+          // audio: type=="Audio"?promptDto.media.text:null,
+          audio: null,
+          type: "User",
+          userId,
+          flowId: configid || '3',
+          messageType
+        }
+      })
+    }
     let isNumber = false;
 
     if(type == 'Audio' && (botFlowService.state.context.currentState == 'confirmInput1' || botFlowService.state.context.currentState == 'getUserQuestion')) {

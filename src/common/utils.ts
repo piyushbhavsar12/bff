@@ -179,7 +179,7 @@ export const wordToNumber = (input,type='benId') => {
     let formattedString = `<table class="aadhar-table"><tbody>`
     tableData.forEach((text)=>{
       let td = text.split('-')
-      formattedString+= `<tr><td>${td[0].trim()} :</td><td>${td[1].trim()}</td></tr>`
+      formattedString+= `<tr><td>${td[0].trim()} :</td><td>${td.slice(1).join("-").trim()}</td></tr>`
     })
     formattedString+=`</tbody></table>`
     return formattedString;
@@ -195,3 +195,20 @@ export const wordToNumber = (input,type='benId') => {
     // Directly return the joined string
     return splitStr.join(' '); 
  }
+
+ export const addOrdinalSuffix = (number) => {
+  if (number % 100 >= 11 && number % 100 <= 13) {
+    return number + "th";
+  } else {
+    switch (number % 10) {
+      case 1:
+        return number + "st";
+      case 2:
+        return number + "nd";
+      case 3:
+        return number + "rd";
+      default:
+        return number + "th";
+    }
+  }
+}
