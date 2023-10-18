@@ -135,17 +135,17 @@ export class PromptServices {
             return Promise.reject(new Error(res.d.output.Message))
         }
         let userDetails = AADHAAR_GREETING_MESSAGE(
-            res.d.output['BeneficiaryName'],
-            res.d.output['FatherName'],
+            titleCase(res.d.output['BeneficiaryName']),
+            titleCase(res.d.output['FatherName']),
             res.d.output['DOB'],
             res.d.output['Address'],
             res.d.output['DateOfRegistration'],
             res.d.output['LatestInstallmentPaid'],
             res.d.output['Reg_No'],
-            res.d.output['StateName'],
-            res.d.output['DistrictName'],
-            res.d.output['SubDistrictName'],
-            res.d.output['VillageName'],
+            titleCase(res.d.output['StateName']),
+            titleCase(res.d.output['DistrictName']),
+            titleCase(res.d.output['SubDistrictName']),
+            titleCase(res.d.output['VillageName']),
             res.d.output['eKYC_Status']
         )
 

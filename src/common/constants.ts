@@ -15,7 +15,7 @@ export const AADHAAR_GREETING_MESSAGE = (
     VillageName,
     eKYC_Status
 ) => `Beneficiary Name - ${BeneficiaryName}
-State - ${StateName}, ${DistrictName}, ${SubDistrictName}, ${VillageName}
+Beneficiary Location - ${StateName}, ${DistrictName}, ${SubDistrictName}, ${VillageName}
 Registration Number - ${Reg_No}
 Registration Date - ${moment(DateOfRegistration).format('DD-MM-YYYY')}
 Last Installment Status - ${LatestInstallmentPaid==0?"No":addOrdinalSuffix(LatestInstallmentPaid)} Installment payment done
