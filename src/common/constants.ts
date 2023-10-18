@@ -19,5 +19,5 @@ Beneficiary Location - ${StateName}, ${DistrictName}, ${SubDistrictName}, ${Vill
 Registration Number - ${Reg_No}
 Registration Date - ${moment(DateOfRegistration).format('DD-MM-YYYY')}
 Last Installment Status - ${LatestInstallmentPaid==0?"No":addOrdinalSuffix(LatestInstallmentPaid)} Installment payment done
-ekyc - ${eKYC_Status=='Y'?'Done':'Not Done'} 
+eKYC - ${eKYC_Status=='Y'?'Done':'Not Done'} 
 `
