@@ -24,7 +24,7 @@
         "types":["payment"]
     },
     "Benefit Surrender": {
-        "text":"Dear {{farmer_name}}, I have checked your status and found that you have surrendered your The PM KISAN benefit. Therefore, your payment has not been processed.",
+        "text":"Dear {{farmer_name}}, I have checked your status and found that you have surrendered your PM KISAN benefit. Therefore, your payment has not been processed.",
         "types":["payment"]
     },
     "Old district to new district transfer": {
@@ -128,11 +128,11 @@
         "types":["payment"]
     },
     "Account blocked/frozen": {
-        "text":"Dear {{farmer_name}}, I've checked your account and found that your bank account has been blocked by the Bank. Therefore, benefit could not be released. I suggest you to seed your Aadhaar with your active bank account from your nearest bank branch and enable it for DBT also to continue to avail the benefit of the  the PM KISAN scheme.",
+        "text":"Dear {{farmer_name}}, I've checked your account and found that your bank account has been blocked by the Bank. Therefore, benefit could not be released. I suggest you to seed your Aadhaar with your active bank account from your nearest bank branch and enable it for DBT also to continue to avail the benefit of the PM KISAN scheme.",
         "types":["payment"]
     },
     "Account closed": {
-        "text":"Dear {{farmer_name}}, I have checked your account and found that your bank account has been closed by Bank. Therefore, benefit could not be released. I suggest you to seed your Aadhaar with your active bank account from your nearest bank branch and enable it for DBT also to continue to avail the benefit of the  the PM KISAN scheme.",
+        "text":"Dear {{farmer_name}}, I have checked your account and found that your bank account has been closed by Bank. Therefore, benefit could not be released. I suggest you to seed your Aadhaar with your active bank account from your nearest bank branch and enable it for DBT also to continue to avail the benefit of the PM KISAN scheme.",
         "types":["payment"]
     },
     "Account Holder Expired": {
