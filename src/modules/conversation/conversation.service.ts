@@ -2,6 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { PrismaService } from "../../global-services/prisma.service";
 import { ConfigService } from "@nestjs/config";
 import { CustomLogger } from "../../common/logger";
+import { feedback } from "@prisma/client";
 
 
 @Injectable()
@@ -19,8 +20,8 @@ export class ConversationService {
     context: any,
     state: string,
     flowId: string
-  ): Promise<void> {
-    await this.prisma.conversation.upsert({
+  ): Promise<any> {
+     return await this.prisma.conversation.upsert({
         where: { userId_flowId: {userId, flowId} },
         create: { 
             userId,
@@ -36,7 +37,7 @@ export class ConversationService {
     userId: string,
     flowId: string
   ): Promise<any | null> {
-    const conversation = await this.prisma.conversation.findFirst({
+    const conversation: any = await this.prisma.conversation.findFirst({
         where: { 
             userId,
             flowId,
@@ -44,6 +45,28 @@ export class ConversationService {
         },
     });
     
-    return conversation?.context || null;
+    return conversation?.context ? {...conversation.context, id:conversation.id} : null;
+  }
+
+  async createOrUpdateFeedback(
+    feedback: any
+  ): Promise<feedback> {
+    const feedbackResponse: feedback = await this.prisma.feedback.upsert({
+      where: { conversationId: feedback.conversationId},
+      create: {
+        conversationId: feedback.conversationId,
+        translation: feedback.translation,
+        information: feedback.information,
+        chatbotFunctionality: feedback.chatbotFunctionality,
+        feedback: feedback.feedback
+      },
+      update:{
+        translation: feedback.translation,
+        information: feedback.information,
+        chatbotFunctionality: feedback.chatbotFunctionality,
+        feedback: feedback.feedback
+      }
+    });
+    return feedbackResponse
   }
 }

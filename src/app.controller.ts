@@ -293,7 +293,8 @@ export class AppController {
           this.monitoringService.incrementSomethingWentWrongTryAgainCount()
           return{
             text:"",
-            error: "Something went wrong, please try again."
+            error: "Something went wrong, please try again.",
+            conversationId: conversation?.id
           }
         }
         userInput = response["text"]
@@ -335,7 +336,8 @@ export class AppController {
           text: "",
           media: promptDto.media,
           mediaCaption: "",
-          error: "Unsupported media"
+          error: "Unsupported media",
+          conversationId: conversation?.id
         }
       }
     }
@@ -481,6 +483,7 @@ export class AppController {
         })
       }
       res['messageId'] = uuid.v4()
+      res['conversationId'] = conversation?.id
       return res
     } else {
       //translate to english
@@ -533,7 +536,10 @@ export class AppController {
             errorLogger("Sorry, We are unable to translate given input, please try again")
             this.monitoringService.incrementTotalFailureSessionsCount()
             this.monitoringService.incrementUnableToTranslateCount()
-            return { error: "Sorry, We are unable to translate given input, please try again" }
+            return { 
+              error: "Sorry, We are unable to translate given input, please try again",
+              conversationId: conversation?.id
+            }
           }
           prompt.inputTextInEnglish = response["text"]
           // verboseLogger("translated english text =", prompt.inputTextInEnglish)
@@ -605,7 +611,10 @@ export class AppController {
           errorLogger("Sorry, We are unable to translate given input, please try again")
           this.monitoringService.incrementTotalFailureSessionsCount()
           this.monitoringService.incrementUnableToTranslateCount()
-          return { error: "Sorry, We are unable to translate given input, please try again" }
+          return { 
+            error: "Sorry, We are unable to translate given input, please try again",
+            conversationId: conversation?.id
+          }
         }
       } else {
         prompt.inputTextInEnglish = userInput
@@ -825,7 +834,10 @@ export class AppController {
           errorLogger(error)
           this.monitoringService.incrementTotalFailureSessionsCount()
           this.monitoringService.incrementUnableToTranslateCount()
-          return { error: "Sorry, We are unable to translate given input, please try again" }
+          return { 
+            error: "Sorry, We are unable to translate given input, please try again",
+            conversationId: conversation?.id
+          }
         }
       }
       if(prompt.inputLanguage != Language.en && placeholder){
@@ -945,7 +957,10 @@ export class AppController {
           errorLogger(error)
           this.monitoringService.incrementTotalFailureSessionsCount()
           this.monitoringService.incrementUnableToTranslateCount()
-          return { error: "Sorry, We are unable to translate given input, please try again" }
+          return { 
+            error: "Sorry, We are unable to translate given input, please try again",
+            conversationId: conversation?.id
+          }
         }
       } else if(placeholder) {
         result['placeholder'] = placeholder
@@ -1066,7 +1081,7 @@ export class AppController {
       }
     }
 
-    await this.conversationService.saveConversation(
+    conversation = await this.conversationService.saveConversation(
       userId,
       botFlowService.getSnapshot().context,
       botFlowService.state.context.state,
@@ -1086,6 +1101,7 @@ export class AppController {
     })
     result["messageId"] = msg.id
     result["messageType"] = messageType
+    result["conversationId"] = conversation.id
     verboseLogger("current state while returning response =", botFlowService.state.context.currentState)
     switch(botFlowService.state.context.currentState){
       case 'askingAadhaarNumber':

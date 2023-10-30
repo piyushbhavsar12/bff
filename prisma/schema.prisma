@@ -20,6 +20,7 @@ model conversation {
   context               Json
   state                 String
   flowId                String
+  feedback              feedback?
   @@unique([id])
   @@unique([userId,flowId])
 }
@@ -84,4 +85,14 @@ model telemetry_logs {
   tags                            Json?
 
   @@unique([eid,createdAt])
+}
+
+model feedback {
+  id                      Int             @id @default(autoincrement())
+  conversation            conversation?   @relation(fields: [conversationId], references: [id])
+  conversationId          String?         @db.Uuid @unique
+  translation             Int             @default(0) @db.SmallInt 
+  information             Int             @default(0) @db.SmallInt
+  chatbotFunctionality    Int             @default(0) @db.SmallInt
+  feedback                String?
 }
