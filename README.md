@@ -28,7 +28,7 @@ git clone https://github.com/AgrI-Mitra/bff.git
 ```sh
 # Setup DB and Hasura
 # For Local:
-docker-compose -f docker-compose.local.yaml up -d --build
+docker-compose -f ./docker-compose.local.yaml up -d --build
 # For Server:
 ocker-compose up -d
 
