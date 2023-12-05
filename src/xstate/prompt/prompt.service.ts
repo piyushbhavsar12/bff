@@ -198,6 +198,16 @@ export class PromptServices {
         return `${userDetails}${userErrors.join("\n")}`
     }
 
+    async wadhwaniClassifier (context) {
+        try{
+            let response: any = await this.aiToolsService.getResponseViaWadhwani(context.query)
+            if (response.error) throw new Error(`${response.error}, please try again.`)
+            return response;
+        } catch (error){
+            return Promise.reject(error)
+        }
+    }
+
     allFunctions() {
         return {
             getInput: this.getInput.bind(this),
@@ -205,7 +215,8 @@ export class PromptServices {
             logError: this.logError.bind(this),
             validateAadhaarNumber: this.validateAadhaarNumber.bind(this),
             validateOTP: this.validateOTP.bind(this),
-            fetchUserData: this.fetchUserData.bind(this)
+            fetchUserData: this.fetchUserData.bind(this),
+            wadhwaniClassifier: this.wadhwaniClassifier.bind(this),
         }
     }
 

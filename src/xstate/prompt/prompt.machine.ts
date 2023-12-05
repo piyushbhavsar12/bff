@@ -785,7 +785,8 @@ export const botFlowMachine3:any =
       lastAadhaarDigits:'',
       state:'onGoing',
       userId:'',
-      isOTPVerified: false
+      isOTPVerified: false,
+      isWadhwaniResponse: "false"
     },
     states: {
       checkStateAndJump: {
@@ -887,11 +888,10 @@ export const botFlowMachine3:any =
             },
             {
               cond: "ifInvalidClassifier",
-              target: "getUserQuestion",
+              target: "wadhwaniClassifier",
               actions: [
                 assign({
-                  response: () => engMessage["message.invalid_question"],
-                  type:"pause"
+                  isWadhwaniResponse: "true"
                 })
               ]
             },
@@ -910,6 +910,37 @@ export const botFlowMachine3:any =
               assign({
                 error: (_, event) => event.data.message,
                 type: ''
+              })
+            ]
+          }
+        }
+      },
+      wadhwaniClassifier: {
+        invoke: {
+          src: "wadhwaniClassifier",
+          onDone: {
+            target: 'endFlow',
+            actions: [
+              assign({
+                response: (_, event) => event.data,
+                userAadhaarNumber: "",
+                lastAadhaarDigits: "",
+                isOTPVerified: false,
+                type: '',
+                isWadhwaniResponse: "false"
+              })
+            ]
+          },
+          onError: {
+            target: 'error',
+            actions: [
+              assign({
+                userAadhaarNumber: "",
+                lastAadhaarDigits: "",
+                isOTPVerified: false,
+                error: (_, event) => event.data.message,
+                type: '',
+                isWadhwaniResponse: "false"
               })
             ]
           }

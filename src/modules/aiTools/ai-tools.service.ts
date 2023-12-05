@@ -7,6 +7,10 @@ import { MonitoringService } from '../monitoring/monitoring.service';
 const fetch = require('../../common/fetch');
 const nodefetch = require('node-fetch');
 const { Headers } = require('node-fetch');
+const path = require('path');
+const filePath = path.resolve(__dirname, '../../common/en.json');
+const engMessage = require(filePath);
+
 @Injectable()
 export class AiToolsService {
   constructor(
@@ -231,6 +235,37 @@ export class AiToolsService {
         "credentials": "omit"
       });
       response = await response.text()
+      return response
+    } catch(error){
+      console.log(error)
+      return {
+        error
+      }
+    }
+  }
+
+  async getResponseViaWadhwani(text: string) {
+    try{
+      var myHeaders = new Headers();
+      myHeaders.append("accept", "application/json");
+      myHeaders.append("X-API-Key", this.configService.get("WADHWANI_API_KEY"));
+      let response: any = await fetch(`${this.configService.get("WADHWANI_BASE_URL")}/detect_query_intent?query=${text}`, {
+        headers: myHeaders,
+        "method": "GET",
+        "mode": "cors",
+        "credentials": "omit"
+      });
+      response = await response.text()
+      if(response == '"Invalid"'){
+        return engMessage["message.invalid_question"]
+      }
+      response = await fetch(`${this.configService.get("WADHWANI_BASE_URL")}/get_bot_response?query=${response}`, {
+        headers: myHeaders,
+        "method": "GET",
+        "mode": "cors",
+        "credentials": "omit"
+      });
+      response = (await response.text()).replace(/^\"|\"$/g, '')
       return response
     } catch(error){
       console.log(error)

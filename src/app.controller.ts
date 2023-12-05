@@ -996,15 +996,17 @@ export class AppController {
               break;
           }
           messageType = "final_response"
-          let resArray = result.text.split("\n")
-          let compareText = result.textInEnglish.split('\n')
-          if(compareText[compareText.length-1].slice(0,12)=="Registration"){
-            textToaudio = ""
-          } else {
-            textToaudio = resArray.pop() 
+          if(botFlowService.state.context.isWadhwaniResponse == 'false'){
+            let resArray = result.text.split("\n")
+            let compareText = result.textInEnglish.split('\n')
+            if(compareText[compareText.length-1].slice(0,12)=="Registration"){
+              textToaudio = ""
+            } else {
+              textToaudio = resArray.pop() 
+            }
+            // verboseLogger("Array to convert",resArray)
+            result.text = `${formatStringsToTable(resArray)}\n${textToaudio}`
           }
-          // verboseLogger("Array to convert",resArray)
-          result.text = `${formatStringsToTable(resArray)}\n${textToaudio}`
         }
         // verboseLogger("textToaudio =",textToaudio)
         let audioStartTime = Date.now();
