@@ -249,17 +249,7 @@ export class AiToolsService {
       var myHeaders = new Headers();
       myHeaders.append("accept", "application/json");
       myHeaders.append("X-API-Key", this.configService.get("WADHWANI_API_KEY"));
-      let response: any = await fetch(`${this.configService.get("WADHWANI_BASE_URL")}/detect_query_intent?query=${text}`, {
-        headers: myHeaders,
-        "method": "GET",
-        "mode": "cors",
-        "credentials": "omit"
-      });
-      response = await response.text()
-      if(response == '"Invalid"'){
-        return engMessage["message.invalid_question"]
-      }
-      response = await fetch(`${this.configService.get("WADHWANI_BASE_URL")}/get_bot_response?query=${response}`, {
+      let response: any = await fetch(`${this.configService.get("WADHWANI_BASE_URL")}/get_bot_response?query=${text}`, {
         headers: myHeaders,
         "method": "GET",
         "mode": "cors",
