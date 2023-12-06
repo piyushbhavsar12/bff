@@ -882,7 +882,8 @@ export const botFlowMachine3:any =
               actions: [
                 assign({
                   response: () => engMessage["message.convoStarter"],
-                  type:"pause"
+                  type:"pause",
+                  isWadhwaniResponse: "false"
                 })
               ]
             },
@@ -899,7 +900,8 @@ export const botFlowMachine3:any =
               target: 'checkIfOTPHasBeenVerified',
               actions: [
                 assign({
-                  queryType: (_,event) => {console.log(`assigning queryType = ${event.data}`); return event.data}
+                  queryType: (_,event) => {console.log(`assigning queryType = ${event.data}`); return event.data},
+                  isWadhwaniResponse: "false"
                 })
               ]
             }
@@ -926,8 +928,7 @@ export const botFlowMachine3:any =
                 userAadhaarNumber: "",
                 lastAadhaarDigits: "",
                 isOTPVerified: false,
-                type: '',
-                isWadhwaniResponse: "false"
+                type: ''
               })
             ]
           },
@@ -939,8 +940,7 @@ export const botFlowMachine3:any =
                 lastAadhaarDigits: "",
                 isOTPVerified: false,
                 error: (_, event) => event.data.message,
-                type: '',
-                isWadhwaniResponse: "false"
+                type: ''
               })
             ]
           }

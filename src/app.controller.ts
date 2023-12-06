@@ -5,7 +5,7 @@ import { interpret } from "xstate";
 import { Language } from "./language";
 import { ConfigService } from "@nestjs/config";
 import { AiToolsService } from "./modules/aiTools/ai-tools.service";
-import { formatStringsToTable, wordToNumber } from "./common/utils";
+import { formatStringsToTable, removeLinks, wordToNumber } from "./common/utils";
 import { ConversationService } from "./modules/conversation/conversation.service";
 import { PrismaService } from "./global-services/prisma.service";
 import { CustomLogger } from "./common/logger";
@@ -1010,6 +1010,7 @@ export class AppController {
         }
         // verboseLogger("textToaudio =",textToaudio)
         let audioStartTime = Date.now();
+        textToaudio = removeLinks(textToaudio)
         result['audio'] = await this.aiToolsService.textToSpeech(textToaudio,isNumber ? Language.en : prompt.inputLanguage)
         if(result['audio']['error']){
           await this.telemetryService.capture({
