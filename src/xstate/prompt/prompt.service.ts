@@ -36,15 +36,10 @@ export class PromptServices {
         try{
             let response: any = await this.aiToolsService.textClassification(context.query)
             if (response.error) throw new Error(`${response.error}, please try again.`)
-            if (response == "LABEL_2") {
-                this.monitoringService.incrementUntrainedQueryCount()
+            if (response == `"Installment not received"`) return "payment"
+            else {
                 return "invalid"
             }
-            if (response == "LABEL_1") return "payment"
-            if (response == "LABEL_0") return "payment"
-            if (response == "LABEL_3") return "convo_starter"
-            if (response == "LABEL_4") return "convo_ender"
-            return response;
         } catch (error){
             return Promise.reject(error)
         }

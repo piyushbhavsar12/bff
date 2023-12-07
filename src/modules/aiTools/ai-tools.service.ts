@@ -223,14 +223,21 @@ export class AiToolsService {
   async textClassification(text: string) {
     try{
       var myHeaders = new Headers();
-      myHeaders.append("Content-Type", "application/json");
-      let body = {
-        text: text
-      }
-      let response: any = await fetch(`${this.configService.get("HUGGINGFACE_TEXT_CLASSIFICATION_BASE_URL")}`, {
+      myHeaders.append("accept", "application/json");
+      myHeaders.append("X-API-Key", this.configService.get("WADHWANI_API_KEY"));
+      // let body = {
+      //   text: text
+      // }
+      // let response: any = await fetch(`${this.configService.get("HUGGINGFACE_TEXT_CLASSIFICATION_BASE_URL")}`, {
+      //   headers: myHeaders,
+      //   "body": JSON.stringify(body),
+      //   "method": "POST",
+      //   "mode": "cors",
+      //   "credentials": "omit"
+      // });
+      let response: any = await fetch(`${this.configService.get("WADHWANI_BASE_URL")}/detect_query_intent?query=${text}`, {
         headers: myHeaders,
-        "body": JSON.stringify(body),
-        "method": "POST",
+        "method": "GET",
         "mode": "cors",
         "credentials": "omit"
       });
