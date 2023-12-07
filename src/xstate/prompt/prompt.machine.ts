@@ -878,12 +878,11 @@ export const botFlowMachine3:any =
           onDone: [
             {
               cond: "ifConvoStarterOrEnder",
-              target: "getUserQuestion",
+              target: "wadhwaniClassifier",
               actions: [
                 assign({
-                  response: () => engMessage["message.convoStarter"],
-                  type:"pause",
-                  isWadhwaniResponse: "false"
+                  queryType: (_,event) => event.data,
+                  isWadhwaniResponse: "true"
                 })
               ]
             },
@@ -900,7 +899,7 @@ export const botFlowMachine3:any =
               target: 'checkIfOTPHasBeenVerified',
               actions: [
                 assign({
-                  queryType: (_,event) => {console.log(`assigning queryType = ${event.data}`); return event.data},
+                  queryType: (_,event) => event.data,
                   isWadhwaniResponse: "false"
                 })
               ]

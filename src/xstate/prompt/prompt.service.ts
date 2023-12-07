@@ -36,6 +36,9 @@ export class PromptServices {
         try{
             let response: any = await this.aiToolsService.textClassification(context.query)
             if (response.error) throw new Error(`${response.error}, please try again.`)
+            if (response == `"Invalid"`) return "convo"
+            if (response == `"convo_starter"`) return "convo"
+            if (response == `"convo_ender"`) return "convo"
             if (response == `"Installment not received"`) return "payment"
             else {
                 return "invalid"

@@ -995,7 +995,7 @@ export class AppController {
               this.monitoringService.incrementTotalSessionsInEnglishCount();
               break;
           }
-          messageType = "final_response"
+          messageType = botFlowService.state.context.queryType == "convo" ? "convo_response" : "final_response"
           if(botFlowService.state.context.isWadhwaniResponse == 'false'){
             let resArray = result.text.split("\n")
             let compareText = result.textInEnglish.split('\n')
