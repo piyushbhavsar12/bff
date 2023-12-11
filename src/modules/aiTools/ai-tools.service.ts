@@ -226,7 +226,7 @@ export class AiToolsService {
     try{
       var myHeaders = new Headers();
       myHeaders.append("accept", "application/json");
-      myHeaders.append("X-API-Key", `Bearer ${this.configService.get("CLASSIFIER_API_KEY")}`);
+      myHeaders.append("Authorization", `Bearer ${this.configService.get("CLASSIFIER_API_KEY")}`);
       let body = {
         text: text
       }
