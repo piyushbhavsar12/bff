@@ -50,6 +50,8 @@ export class PromptDto {
   conversationId?: string;
   @IsOptional()
   identifier?: string;
+  @IsOptional()
+  location?: any;
 }
 
 @Controller()
@@ -373,7 +375,9 @@ export class AppController {
       inputLanguage: prompt.inputLanguage,
       lastAadhaarDigits:'',
       state:'onGoing',
-      isOTPVerified: false
+      isOTPVerified: false,
+      lat: prompt.input?.location?.lat,
+      long: prompt.input?.location?.long
     }
 
     let botFlowService = interpret(botFlowMachine.withContext(conversation || defaultContext)).start();
