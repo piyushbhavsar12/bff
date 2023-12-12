@@ -64,6 +64,7 @@
     "moment-timezone": "^0.5.43",
     "node-cron": "^3.0.2",
     "node-fetch": "2",
+    "node-geocoder": "^4.2.0",
     "nodemailer": "^6.9.1",
     "posthog-node": "^2.6.0",
     "prom-client": "^14.2.0",
