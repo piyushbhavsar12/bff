@@ -22,6 +22,10 @@ export const promptGuards = {
 
     ifInvalidClassifier: (_,event) => event.data == "invalid",
 
+    ifSale: (_,event) => event.data == "sale",
+
+    ifValidCrop: (_,event) => event.data,
+
     ifConvoStarterOrEnder: (_,event) => event.data == "convo"
 
 }
