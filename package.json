@@ -31,6 +31,7 @@
     "@fastify/helmet": "8.0.0",
     "@fastify/multipart": "6.0.0",
     "@fastify/static": "5.0.0",
+    "@nestjs/axios": "^3.0.1",
     "@nestjs/cache-manager": "^2.1.0",
     "@nestjs/common": "8.0.0",
     "@nestjs/config": "1.1.6",
