@@ -155,15 +155,15 @@
         "text":"Dear {{farmer_name}}, I checked your record and found that your Land details were not uploaded by the State/UT Government. I suggest you visit the Block/Tehsil/District Office and get it updated on the PM-KISAN portal",
         "types":["payment"]
     },
-    "Farmer Record has been rejected by PFMS / Bank":	{
+    "Farmer Record has been rejected by PFMS / Bank": {
         "text": "Dear {{farmer_name}}, I have checked your status and found that there is some issue with your bank account. Link your Aadhaar with your active bank account and enable it for DBT payment to continue to avail the benefits.",
         "types":["payment"]
     },
-    "Waiting for approval by state":	{
+    "Waiting for approval by state": {
         "text": "Dear {{farmer_name}}, I have checked your status and found that your PMKISAN account is being verified by the State. Please visit your nearest district/ block office and get your details updated on the PM KISAN portal.",
         "types":["payment"]
     },
-    "1st installment transaction failed to 15th installment transaction failed":	{
+    "1st installment transaction failed to 15th installment transaction failed": {
         "text": "Dear {{farmer_name}}, I have checked your status and found that there is some issue with your bank account. Link your Aadhaar with your active bank account and enable it for DBT payment to continue to avail the benefits.",
         "types":["payment"]
     },
@@ -171,19 +171,19 @@
         "text": "Dear {{farmer_name}}, I have checked your status and found that you have been marked as ineligible by the State as you belong to Exclusion category as per PMKISAN scheme guidelines. If this status is not correct, please Visit your nearest district/ block office and get your details updated on the PM KISAN portal.",
         "types":["payment"]
     },
-    "Invalid account type. Account is not Saving or Jandhan":	{
+    "Invalid account type. Account is not Saving or Jandhan": {
         "text": "Dear {{farmer_name}}, I have checked your status and found that there is some issue with your bank account. Link your Aadhaar with your active bank account and enable it for DBT payment to continue to avail the benefits.",
         "types":["payment"]
     },
-    "Farmer marked as \"InEligible\"":	{
+    "Farmer marked as \"InEligible\"": {
         "text": "Dear {{farmer_name}}, I have checked your status and found that you have been marked as ineligible by the State as you belong to Exclusion category as per PMKISAN scheme guidelines. If this status is not correct, please Visit your nearest district/ block office and get your details updated on the PM KISAN portal.",
         "types":["payment"]
     },
-    "Temporary hold due to account revalidation":	{
+    "Temporary hold due to account revalidation": {
         "text": "Dear {{farmer_name}}, I have checked your status and found that there is some issue with your bank account. Link your Aadhaar with your active bank account and enable it for DBT payment to continue to avail the benefits.",
         "types":["payment"]
     },
-    "Exempted/Not given":	{
+    "Exempted/Not given": {
         "text": "Dear {{farmer_name}}, I have checked your status and found that you have been marked as ineligible by the State as you belong to Exclusion category as per PMKISAN scheme guidelines. If this status is not correct, please Visit your nearest district/ block office and get your details updated on the PM KISAN portal.",
         "types":["payment"]
     },
