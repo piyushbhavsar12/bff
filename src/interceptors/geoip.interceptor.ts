@@ -1,14 +1,15 @@
 import { Injectable, NestInterceptor, ExecutionContext, CallHandler, Logger, HttpStatus, InternalServerErrorException, HttpException } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { HttpService } from '@nestjs/axios';
+import { CustomLogger } from "../common/logger";
 
 @Injectable()
 export class GeoIPInterceptor implements NestInterceptor {
-  private logger: Logger;
+  private logger: CustomLogger;
   private readonly httpService: HttpService;
 
   constructor() {
-    this.logger = new Logger('GeoIPInterceptor');
+    this.logger = new CustomLogger('GeoIPInterceptor');
     this.httpService = new HttpService();
   }
 
