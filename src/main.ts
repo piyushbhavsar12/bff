@@ -63,7 +63,11 @@ async function bootstrap() {
     process.exit(0);
   });
 
-  app.enableCors();
+  app.enableCors({
+    origin: configService.get<string>('CORS_ALLOWED_ORIGINS', '').split(','),
+    methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
+    credentials: true,
+  });
   await app.register(multipart);
   await app.register(compression, { encodings: ["gzip", "deflate"] });
   app.useStaticAssets({ root: join(__dirname, "../../fileUploads") });
