@@ -12,7 +12,6 @@ import compression from "@fastify/compress";
 import { join } from "path";
 import { CustomLogger } from "./common/logger";
 import { MonitoringService } from "./modules/monitoring/monitoring.service";
-import { GeoIPInterceptor } from "./interceptors/geoip.interceptor";
 
 async function bootstrap() {
   const logger = new CustomLogger("Main");
@@ -39,8 +38,6 @@ async function bootstrap() {
       },
     },
   });
-
-  app.useGlobalInterceptors(new GeoIPInterceptor())
 
   process.on('exit', (code) => {
     console.log(`Process is exiting with code: ${code}`);
