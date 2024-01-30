@@ -104,7 +104,7 @@ export class AppController {
       userId: userId,
       flowId: configid
     },"error")
-    // verboseLogger("User input", promptDto)
+    verboseLogger("User input", promptDto)
     //create or get user and conversation
     let user;
     try{
@@ -113,7 +113,10 @@ export class AppController {
           id: userId
         }
       })
-    }catch{
+      verboseLogger("got user", user)
+    }catch(error){
+      errorLogger(error)
+      verboseLogger("got user", user)
       this.monitoringService.incrementTotalSessionsCount()
       // verboseLogger("creating new user with id =",userId)
       await this.telemetryService.capture({
@@ -148,11 +151,13 @@ export class AppController {
       })
     }
     if(!user) {
+      console.log("creating user")
       user = await this.prismaService.user.create({
         data:{
           id: userId
         }
       })
+      console.log(user)
     }
     let conversation = await this.conversationService.getConversationState(
       userId,
