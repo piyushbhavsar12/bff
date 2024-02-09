@@ -22,6 +22,6 @@ export const promptGuards = {
 
     ifInvalidClassifier: (_,event) => event.data == "invalid",
 
-    ifConvoStarterOrEnder: (_,event) => event.data == "convo_starter" || event.data == "convo_ender" 
+    ifConvoStarterOrEnder: (_,event) => event.data == "convo"
 
 }

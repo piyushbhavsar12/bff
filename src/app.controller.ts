@@ -5,7 +5,7 @@ import { interpret } from "xstate";
 import { Language } from "./language";
 import { ConfigService } from "@nestjs/config";
 import { AiToolsService } from "./modules/aiTools/ai-tools.service";
-import { formatStringsToTable, wordToNumber } from "./common/utils";
+import { formatStringsToTable, removeLinks, wordToNumber } from "./common/utils";
 import { ConversationService } from "./modules/conversation/conversation.service";
 import { PrismaService } from "./global-services/prisma.service";
 import { CustomLogger } from "./common/logger";
@@ -995,19 +995,22 @@ export class AppController {
               this.monitoringService.incrementTotalSessionsInEnglishCount();
               break;
           }
-          messageType = "final_response"
-          let resArray = result.text.split("\n")
-          let compareText = result.textInEnglish.split('\n')
-          if(compareText[compareText.length-1].slice(0,12)=="Registration"){
-            textToaudio = ""
-          } else {
-            textToaudio = resArray.pop() 
+          messageType = botFlowService.state.context.queryType == "convo" ? "convo_response" : "final_response"
+          if(botFlowService.state.context.isWadhwaniResponse == 'false'){
+            let resArray = result.text.split("\n")
+            let compareText = result.textInEnglish.split('\n')
+            if(compareText[compareText.length-1].slice(0,12)=="Registration"){
+              textToaudio = ""
+            } else {
+              textToaudio = resArray.pop() 
+            }
+            // verboseLogger("Array to convert",resArray)
+            result.text = `${formatStringsToTable(resArray)}\n${textToaudio}`
           }
-          // verboseLogger("Array to convert",resArray)
-          result.text = `${formatStringsToTable(resArray)}\n${textToaudio}`
         }
         // verboseLogger("textToaudio =",textToaudio)
         let audioStartTime = Date.now();
+        textToaudio = removeLinks(textToaudio)
         result['audio'] = await this.aiToolsService.textToSpeech(textToaudio,isNumber ? Language.en : prompt.inputLanguage)
         if(result['audio']['error']){
           await this.telemetryService.capture({

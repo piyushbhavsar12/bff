@@ -36,15 +36,13 @@ export class PromptServices {
         try{
             let response: any = await this.aiToolsService.textClassification(context.query)
             if (response.error) throw new Error(`${response.error}, please try again.`)
-            if (response == "LABEL_2") {
-                this.monitoringService.incrementUntrainedQueryCount()
+            if (response == `"Invalid"`) return "convo"
+            if (response == `"convo_starter"`) return "convo"
+            if (response == `"convo_ender"`) return "convo"
+            if (response == `"Installment not received"`) return "payment"
+            else {
                 return "invalid"
             }
-            if (response == "LABEL_1") return "payment"
-            if (response == "LABEL_0") return "payment"
-            if (response == "LABEL_3") return "convo_starter"
-            if (response == "LABEL_4") return "convo_ender"
-            return response;
         } catch (error){
             return Promise.reject(error)
         }
@@ -198,6 +196,16 @@ export class PromptServices {
         return `${userDetails}${userErrors.join("\n")}`
     }
 
+    async wadhwaniClassifier (context) {
+        try{
+            let response: any = await this.aiToolsService.getResponseViaWadhwani(context.query)
+            if (response.error) throw new Error(`${response.error}, please try again.`)
+            return response;
+        } catch (error){
+            return Promise.reject(error)
+        }
+    }
+
     allFunctions() {
         return {
             getInput: this.getInput.bind(this),
@@ -205,7 +213,8 @@ export class PromptServices {
             logError: this.logError.bind(this),
             validateAadhaarNumber: this.validateAadhaarNumber.bind(this),
             validateOTP: this.validateOTP.bind(this),
-            fetchUserData: this.fetchUserData.bind(this)
+            fetchUserData: this.fetchUserData.bind(this),
+            wadhwaniClassifier: this.wadhwaniClassifier.bind(this),
         }
     }
 

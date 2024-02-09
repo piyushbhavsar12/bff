@@ -212,3 +212,11 @@ export const wordToNumber = (input,type='benId') => {
     }
   }
 }
+
+export const removeLinks = (inputString) => {
+  // Define a regular expression pattern for identifying links
+  var linkPattern = /http[s]?:\/\/(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\\(\\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+/g;
+  // Use the replace() method to replace all links with an empty string
+  var resultString = inputString.replace(linkPattern, '');
+  return resultString;
+}

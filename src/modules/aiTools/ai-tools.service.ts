@@ -7,6 +7,10 @@ import { MonitoringService } from '../monitoring/monitoring.service';
 const fetch = require('../../common/fetch');
 const nodefetch = require('node-fetch');
 const { Headers } = require('node-fetch');
+const path = require('path');
+const filePath = path.resolve(__dirname, '../../common/en.json');
+const engMessage = require(filePath);
+
 @Injectable()
 export class AiToolsService {
   constructor(
@@ -219,18 +223,46 @@ export class AiToolsService {
   async textClassification(text: string) {
     try{
       var myHeaders = new Headers();
-      myHeaders.append("Content-Type", "application/json");
-      let body = {
-        text: text
-      }
-      let response: any = await fetch(`${this.configService.get("HUGGINGFACE_TEXT_CLASSIFICATION_BASE_URL")}`, {
+      myHeaders.append("accept", "application/json");
+      myHeaders.append("X-API-Key", this.configService.get("WADHWANI_API_KEY"));
+      // let body = {
+      //   text: text
+      // }
+      // let response: any = await fetch(`${this.configService.get("HUGGINGFACE_TEXT_CLASSIFICATION_BASE_URL")}`, {
+      //   headers: myHeaders,
+      //   "body": JSON.stringify(body),
+      //   "method": "POST",
+      //   "mode": "cors",
+      //   "credentials": "omit"
+      // });
+      let response: any = await fetch(`${this.configService.get("WADHWANI_BASE_URL")}/detect_query_intent?query=${text}`, {
         headers: myHeaders,
-        "body": JSON.stringify(body),
-        "method": "POST",
+        "method": "GET",
         "mode": "cors",
         "credentials": "omit"
       });
       response = await response.text()
+      return response
+    } catch(error){
+      console.log(error)
+      return {
+        error
+      }
+    }
+  }
+
+  async getResponseViaWadhwani(text: string) {
+    try{
+      var myHeaders = new Headers();
+      myHeaders.append("accept", "application/json");
+      myHeaders.append("X-API-Key", this.configService.get("WADHWANI_API_KEY"));
+      let response: any = await fetch(`${this.configService.get("WADHWANI_BASE_URL")}/get_bot_response?query=${text}`, {
+        headers: myHeaders,
+        "method": "GET",
+        "mode": "cors",
+        "credentials": "omit"
+      });
+      response = (await response.text()).replace(/^\"|\"$/g, '')
       return response
     } catch(error){
       console.log(error)

@@ -785,7 +785,8 @@ export const botFlowMachine3:any =
       lastAadhaarDigits:'',
       state:'onGoing',
       userId:'',
-      isOTPVerified: false
+      isOTPVerified: false,
+      isWadhwaniResponse: "false"
     },
     states: {
       checkStateAndJump: {
@@ -877,21 +878,20 @@ export const botFlowMachine3:any =
           onDone: [
             {
               cond: "ifConvoStarterOrEnder",
-              target: "getUserQuestion",
+              target: "wadhwaniClassifier",
               actions: [
                 assign({
-                  response: () => engMessage["message.convoStarter"],
-                  type:"pause"
+                  queryType: (_,event) => event.data,
+                  isWadhwaniResponse: "true"
                 })
               ]
             },
             {
               cond: "ifInvalidClassifier",
-              target: "getUserQuestion",
+              target: "wadhwaniClassifier",
               actions: [
                 assign({
-                  response: () => engMessage["message.invalid_question"],
-                  type:"pause"
+                  isWadhwaniResponse: "true"
                 })
               ]
             },
@@ -899,7 +899,8 @@ export const botFlowMachine3:any =
               target: 'checkIfOTPHasBeenVerified',
               actions: [
                 assign({
-                  queryType: (_,event) => {console.log(`assigning queryType = ${event.data}`); return event.data}
+                  queryType: (_,event) => event.data,
+                  isWadhwaniResponse: "false"
                 })
               ]
             }
@@ -908,6 +909,35 @@ export const botFlowMachine3:any =
             target: 'error',
             actions: [
               assign({
+                error: (_, event) => event.data.message,
+                type: ''
+              })
+            ]
+          }
+        }
+      },
+      wadhwaniClassifier: {
+        invoke: {
+          src: "wadhwaniClassifier",
+          onDone: {
+            target: 'endFlow',
+            actions: [
+              assign({
+                response: (_, event) => event.data,
+                userAadhaarNumber: "",
+                lastAadhaarDigits: "",
+                isOTPVerified: false,
+                type: ''
+              })
+            ]
+          },
+          onError: {
+            target: 'error',
+            actions: [
+              assign({
+                userAadhaarNumber: "",
+                lastAadhaarDigits: "",
+                isOTPVerified: false,
                 error: (_, event) => event.data.message,
                 type: ''
               })
