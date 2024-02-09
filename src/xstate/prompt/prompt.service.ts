@@ -288,7 +288,7 @@ The data is shared from https://weather.visualcrossing.com
                 .then(response => response.json())
                 .then(result => {return result})
                 .catch(error => console.log('error', error));
-            if(!cropData.records.length) return "Data is not available at https://agmarknet.gov.in/"
+            if(!cropData.records.length) return false
             let returnString = `*Crop:* ${cropData.records[0].commodity}`
             cropData.records.forEach(data=>{
                 returnString+=`
