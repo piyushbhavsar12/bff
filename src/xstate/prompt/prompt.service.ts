@@ -15,8 +15,6 @@ const path = require('path');
 const filePath = path.resolve(__dirname, '../../common/kisanPortalErrors.json');
 const PMKissanProtalErrors = require(filePath);
 import * as moment from "moment";
-const fetch = require('../../common/fetch');
-
 
 @Injectable()
 export class PromptServices {
