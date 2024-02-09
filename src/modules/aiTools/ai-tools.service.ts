@@ -91,8 +91,6 @@ export class AiToolsService {
       
       let textArray = text.split("\n")
       for(let i=0;i<textArray.length;i++){
-        textArray[i] = textArray[i].trim()
-        if(!textArray[i]) continue;
         let response: any = await this.computeBhashini(
           bhashiniConfig?.pipelineInferenceAPIEndPoint?.inferenceApiKey?.value,
           "translation",
@@ -218,35 +216,6 @@ export class AiToolsService {
       return {
         text:"",
         error: error
-      }
-    }
-  }
-
-  async textClassificationForWeather(text: string) {
-    try{
-      var myHeaders = new Headers();
-      myHeaders.append("accept", "application/json");
-      myHeaders.append("X-API-Key", `Bearer ${this.configService.get("CLASSIFIER_API_KEY")}`);
-      let body = {
-        text: text
-      }
-      let response: any;
-      do{
-         response = await fetch(`${this.configService.get("HUGGINGFACE_TEXT_CLASSIFICATION_BASE_URL")}`, {
-          headers: myHeaders,
-          "body": JSON.stringify(body),
-          "method": "POST",
-          "mode": "cors",
-          "credentials": "omit"
-        });
-        response = await response.json()
-      } while(response["error"]!=null)
-      response = response[0].label
-      return response
-    } catch(error){
-      console.log(error)
-      return {
-        error
       }
     }
   }

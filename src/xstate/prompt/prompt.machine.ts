@@ -786,9 +786,7 @@ export const botFlowMachine3:any =
       state:'onGoing',
       userId:'',
       isOTPVerified: false,
-      isWadhwaniResponse: "false",
-      lat: '',
-      long: '',
+      isWadhwaniResponse: "false"
     },
     states: {
       checkStateAndJump: {
@@ -840,7 +838,7 @@ export const botFlowMachine3:any =
               ]
             },
             {
-              target:"questionClassifierWeather",
+              target:"questionClassifier",
               actions:[
                 assign({
                   userQuestion: (_,event) => event.data.query,
@@ -869,53 +867,6 @@ export const botFlowMachine3:any =
               assign({
                 query: (_,event) => event.data,
                 response: (_,event) => event.data
-              })
-            ]
-          }
-        }
-      },
-      questionClassifierWeather: {
-        invoke: {
-          src: "weatherClassifier",
-          onDone: [
-            {
-              cond: "ifInvalidClassifier",
-              target: "questionClassifier"
-            },
-            {
-              target: 'getWeatherInfo'
-            }
-          ],
-          onError: {
-            target: 'error',
-            actions: [
-              assign({
-                error: (_, event) => event.data.message,
-                type: ''
-              })
-            ]
-          }
-        }
-      },
-      getWeatherInfo:{
-        invoke: {
-          src: "getWeatherInfo",
-          onDone: [
-            {
-              target: 'endFlow',
-              actions: [
-                assign({
-                  response: (_, event) => event.data,
-                })
-              ]
-            }
-          ],
-          onError: {
-            target: 'error',
-            actions: [
-              assign({
-                error: (_, event) => event.data.message,
-                type: ''
               })
             ]
           }

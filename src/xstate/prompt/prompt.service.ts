@@ -31,19 +31,6 @@ export class PromptServices {
     async getInput (context) {
         return context
     }
-    
-    async weatherClassifier(context) {
-        try{
-            let response: any = await this.aiToolsService.textClassificationForWeather(context.query)
-            if (response.error) throw new Error(`${response.error}, please try again.`)
-            if (response == `LABEL_6`) return "weather"
-            else {
-                return "invalid"
-            }
-        } catch (error){
-            return Promise.reject(error)
-        }
-    }
 
     async questionClassifier (context) {
         try{
@@ -219,42 +206,6 @@ export class PromptServices {
         }
     }
 
-    async getWeatherInfo (context) {
-        try{
-            if(!context.lat || !context.long){
-                return "Please enable location and try again."
-            }
-            var requestOptions: RequestInit= {
-                method: 'GET',
-                redirect: 'follow'
-              };
-              
-            let weather: any = await fetch(`https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/${context.lat},${context.long}?unitGroup=metric&key=${this.configService.get('WEATHER_PROVIDER_API_KEY')}&contentType=json`, requestOptions)
-                .then(response => response.json())
-                .then(result => {return result})
-                .catch(error => console.log('error', error));
-            let weatherString = '🌦️ *Weather Forecast for the Next 10 Days*';
-            weather.days.slice(0,10).forEach((data,index)=>{
-                weatherString+=`
-*Day ${index+1}:*
-- Date: ${data.datetime}
-- Temperature: ${data.temp}°C
-- Conditions: ${data.conditions}
-- Precipitation: ${data.precip*10}%
-
-`
-            })
-            weatherString+=`
-Feel free to reach out if you need more details or have any specific concerns. Happy farming! 🚜🌾
-
-The data is shared from https://weather.visualcrossing.com
-            `
-            return weatherString
-        } catch (error){
-            return Promise.reject(error)
-        }
-    }
-
     allFunctions() {
         return {
             getInput: this.getInput.bind(this),
@@ -264,8 +215,6 @@ The data is shared from https://weather.visualcrossing.com
             validateOTP: this.validateOTP.bind(this),
             fetchUserData: this.fetchUserData.bind(this),
             wadhwaniClassifier: this.wadhwaniClassifier.bind(this),
-            weatherClassifier: this.weatherClassifier.bind(this),
-            getWeatherInfo: this.getWeatherInfo.bind(this)
         }
     }
 
