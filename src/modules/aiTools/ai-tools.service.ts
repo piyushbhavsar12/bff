@@ -240,7 +240,6 @@ export class AiToolsService {
           "credentials": "omit"
         });
         response = await response.json()
-        console.log(response)
       } while(response["error"]!=null)
       response = response[0].label
       return response
