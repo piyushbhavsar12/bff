@@ -240,37 +240,9 @@ export class AiToolsService {
           "credentials": "omit"
         });
         response = await response.json()
+        console.log(response)
       } while(response["error"]!=null)
       response = response[0].label
-      return response
-    } catch(error){
-      console.log(error)
-      return {
-        error
-      }
-    }
-  }
-
-  async classificationForCrop(text: string) {
-    try{
-      var myHeaders = new Headers();
-      myHeaders.append("accept", "application/json");
-      myHeaders.append("Authorization", `Bearer ${this.configService.get("CLASSIFIER_API_KEY")}`);
-      let body = {
-        inputs: text
-      }
-      let response: any;
-      do{
-         response = await fetch(`${this.configService.get("CROP_CLASSIFICATION_BASE_URL")}`, {
-          headers: myHeaders,
-          "body": JSON.stringify(body),
-          "method": "POST",
-          "mode": "cors",
-          "credentials": "omit"
-        });
-        response = await response.json()
-      } while(response["error"]!=null)
-      response = response[0]
       return response
     } catch(error){
       console.log(error)

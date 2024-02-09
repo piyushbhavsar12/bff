@@ -879,43 +879,11 @@ export const botFlowMachine3:any =
           src: "weatherClassifier",
           onDone: [
             {
-              cond: "ifSale",
-              target: "checkCropNER"
-            },
-            {
               cond: "ifInvalidClassifier",
               target: "questionClassifier"
             },
             {
               target: 'getWeatherInfo'
-            }
-          ],
-          onError: {
-            target: 'error',
-            actions: [
-              assign({
-                error: (_, event) => event.data.message,
-                type: ''
-              })
-            ]
-          }
-        }
-      },
-      checkCropNER: {
-        invoke: {
-          src: "checkCropNER",
-          onDone: [
-            {
-              cond: "ifValidCrop",
-              target: "endFlow",
-              actions: [
-                assign({
-                  response: (_, event) => event.data,
-                })
-              ]
-            },
-            {
-              target: "questionClassifier"
             }
           ],
           onError: {

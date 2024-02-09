@@ -16,7 +16,6 @@ const filePath = path.resolve(__dirname, '../../common/kisanPortalErrors.json');
 const PMKissanProtalErrors = require(filePath);
 import * as moment from "moment";
 const fetch = require('../../common/fetch');
-import * as NodeGeocoder from 'node-geocoder';
 
 
 @Injectable()
@@ -42,7 +41,6 @@ export class PromptServices {
             let response: any = await this.aiToolsService.textClassificationForWeather(context.query)
             if (response.error) throw new Error(`${response.error}, please try again.`)
             if (response == `LABEL_6`) return "weather"
-            if (response == `LABEL_5`) return "sale"
             else {
                 return "invalid"
             }
@@ -264,49 +262,6 @@ The data is shared from https://weather.visualcrossing.com
         }
     }
 
-    async checkCropNER (context) {
-        console.log("checkCropNER")
-        try{
-            if(!context.lat || !context.long){
-                return "Please enable location and try again."
-            }
-            let response: any = await this.aiToolsService.classificationForCrop(context.query)
-            if (response.error) throw new Error(`${response.error}, please try again.`)
-            if (response.entity_group != `CROP`) return false
-            const options = {
-                provider: 'mapbox',
-                apiKey: process.env['MAP_BOX_API_KEY'], // Replace with your Google Maps API key
-                formatter: 'json',
-              };
-              const geocoder = NodeGeocoder(options);
-              
-            let location_info = await geocoder.reverse({ lat: context.lat, lon: context.long })
-            let crop = response.word.charAt(0).toUpperCase() + response.word.slice(1)
-            let api_key = this.configService.get("MARKET_DATA_API_KEY");
-            let url = `https://api.data.gov.in/resource/9ef84268-d588-465a-a308-a864a43d0070?api-key=${api_key}&format=json&limit=1000&filters[state]=${location_info[0].state}&filters[district]=${location_info[0].district}&filters[commodity]=${crop}`
-            let cropData = await fetch(url)
-                .then(response => response.json())
-                .then(result => {return result})
-                .catch(error => console.log('error', error));
-            if(!cropData.records.length) return false
-            let returnString = `*Crop:* ${cropData.records[0].commodity}`
-            cropData.records.forEach(data=>{
-                returnString+=`
-*Market:* ${data.market}
-*Current Wholesale Rate:* ${data.modal_price}
-`
-            })
-            returnString+=`
-Please note that these rates are subject to change based on market conditions. For real-time and more detailed information, we recommend checking with your local market or contacting relevant agricultural authorities.
-
-If you have any further questions or need assistance, feel free to ask. Wishing you a successful harvest!
-            `
-            return returnString
-        } catch (error){
-            return Promise.reject(error)
-        }
-    }
-
     allFunctions() {
         return {
             getInput: this.getInput.bind(this),
@@ -317,8 +272,7 @@ If you have any further questions or need assistance, feel free to ask. Wishing 
             fetchUserData: this.fetchUserData.bind(this),
             wadhwaniClassifier: this.wadhwaniClassifier.bind(this),
             weatherClassifier: this.weatherClassifier.bind(this),
-            getWeatherInfo: this.getWeatherInfo.bind(this),
-            checkCropNER: this.checkCropNER.bind(this)
+            getWeatherInfo: this.getWeatherInfo.bind(this)
         }
     }
 
