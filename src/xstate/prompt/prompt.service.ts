@@ -31,12 +31,10 @@ export class PromptServices {
     }
 
     async getInput (context) {
-        console.log("getInput")
         return context
     }
     
     async weatherClassifier(context) {
-        console.log("weatherClassifier")
         try{
             let response: any = await this.aiToolsService.textClassificationForWeather(context.query)
             if (response.error) throw new Error(`${response.error}, please try again.`)
@@ -50,7 +48,6 @@ export class PromptServices {
     }
 
     async questionClassifier (context) {
-        console.log("questionClassifier")
         try{
             let response: any = await this.aiToolsService.textClassification(context.query)
             if (response.error) throw new Error(`${response.error}, please try again.`)
@@ -215,7 +212,6 @@ export class PromptServices {
     }
 
     async wadhwaniClassifier (context) {
-        console.log("wadhwaniClassifier")
         try{
             let response: any = await this.aiToolsService.getResponseViaWadhwani(context.query)
             if (response.error) throw new Error(`${response.error}, please try again.`)
@@ -226,7 +222,6 @@ export class PromptServices {
     }
 
     async getWeatherInfo (context) {
-        console.log("getWeatherInfo")
         try{
             if(!context.lat || !context.long){
                 return "Please enable location and try again."
