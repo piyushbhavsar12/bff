@@ -34,14 +34,27 @@ export class PromptServices {
 
     async questionClassifier (context) {
         try{
-            let response: any = await this.aiToolsService.textClassification(context.query)
+            let response: any = await this.aiToolsService.getResponseViaWadhwani(context.query)
             if (response.error) throw new Error(`${response.error}, please try again.`)
-            if (response == `"Invalid"`) return "convo"
-            if (response == `"convo_starter"`) return "convo"
-            if (response == `"convo_ender"`) return "convo"
-            if (response == `"Installment not received"`) return "payment"
+            // {
+            //     "user_id": "19877818",
+            //     "session_id": "123456",
+            //     "query": "Installment not received",
+            //     "query_intent": "Installment not received",
+            //     "language": "English",
+            //     "response": "Dear Beneficiary, You can check your status using Know Your Status (KYS) module at https://pmkisan.gov.in/BeneficiaryStatus_New.aspx. \nIf you are not satisfied with the status, please contact the PM Kisan officer Shri ABC on 9809898989 or you can also visit the Officer at PM Kisan Officer, 193310 village, 868 block, 965 sub-district, 123 district, 9, Pincode: . \nFor further assistant, please contact on the PM Kisan Samman Nidhi helpline number: 155261 / 011-24300606. The helpline is available on all working days from 9:30 AM to 6:00 PM."
+            //   }
+            let intent;
+            if (response.query_intent == "Invalid") intent = "convo"
+            if (response.query_intent == "convo_starter") intent =  "convo"
+            if (response.query_intent == "convo_ender") intent =  "convo"
+            if (response.query_intent == "Installment not received") intent = "payment"
             else {
-                return "invalid"
+                intent = "invalid"
+            }
+            return {
+                class: intent,
+                response: response.response
             }
         } catch (error){
             return Promise.reject(error)

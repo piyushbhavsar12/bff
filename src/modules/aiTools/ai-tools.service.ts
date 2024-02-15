@@ -135,20 +135,23 @@ export class AiToolsService {
             "sourceLanguage": language
         }
       })
+      let requestConfig = {
+        "language": {
+            "sourceLanguage": language
+        }
+      }
+      if(['kn', 'ur', 'ml', 'gu', 'pa'].indexOf(`${language}`)==-1){
+        requestConfig["postProcessors"] = [
+          "itn"
+        ]
+      }
   
       let response: any = await this.computeBhashini(
         config?.pipelineInferenceAPIEndPoint?.inferenceApiKey?.value,
         "asr",
         config?.pipelineResponseConfig[0].config[0].serviceId,
         config?.pipelineInferenceAPIEndPoint?.callbackUrl,
-        {
-          "language": {
-              "sourceLanguage": language
-          },
-          "postProcessors": [
-            "itn"
-          ],
-        },
+        requestConfig,
         {
           "audio":[
             {
@@ -262,7 +265,7 @@ export class AiToolsService {
         "mode": "cors",
         "credentials": "omit"
       });
-      response = (await response.text()).replace(/^\"|\"$/g, '')
+      response = await response.json()
       return response
     } catch(error){
       console.log(error)
