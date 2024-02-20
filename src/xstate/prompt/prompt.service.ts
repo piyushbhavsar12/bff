@@ -34,7 +34,7 @@ export class PromptServices {
 
     async questionClassifier (context) {
         try{
-            let response: any = await this.aiToolsService.getResponseViaWadhwani(context.query)
+            let response: any = await this.aiToolsService.getResponseViaWadhwani(context.sessionId, context.userId, context.query)
             if (response.error) throw new Error(`${response.error}, please try again.`)
             // {
             //     "user_id": "19877818",
@@ -211,7 +211,7 @@ export class PromptServices {
 
     async wadhwaniClassifier (context) {
         try{
-            let response: any = await this.aiToolsService.getResponseViaWadhwani(context.query)
+            let response: any = await this.aiToolsService.getResponseViaWadhwani(context.sessionId, context.userId,context.query)
             if (response.error) throw new Error(`${response.error}, please try again.`)
             return response;
         } catch (error){

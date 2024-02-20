@@ -254,12 +254,12 @@ export class AiToolsService {
     }
   }
 
-  async getResponseViaWadhwani(text: string) {
+  async getResponseViaWadhwani(sessionId: string, userId: string, text: string) {
     try{
       var myHeaders = new Headers();
       myHeaders.append("accept", "application/json");
       myHeaders.append("X-API-Key", this.configService.get("WADHWANI_API_KEY"));
-      let response: any = await fetch(`${this.configService.get("WADHWANI_BASE_URL")}/get_bot_response?query=${text}`, {
+      let response: any = await fetch(`${this.configService.get("WADHWANI_BASE_URL")}/get_bot_response?query=${text}&user_id=${userId}&session_id=${sessionId}`, {
         headers: myHeaders,
         "method": "GET",
         "mode": "cors",
