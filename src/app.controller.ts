@@ -97,7 +97,7 @@ export class AppController {
     if(!sessionId) {
       return {
         "text": "",
-        "error": "'user-id' should not be empty"
+        "error": "'session-id' should not be empty"
       }
     }
     let messageType = 'intermediate_response'
