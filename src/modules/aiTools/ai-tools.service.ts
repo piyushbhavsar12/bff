@@ -81,6 +81,11 @@ export class AiToolsService {
     text: string
   ) {
     try {
+      const urlRegex = /(https?:\/\/[^\s]+)|(www\.[^\s]+)/g;
+      const urls = text.match(urlRegex) || [];
+
+      const placeHolder = "9kBjf325" //placeholder which stays the same across languages after translation
+      const textWithoutUrls = text.replace(urlRegex, placeHolder)
       let config = {
         "language": {
             "sourceLanguage": source,
@@ -89,7 +94,7 @@ export class AiToolsService {
       }
       let bhashiniConfig: any = await this.getBhashiniConfig('translation',config)
       
-      let textArray = text.split("\n")
+      let textArray = textWithoutUrls.split("\n")
       for(let i=0;i<textArray.length;i++){
         let response: any = await this.computeBhashini(
           bhashiniConfig?.pipelineInferenceAPIEndPoint?.inferenceApiKey?.value,
@@ -112,8 +117,9 @@ export class AiToolsService {
         }
         textArray[i]=response?.pipelineResponse[0]?.output[0]?.target
       }
+      const translatedText = textArray.join('\n').replace(new RegExp(placeHolder, 'g'), () => urls.shift() || '');
       return {
-        text: textArray.join('\n'),
+        text: translatedText,
         error: null
       }
     } catch(error){
