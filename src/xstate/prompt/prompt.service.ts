@@ -39,7 +39,7 @@ export class PromptServices {
             if (response == `"Invalid"`) return "convo"
             if (response == `"convo_starter"`) return "convo"
             if (response == `"convo_ender"`) return "convo"
-            if (response == `"Installment not received"`) return "payment"
+            if (response == `"Installment Not Received"`) return "payment"
             else {
                 return "invalid"
             }
