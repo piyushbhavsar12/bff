@@ -48,7 +48,7 @@ export class PromptServices {
             if (response.query_intent == "Invalid") intent = "convo"
             if (response.query_intent == "convo_starter") intent =  "convo"
             if (response.query_intent == "convo_ender") intent =  "convo"
-            if (response.query_intent == "Installment not received") intent = "payment"
+            if (response.query_intent == "Installment Not Received") intent = "payment"
             else {
                 intent = "invalid"
             }
