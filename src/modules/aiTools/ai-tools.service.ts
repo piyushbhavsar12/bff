@@ -84,7 +84,7 @@ export class AiToolsService {
       const urlRegex = /(https?:\/\/[^\s]+)|(www\.[^\s]+)/g;
       const urls = text.match(urlRegex) || [];
 
-      const placeHolder = "9kBjf325" //placeholder which stays the same across languages after translation
+      const placeHolder = "9814567092798090023722437987555212294" //placeholder which stays the same across languages after translation
       const textWithoutUrls = text.replace(urlRegex, placeHolder)
       let config = {
         "language": {
