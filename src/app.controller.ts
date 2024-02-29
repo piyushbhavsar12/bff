@@ -194,6 +194,7 @@ export class AppController {
       configid
     )
     
+    console.log("fetched conversation: ", conversation)
     //handle text and audio
     if(promptDto.text){
       type = "Text"
@@ -201,6 +202,7 @@ export class AppController {
       if(/^\d+$/.test(userInput)){
         prompt.inputLanguage = Language.en
       } else {
+        console.log("IN ELSE....")
         try {
           let response = await this.aiToolsService.detectLanguage(userInput)
           prompt.inputLanguage = response["language"] as Language 
@@ -239,12 +241,14 @@ export class AppController {
             tags: ['bot','detect_language','error']     
           })
         }
+        console.log("LANGUAGE DETECTED...")
         //@ts-ignore
         if(prompt.inputLanguage == 'unk'){
           prompt.inputLanguage = prompt.input.inputLanguage as Language
         }
         // verboseLogger("Detected Language =", prompt.inputLanguage)
       }
+      console.log("TELEMETRYYYYY")
       await this.telemetryService.capture({
         eventName: "Detect language",
         eventType: "DETECT_LANGUAGE",
@@ -375,7 +379,7 @@ export class AppController {
     }
 
     conversation.inputType = type;
-
+    console.log("CP 1...")
     //get flow
     let botFlowMachine;
     switch(configid){
@@ -411,6 +415,7 @@ export class AppController {
         }
       })
     }else {
+      console.log("creating a new message in Message table...")
       await this.prismaService.message.create({
         data:{
           text: type=="Text"?promptDto.text:null,
@@ -505,6 +510,7 @@ export class AppController {
       return res
     } else {
       //translate to english
+      console.log("Translating to English...")
       let translateStartTime = Date.now();
       if(userInput == 'resend OTP'){
         this.monitoringService.incrementResentOTPCount()
@@ -1101,7 +1107,7 @@ export class AppController {
         result['audio'] = {text: "",error: error.message}
       }
     }
-
+    console.log("Saving conversation..")
     conversation = await this.conversationService.saveConversation(
       sessionId,
       userId,

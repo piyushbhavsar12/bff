@@ -33,6 +33,7 @@ export class PromptServices {
     }
 
     async questionClassifier (context) {
+        console.log("IN questionclassifier")
         try{
             let response: any = await this.aiToolsService.getResponseViaWadhwani(context.sessionId, context.userId, context.query)
             if (response.error) throw new Error(`${response.error}, please try again.`)
@@ -68,6 +69,7 @@ export class PromptServices {
     }
 
     async validateAadhaarNumber (context, event) {
+        console.log("validate aadhar")
         try{
             const userIdentifier = `${context.userAadhaarNumber}${context.lastAadhaarDigits}`;
             let res;
@@ -101,6 +103,7 @@ export class PromptServices {
     }
 
     async validateOTP (context, event) {
+        console.log("Validate OTP")
         const userIdentifier = `${context.userAadhaarNumber}${context.lastAadhaarDigits}`;
         const otp = context.otp;
         let res;
@@ -124,6 +127,7 @@ export class PromptServices {
     }
 
     async fetchUserData (context, event) {
+        console.log("Fetch user data");
         const userIdentifier = `${context.userAadhaarNumber}${context.lastAadhaarDigits}`;
         let res;
         let type='Mobile'
@@ -210,6 +214,7 @@ export class PromptServices {
     }
 
     async wadhwaniClassifier (context) {
+        console.log("Wadhwani Classifierrr")
         try{
             let response: any = await this.aiToolsService.getResponseViaWadhwani(context.sessionId, context.userId,context.query)
             if (response.error) throw new Error(`${response.error}, please try again.`)

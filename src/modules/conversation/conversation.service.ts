@@ -58,6 +58,24 @@ export class ConversationService {
         } 
       })
     }
+
+    if(conversation.state == "Done") {
+      conversation = await this.prisma.conversation.update({
+        where: {
+          id: sessionId
+        },
+        data: {
+          context: defaultContext,
+          state: "onGoing"
+        }
+      })
+
+      conversation = await this.prisma.conversation.findFirst({
+        where: {
+          id: sessionId
+        }
+      })
+    }
     
     return conversation?.context ? {...conversation.context, id:conversation.id} : null;
   }
