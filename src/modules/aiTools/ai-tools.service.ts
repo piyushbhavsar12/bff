@@ -19,6 +19,7 @@ export class AiToolsService {
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
   ) {}
   async detectLanguage(text: string): Promise<any> {
+    console.log("DETECTING LANGUAGE....")
     var myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/json");
 
