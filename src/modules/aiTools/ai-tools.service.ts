@@ -19,6 +19,7 @@ export class AiToolsService {
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
   ) {}
   async detectLanguage(text: string): Promise<any> {
+    console.log("DETECTING LANGUAGE....")
     var myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/json");
 
@@ -260,18 +261,18 @@ export class AiToolsService {
     }
   }
 
-  async getResponseViaWadhwani(text: string) {
+  async getResponseViaWadhwani(sessionId: string, userId: string, text: string) {
     try{
       var myHeaders = new Headers();
       myHeaders.append("accept", "application/json");
       myHeaders.append("X-API-Key", this.configService.get("WADHWANI_API_KEY"));
-      let response: any = await fetch(`${this.configService.get("WADHWANI_BASE_URL")}/get_bot_response?query=${text}`, {
+      let response: any = await fetch(`${this.configService.get("WADHWANI_BASE_URL")}/get_bot_response?query=${text}&user_id=${userId}&session_id=${sessionId}`, {
         headers: myHeaders,
         "method": "GET",
         "mode": "cors",
         "credentials": "omit"
       });
-      response = (await response.text()).replace(/^\"|\"$/g, '')
+      response = await response.json()
       return response
     } catch(error){
       console.log(error)

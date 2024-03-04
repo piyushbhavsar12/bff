@@ -85,11 +85,19 @@ export class AppController {
     let startTime = Date.now()
     //get userId from headers
     const userId = headers["user-id"]
+    const sessionId = headers["session-id"]
     console.log("userId =",userId)
+    console.log("sessionId =", sessionId)
     if(!userId){
       return {
         "text":"",
         "error": "'user-id' should not be empty"
+      }
+    }
+    if(!sessionId) {
+      return {
+        "text": "",
+        "error": "'session-id' should not be empty"
       }
     }
     let messageType = 'intermediate_response'
@@ -152,16 +160,41 @@ export class AppController {
         }
       })
     }
-    let conversation = await this.conversationService.getConversationState(
-      userId,
-      configid
-    )
+
     //input setup
     let prompt: Prompt = {
       input: promptDto
     }
     let userInput = promptDto.text;
     let type = "text"
+
+    let defaultContext = {
+      sessionId,
+      userId,
+      userQuestion:'',
+      query: '',
+      queryType: '',
+      response: '',
+      userAadhaarNumber: user.identifier && configid=='3' ? user.identifier : '',
+      otp: '',
+      error: '',
+      currentState: "getUserQuestion",
+      type: '',
+      inputType: type,
+      inputLanguage: prompt.inputLanguage,
+      lastAadhaarDigits:'',
+      state:'onGoing',
+      isOTPVerified: false
+    }
+
+    let conversation = await this.conversationService.getConversationState(
+      sessionId,
+      userId,
+      defaultContext,
+      configid
+    )
+    
+    console.log("fetched conversation: ", conversation)
     //handle text and audio
     if(promptDto.text){
       type = "Text"
@@ -169,6 +202,7 @@ export class AppController {
       if(/^\d+$/.test(userInput)){
         prompt.inputLanguage = Language.en
       } else {
+        console.log("IN ELSE....")
         try {
           let response = await this.aiToolsService.detectLanguage(userInput)
           prompt.inputLanguage = response["language"] as Language 
@@ -207,12 +241,14 @@ export class AppController {
             tags: ['bot','detect_language','error']     
           })
         }
+        console.log("LANGUAGE DETECTED...")
         //@ts-ignore
         if(prompt.inputLanguage == 'unk'){
           prompt.inputLanguage = prompt.input.inputLanguage as Language
         }
         // verboseLogger("Detected Language =", prompt.inputLanguage)
       }
+      console.log("TELEMETRYYYYY")
       await this.telemetryService.capture({
         eventName: "Detect language",
         eventType: "DETECT_LANGUAGE",
@@ -342,6 +378,8 @@ export class AppController {
       }
     }
 
+    conversation.inputType = type;
+    console.log("CP 1...")
     //get flow
     let botFlowMachine;
     switch(configid){
@@ -358,23 +396,7 @@ export class AppController {
         botFlowMachine = this.promptService.getXstateMachine("botFlowMachine3")
     }
 
-    let defaultContext = {
-      userId,
-      userQuestion:'',
-      query: '',
-      queryType: '',
-      response: '',
-      userAadhaarNumber: user.identifier && configid=='3' ? user.identifier : '',
-      otp: '',
-      error: '',
-      currentState: "getUserQuestion",
-      type: '',
-      inputType: type,
-      inputLanguage: prompt.inputLanguage,
-      lastAadhaarDigits:'',
-      state:'onGoing',
-      isOTPVerified: false
-    }
+    
 
     let botFlowService = interpret(botFlowMachine.withContext(conversation || defaultContext)).start();
     // verboseLogger("current state when API hit =", botFlowService.state.context.currentState)
@@ -393,6 +415,7 @@ export class AppController {
         }
       })
     }else {
+      console.log("creating a new message in Message table...")
       await this.prismaService.message.create({
         data:{
           text: type=="Text"?promptDto.text:null,
@@ -487,6 +510,7 @@ export class AppController {
       return res
     } else {
       //translate to english
+      console.log("Translating to English...")
       let translateStartTime = Date.now();
       if(userInput == 'resend OTP'){
         this.monitoringService.incrementResentOTPCount()
@@ -1083,8 +1107,9 @@ export class AppController {
         result['audio'] = {text: "",error: error.message}
       }
     }
-
+    console.log("Saving conversation..")
     conversation = await this.conversationService.saveConversation(
+      sessionId,
       userId,
       botFlowService.getSnapshot().context,
       botFlowService.state.context.state,
