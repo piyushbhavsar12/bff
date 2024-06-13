@@ -21,7 +21,7 @@ async function bootstrap() {
     AppModule,
     new FastifyAdapter({ bodyLimit: 10048576 })
   );
-  
+
   /** Register Prismaservice LifeCycle hooks */
   const prismaService: PrismaService = app.get(PrismaService);
   prismaService.enableShutdownHooks(app);
@@ -39,7 +39,7 @@ async function bootstrap() {
     },
   });
 
-  process.on('exit', (code)=>{
+  process.on('exit', (code) => {
     console.log(`Process is exiting with code: ${code}`);
   })
 
@@ -55,7 +55,7 @@ async function bootstrap() {
     await monitoringService.onExit();
     process.exit(0);
   });
-  
+
   process.on('SIGTERM', async () => {
     console.log('Received SIGTERM signal. Gracefully shutting down...');
     const monitoringService = app.get<MonitoringService>(MonitoringService);
