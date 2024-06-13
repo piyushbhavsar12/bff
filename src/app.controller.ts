@@ -221,7 +221,10 @@ export class AppController {
       lastAadhaarDigits: "",
       state: "onGoing",
       isOTPVerified: false,
-      schemeName: promptDto.schemeName,
+      schemeName:
+        promptDto.schemeName && promptDto.schemeName.trim() !== ""
+          ? promptDto.schemeName
+          : "PM Kisan",
     };
 
     let conversation = await this.conversationService.getConversationState(
