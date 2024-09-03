@@ -1121,7 +1121,7 @@ export class AppController {
         // verboseLogger("textToaudio =",textToaudio)
         let audioStartTime = Date.now();
         textToaudio = removeLinks(textToaudio)
-        result['audio'] = await this.aiToolsService.textToSpeech(textToaudio,isNumber ? Language.en : prompt.inputLanguage,promptDto.audioGenderuserId,sessionId)
+        result['audio'] = await this.aiToolsService.textToSpeech(textToaudio,isNumber ? Language.en : prompt.inputLanguage,promptDto.audioGender,userId,sessionId)
         if(result['audio']['error']){
           await this.telemetryService.capture({
             eventName: "Text to speech error",
