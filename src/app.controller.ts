@@ -224,7 +224,7 @@ export class AppController {
       schemeName:
         promptDto.schemeName && promptDto.schemeName.trim() !== ""
           ? promptDto.schemeName
-          : "PM Kisan",
+          : "All Schemes",
     };
 
     let conversation = await this.conversationService.getConversationState(
@@ -502,7 +502,8 @@ export class AppController {
       };
       res["audio"] = await this.aiToolsService.textToSpeech(
         res.text,
-        prompt.inputLanguage
+        prompt.inputLanguage,
+        promptDto.audioGender
       );
       if (res["audio"]["error"]) {
         await this.telemetryService.capture({
@@ -1135,7 +1136,8 @@ export class AppController {
         textToaudio = removeLinks(textToaudio);
         result["audio"] = await this.aiToolsService.textToSpeech(
           textToaudio,
-          isNumber ? Language.en : prompt.inputLanguage
+          isNumber ? Language.en : prompt.inputLanguage,
+          promptDto.audioGender
         );
         if (result["audio"]["error"]) {
           await this.telemetryService.capture({
