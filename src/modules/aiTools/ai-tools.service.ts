@@ -193,6 +193,7 @@ export class AiToolsService {
   async textToSpeech(
     text: string,
     language: Language,
+    audioGender: string = 'male',
     userId: string,
     sessionId: string
   ) {
@@ -212,6 +213,7 @@ export class AiToolsService {
           language: {
             sourceLanguage: language,
           },
+          gender: audioGender
         },
         {
           input: [
@@ -387,7 +389,9 @@ export class AiToolsService {
     myHeaders.append("Content-Type", "application/json");
     config["serviceId"] = serviceId;
     if (task == "tts") {
-      config["gender"] = "male";
+      if(!config["gender"]){
+        config["gender"] = "male";
+      }
       config["samplingRate"] = 8000;
     }
     var raw = JSON.stringify({

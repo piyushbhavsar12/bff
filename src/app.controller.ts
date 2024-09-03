@@ -224,7 +224,7 @@ export class AppController {
       schemeName:
         promptDto.schemeName && promptDto.schemeName.trim() !== ""
           ? promptDto.schemeName
-          : "PM Kisan",
+          : "All Schemes",
     };
 
     let conversation = await this.conversationService.getConversationState(
@@ -485,7 +485,7 @@ export class AppController {
         textInEnglish: "",
         error: null
       }
-      res['audio'] = await this.aiToolsService.textToSpeech(res.text,prompt.inputLanguage,userId,sessionId)
+      res['audio'] = await this.aiToolsService.textToSpeech(res.text,prompt.inputLanguage,promptDto.audioGender,userId,sessionId)
       if(res['audio']['error']){
         await this.telemetryService.capture({
           eventName: "Text to speech error",
@@ -1121,7 +1121,7 @@ export class AppController {
         // verboseLogger("textToaudio =",textToaudio)
         let audioStartTime = Date.now();
         textToaudio = removeLinks(textToaudio)
-        result['audio'] = await this.aiToolsService.textToSpeech(textToaudio,isNumber ? Language.en : prompt.inputLanguage,userId,sessionId)
+        result['audio'] = await this.aiToolsService.textToSpeech(textToaudio,isNumber ? Language.en : prompt.inputLanguage,promptDto.audioGenderuserId,sessionId)
         if(result['audio']['error']){
           await this.telemetryService.capture({
             eventName: "Text to speech error",
