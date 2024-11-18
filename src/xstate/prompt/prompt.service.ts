@@ -33,7 +33,7 @@ export class PromptServices {
     }
 
     async questionClassifier (context) {
-        console.log("IN questionclassifier")
+        // console.log("IN questionclassifier")
         try{
             let response: any = await this.aiToolsService.getResponseViaWadhwani(context.sessionId, context.userId, context.query)
             if (response.error) throw new Error(`${response.error}, please try again.`)
