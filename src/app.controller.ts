@@ -194,7 +194,7 @@ export class AppController {
       configid
     )
     
-    console.log("fetched conversation: ", conversation)
+    // console.log("fetched conversation: ", conversation)
     //handle text and audio
     if(promptDto.text){
       type = "Text"
@@ -202,9 +202,9 @@ export class AppController {
       if(/^\d+$/.test(userInput)){
         prompt.inputLanguage = Language.en
       } else {
-        console.log("IN ELSE....")
+        // console.log("IN ELSE....")
         try {
-          let response = await this.aiToolsService.detectLanguage(userInput)
+          let response = await this.aiToolsService.detectLanguage(userInput, userId, sessionId)
           prompt.inputLanguage = response["language"] as Language 
         } catch (error) {
           await this.telemetryService.capture({
@@ -241,14 +241,14 @@ export class AppController {
             tags: ['bot','detect_language','error']     
           })
         }
-        console.log("LANGUAGE DETECTED...")
+        // console.log("LANGUAGE DETECTED...")
         //@ts-ignore
         if(prompt.inputLanguage == 'unk'){
           prompt.inputLanguage = prompt.input.inputLanguage as Language
         }
         // verboseLogger("Detected Language =", prompt.inputLanguage)
       }
-      console.log("TELEMETRYYYYY")
+      // console.log("TELEMETRYYYYY")
       await this.telemetryService.capture({
         eventName: "Detect language",
         eventType: "DETECT_LANGUAGE",
@@ -286,9 +286,9 @@ export class AppController {
         prompt.inputLanguage = promptDto.inputLanguage as Language
         let response;
         if(['askingAadhaarNumber','askingOTP','askLastAaadhaarDigits','confirmInput2','confirmInput3','confirmInput4'].indexOf(conversation?.currentState) != -1) 
-          response = await this.aiToolsService.speechToText(promptDto.media.text,Language.en)
+          response = await this.aiToolsService.speechToText(promptDto.media.text,Language.en,userId,sessionId)
         else
-          response = await this.aiToolsService.speechToText(promptDto.media.text,prompt.inputLanguage)
+          response = await this.aiToolsService.speechToText(promptDto.media.text,prompt.inputLanguage,userId,sessionId)
 
         if(response.error) {
           await this.telemetryService.capture({
@@ -379,7 +379,7 @@ export class AppController {
     }
 
     conversation.inputType = type;
-    console.log("CP 1...")
+    // console.log("CP 1...")
     //get flow
     let botFlowMachine;
     switch(configid){
@@ -415,7 +415,7 @@ export class AppController {
         }
       })
     }else {
-      console.log("creating a new message in Message table...")
+      // console.log("creating a new message in Message table...")
       await this.prismaService.message.create({
         data:{
           text: type=="Text"?promptDto.text:null,
@@ -437,7 +437,7 @@ export class AppController {
         textInEnglish: "",
         error: null
       }
-      res['audio'] = await this.aiToolsService.textToSpeech(res.text,prompt.inputLanguage)
+      res['audio'] = await this.aiToolsService.textToSpeech(res.text,prompt.inputLanguage,userId,sessionId)
       if(res['audio']['error']){
         await this.telemetryService.capture({
           eventName: "Text to speech error",
@@ -510,7 +510,7 @@ export class AppController {
       return res
     } else {
       //translate to english
-      console.log("Translating to English...")
+      // console.log("Translating to English...")
       let translateStartTime = Date.now();
       if(userInput == 'resend OTP'){
         this.monitoringService.incrementResentOTPCount()
@@ -520,7 +520,9 @@ export class AppController {
           let response = await this.aiToolsService.translate(
             prompt.inputLanguage as Language,
             Language.en,
-            userInput
+            userInput,
+            userId,
+            sessionId
           )
           if(!response['text']) {
             await this.telemetryService.capture({
@@ -746,7 +748,9 @@ export class AppController {
           let response = await this.aiToolsService.translate(
             Language.en,
             prompt.inputLanguage as Language,
-            result.text
+            result.text,
+            userId,
+            sessionId
           )
           if(!response['text']){
             await this.telemetryService.capture({
@@ -870,7 +874,9 @@ export class AppController {
           let response = await this.aiToolsService.translate(
             Language.en,
             prompt.inputLanguage as Language,
-            placeholder
+            placeholder,
+            userId,
+            sessionId
           )
           if(!response['text']){
             await this.telemetryService.capture({
@@ -1035,7 +1041,7 @@ export class AppController {
         // verboseLogger("textToaudio =",textToaudio)
         let audioStartTime = Date.now();
         textToaudio = removeLinks(textToaudio)
-        result['audio'] = await this.aiToolsService.textToSpeech(textToaudio,isNumber ? Language.en : prompt.inputLanguage)
+        result['audio'] = await this.aiToolsService.textToSpeech(textToaudio,isNumber ? Language.en : prompt.inputLanguage,userId,sessionId)
         if(result['audio']['error']){
           await this.telemetryService.capture({
             eventName: "Text to speech error",
@@ -1107,7 +1113,7 @@ export class AppController {
         result['audio'] = {text: "",error: error.message}
       }
     }
-    console.log("Saving conversation..")
+    // console.log("Saving conversation..")
     conversation = await this.conversationService.saveConversation(
       sessionId,
       userId,
