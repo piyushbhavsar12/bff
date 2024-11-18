@@ -18,49 +18,45 @@ export class AiToolsService {
     private readonly monitoringService: MonitoringService,
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
   ) {}
-  async detectLanguage(text: string): Promise<any> {
-    console.log("DETECTING LANGUAGE....");
-    var myHeaders = new Headers();
-    myHeaders.append("Content-Type", "application/json");
-
-    var body = JSON.stringify({
-      modelId: this.configService.get("TEXT_LANG_DETECTION_MODEL"),
-      task: "txt-lang-detection",
-      input: [
-        {
-          source: text?.replace("?", "")?.trim(),
-        },
-      ],
-      userId: null,
-    });
-
-    var requestOptions = {
-      method: "POST",
-      headers: myHeaders,
-      body,
-    };
-
+  async detectLanguage(text: string, userId: string, sessionId: string): Promise<any> {
+    // console.log("DETECTING LANGUAGE....")
     try {
-      this.monitoringService.incrementBhashiniCount();
-      let response: any = await fetch(
-        "https://meity-auth.ulcacontrib.org/ulca/apis/v0/model/compute",
-        requestOptions
-      );
-      response = await response.json();
+      let input = {
+        input: [
+          {
+            source: text,
+          },
+        ],
+      };
+  
+      let response: any = await this.computeBhashini(
+        this.configService.get('BHASHINI_DHRUVA_AUTHORIZATION'),
+        'txt-lang-detection',
+        'bhashini/iiiith/indic-lang-detection-all',
+        this.configService.get('BHASHINI_DHRUVA_ENDPOINT'),
+        {},
+        input,
+        userId,
+        sessionId
+      )
+      if(response["error"]){
+        console.log(response["error"])
+        throw new Error(response["error"])
+      }
       let language: Language;
-      if (response.output && response.output.length) {
-        language = response.output[0]?.langPrediction[0]?.langCode as Language;
-        this.monitoringService.incrementBhashiniSuccessCount();
+      if(response.output && response.output.length){
+        language = response.data?.pipelineResponse[0]?.output[0]?.langPrediction[0]?.langCode as Language
+        this.monitoringService.incrementBhashiniSuccessCount()
         return {
-          language: language || "unk",
-          error: null,
-        };
+          language: language || 'unk',
+          error: null
+        }
       } else {
-        this.monitoringService.incrementBhashiniFailureCount();
+        this.monitoringService.incrementBhashiniFailureCount()
         return {
-          language: "unk",
-          error: null,
-        };
+          language: 'unk',
+          error: null
+        }
       }
     } catch (error) {
       this.monitoringService.incrementBhashiniFailureCount();
@@ -78,7 +74,13 @@ export class AiToolsService {
     }
   }
 
-  async translate(source: Language, target: Language, text: string) {
+  async translate(
+    source: Language,
+    target: Language,
+    text: string,
+    userId: string,
+    sessionId: string
+  ) {
     try {
       const urlRegex = /(https?:\/\/[^\s]+)|(www\.[^\s]+)/g;
       const urls = text.match(urlRegex) || [];
@@ -86,18 +88,15 @@ export class AiToolsService {
       const placeHolder = "9814567092798090023722437987555212294"; //placeholder which stays the same across languages after translation
       const textWithoutUrls = text.replace(urlRegex, placeHolder);
       let config = {
-        language: {
-          sourceLanguage: source,
-          targetLanguage: target,
-        },
-      };
-      let bhashiniConfig: any = await this.getBhashiniConfig(
-        "translation",
-        config
-      );
-
-      let textArray = textWithoutUrls.split("\n");
-      for (let i = 0; i < textArray.length; i++) {
+        "language": {
+            "sourceLanguage": source,
+            "targetLanguage": target
+        }
+      }
+      let bhashiniConfig: any = await this.getBhashiniConfig('translation',config,userId,sessionId)
+      
+      let textArray = textWithoutUrls.split("\n")
+      for(let i=0;i<textArray.length;i++){
         let response: any = await this.computeBhashini(
           bhashiniConfig?.pipelineInferenceAPIEndPoint?.inferenceApiKey?.value,
           "translation",
@@ -108,14 +107,16 @@ export class AiToolsService {
             input: [
               {
                 // "source": text?.replace("\n",".")
-                source: textArray[i],
-              },
-            ],
-          }
-        );
-        if (response["error"]) {
-          console.log(response["error"]);
-          throw new Error(response["error"]);
+                "source": textArray[i]
+              }
+            ]
+          },
+          userId,
+          sessionId
+        )
+        if(response["error"]){
+          console.log(response["error"])
+          throw new Error(response["error"])
         }
         textArray[i] = response?.pipelineResponse[0]?.output[0]?.target;
       }
@@ -135,13 +136,18 @@ export class AiToolsService {
     }
   }
 
-  async speechToText(base64audio: string, language: Language) {
+  async speechToText(
+    base64audio: string,
+    language: Language,
+    userId: string,
+    sessionId: string
+  ) {
     try {
-      let config: any = await this.getBhashiniConfig("asr", {
-        language: {
-          sourceLanguage: language,
-        },
-      });
+      let config: any = await this.getBhashiniConfig('asr',{
+        "language": {
+            "sourceLanguage": language
+        }
+      },userId,sessionId)
       let requestConfig = {
         language: {
           sourceLanguage: language,
@@ -160,14 +166,16 @@ export class AiToolsService {
         {
           audio: [
             {
-              audioContent: base64audio,
-            },
-          ],
-        }
-      );
-      if (response["error"]) {
-        console.log(response["error"]);
-        throw new Error(response["error"]);
+              "audioContent": base64audio
+            }
+          ]
+        },
+        userId,
+        sessionId
+      )
+      if(response["error"]){
+        console.log(response["error"])
+        throw new Error(response["error"])
       }
       return {
         text: response?.pipelineResponse[0]?.output[0]?.source,
@@ -182,14 +190,20 @@ export class AiToolsService {
     }
   }
 
-  async textToSpeech(text: string, language: Language, audioGender: string = 'male') {
+  async textToSpeech(
+    text: string,
+    language: Language,
+    audioGender: string = 'male',
+    userId: string,
+    sessionId: string
+  ) {
     try {
-      let config: any = await this.getBhashiniConfig("tts", {
-        language: {
-          sourceLanguage: language,
-        },
-      });
-
+      let config: any = await this.getBhashiniConfig('tts',{
+        "language": {
+            "sourceLanguage": language
+        }
+      },userId,sessionId)
+  
       let response: any = await this.computeBhashini(
         config?.pipelineInferenceAPIEndPoint?.inferenceApiKey?.value,
         "tts",
@@ -204,14 +218,16 @@ export class AiToolsService {
         {
           input: [
             {
-              source: text,
-            },
-          ],
-        }
-      );
-      if (response["error"]) {
-        console.log(response["error"]);
-        throw new Error(response["error"]);
+              "source": text
+            }
+          ]
+        },
+        userId,
+        sessionId
+      )
+      if(response["error"]){
+        console.log(response["error"])
+        throw new Error(response["error"])
       }
       return {
         text: response?.pipelineResponse[0]?.audio[0]?.audioContent,
@@ -272,28 +288,27 @@ export class AiToolsService {
       var myHeaders = new Headers();
       myHeaders.append("accept", "application/json");
       myHeaders.append("X-API-Key", this.configService.get("WADHWANI_API_KEY"));
-      let response: any = await fetch(
-        `${this.configService.get(
-          "WADHWANI_BASE_URL"
-        )}/get_bot_response?query=${text}&user_id=${userId}&session_id=${sessionId}&scheme_name=${schemeName}`,
-        {
-          headers: myHeaders,
-          method: "GET",
-          mode: "cors",
-          credentials: "omit",
-        }
-      );
-      response = await response.json();
-      return response;
-    } catch (error) {
-      console.log(error);
+      let startDate = new Date();
+      console.log(`${startDate}: userId: ${userId} sessionId: ${sessionId} Waiting for ${this.configService.get("WADHWANI_BASE_URL")}/get_bot_response?query=${text}&user_id=${userId}&session_id=${sessionId} to respond ...`)
+      let response: any = await fetch(`${this.configService.get("WADHWANI_BASE_URL")}/get_bot_response?query=${text}&user_id=${userId}&session_id=${sessionId}`, {
+        headers: myHeaders,
+        "method": "GET",
+        "mode": "cors",
+        "credentials": "omit"
+      });
+      let endDate = new Date();
+      response = await response.json()
+      console.log(`${endDate}: userId: ${userId} sessionId: ${sessionId} Responded succesfully in ${endDate.getTime()-startDate.getTime()} ms.`)
+      return response
+    } catch(error){
+      console.log(error)
       return {
         error,
       };
     }
   }
 
-  async getBhashiniConfig(task, config) {
+  async getBhashiniConfig(task,config,userId, sessionId) {
     const cacheKey = `getBhashiniConfig:${JSON.stringify({ task, config })}`;
 
     const cachedData = await this.cacheManager.get(cacheKey);
@@ -329,32 +344,19 @@ export class AiToolsService {
       },
       timeout: 40000,
     };
-    try {
-      this.monitoringService.incrementBhashiniCount();
-      console.log(
-        `${new Date()}: Waiting for ${this.configService.get(
-          "ULCA_CONFIG_URL"
-        )} (config API) to respond ...`
-      );
-      let response = await fetch(
-        this.configService.get("ULCA_CONFIG_URL"),
-        requestOptions
-      );
-      if (response.status != 200) {
-        console.log(response);
-        throw new Error(
-          `${new Date()}: API call to '${this.configService.get(
-            "ULCA_CONFIG_URL"
-          )}' with config '${JSON.stringify(
-            config,
-            null,
-            3
-          )}' failed with status code ${response.status}`
-        );
+    try{
+      this.monitoringService.incrementBhashiniCount()
+      let startDate = new Date();
+      console.log(`${startDate}: userId: ${userId} sessionId: ${sessionId} Waiting for ${this.configService.get("ULCA_CONFIG_URL")} (config API) to respond ...`)
+      let response  = await fetch(this.configService.get("ULCA_CONFIG_URL"), requestOptions)
+      if(response.status != 200){
+        console.log(response)
+        throw new Error(`${new Date()}: API call to '${this.configService.get("ULCA_CONFIG_URL")}' with config '${JSON.stringify(config,null,3)}' failed with status code ${response.status}`)
       }
-      response = await response.json();
-      console.log(`${new Date()}: Responded succesfully`);
-      this.monitoringService.incrementBhashiniSuccessCount();
+      let endDate = new Date();
+      response = await response.json()
+      console.log(`${endDate}: userId: ${userId} sessionId: ${sessionId} Responded succesfully in ${endDate.getTime()-startDate.getTime()} ms.`)
+      this.monitoringService.incrementBhashiniSuccessCount()
       await this.cacheManager.set(cacheKey, response, 86400);
       return response;
     } catch (error) {
@@ -366,15 +368,9 @@ export class AiToolsService {
     }
   }
 
-  async computeBhashini(authorization, task, serviceId, url, config, input) {
-    const cacheKey = `computeBhashini:${JSON.stringify({
-      task,
-      serviceId,
-      url,
-      config,
-      input,
-    })}`;
-    if (task != "asr") {
+  async computeBhashini(authorization, task, serviceId, url, config, input, userId, sessionId) {
+    const cacheKey = `computeBhashini:${JSON.stringify({ task, serviceId, url, config, input })}`;
+    if(task != 'asr'){
       const cachedData = await this.cacheManager.get(cacheKey);
       if (cachedData) {
         return cachedData;
@@ -414,26 +410,20 @@ export class AiToolsService {
       timeout: 40000,
     };
 
-    try {
-      this.monitoringService.incrementBhashiniCount();
-      console.log(
-        `${new Date()}: Waiting for ${url} for task (${task}) to respond ...`
-      );
-      let response = await fetch(url, requestOptions);
-      if (response.status != 200) {
-        console.log(response);
-        throw new Error(
-          `${new Date()}: API call to '${url}' with config '${JSON.stringify(
-            config,
-            null,
-            3
-          )}' failed with status code ${response.status}`
-        );
+    try{
+      this.monitoringService.incrementBhashiniCount()
+      let startDate = new Date();
+      console.log(`${startDate}: userId: ${userId} sessionId: ${sessionId} Waiting for ${url} for task (${task}) to respond ...`)
+      let response  = await fetch(url, requestOptions)
+      if(response.status != 200){
+        console.log(response)
+        throw new Error(`${new Date()}: API call to '${url}' with config '${JSON.stringify(config,null,3)}' failed with status code ${response.status}`)
       }
-      response = await response.json();
-      console.log(`${new Date()}: Responded succesfully.`);
-      this.monitoringService.incrementBhashiniSuccessCount();
-      if (task != "asr") {
+      let endDate = new Date();
+      response = await response.json()
+      console.log(`${endDate}: userId: ${userId} sessionId: ${sessionId} Responded succesfully in ${endDate.getTime()-startDate.getTime()} ms.`)
+      this.monitoringService.incrementBhashiniSuccessCount()
+      if(task != 'asr') {
         await this.cacheManager.set(cacheKey, response, 7200);
       }
       return response;
