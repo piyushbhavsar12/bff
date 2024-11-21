@@ -15,6 +15,7 @@ import { MonitoringService } from "./modules/monitoring/monitoring.service";
 
 async function bootstrap() {
   const logger = new CustomLogger("Main");
+  process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '0'
 
   /** Fastify Application */
   const app = await NestFactory.create<NestFastifyApplication>(
