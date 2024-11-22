@@ -286,7 +286,7 @@ export class AiToolsService {
       });
       let endDate = new Date();
       response = await response.json()
-      console.log(`${endDate}: userId: ${userId} sessionId: ${sessionId} Responded succesfully in ${endDate.getTime()-startDate.getTime()} ms.`)
+      console.log(`${endDate}: userId: ${userId} sessionId: ${sessionId} URL: ${this.configService.get("WADHWANI_BASE_URL")}/get_bot_response?query=${text}&user_id=${userId}&session_id=${sessionId} Responded succesfully in ${endDate.getTime()-startDate.getTime()} ms.`)
       return response
     } catch(error){
       console.log(error)
@@ -343,7 +343,7 @@ export class AiToolsService {
       }
       let endDate = new Date();
       response = await response.json()
-      console.log(`${endDate}: userId: ${userId} sessionId: ${sessionId} Responded succesfully in ${endDate.getTime()-startDate.getTime()} ms.`)
+      console.log(`${endDate}: userId: ${userId} sessionId: ${sessionId} URL: ${this.configService.get("ULCA_CONFIG_URL")} (config API) Responded succesfully in ${endDate.getTime()-startDate.getTime()} ms.`)
       this.monitoringService.incrementBhashiniSuccessCount()
       await this.cacheManager.set(cacheKey, response, 86400);
       return response
@@ -407,7 +407,7 @@ export class AiToolsService {
       }
       let endDate = new Date();
       response = await response.json()
-      console.log(`${endDate}: userId: ${userId} sessionId: ${sessionId} Responded succesfully in ${endDate.getTime()-startDate.getTime()} ms.`)
+      console.log(`${endDate}: userId: ${userId} sessionId: ${sessionId} URL: ${url} for task (${task}) Responded succesfully in ${endDate.getTime()-startDate.getTime()} ms.`)
       this.monitoringService.incrementBhashiniSuccessCount()
       if(task != 'asr') {
         await this.cacheManager.set(cacheKey, response, 7200);
