@@ -16,6 +16,7 @@ import { PromptModule } from "./xstate/prompt/prompt.module";
 import { TelemetryModule } from "./modules/telemetry/telemetry.module";
 import { TelemetryService } from "./modules/telemetry/telemetry.service";
 import { MonitoringController } from "./modules/monitoring/monitoring.controller";
+import { CacheProvider } from "./modules/cache/cache.provider";
 
 @Module({
   imports: [
@@ -53,6 +54,8 @@ import { MonitoringController } from "./modules/monitoring/monitoring.controller
       provide: APP_GUARD,
       useClass: RateLimiterGuard,
     },
+    CacheProvider
   ],
+  exports: [CacheProvider],
 })
 export class AppModule {}
