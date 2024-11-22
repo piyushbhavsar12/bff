@@ -327,11 +327,18 @@ export class AiToolsService {
       redirect: 'follow',
       retry: 4, 
       pause: 0,
-      callback: retry => { 
-        console.log(`Re-Trying: ${retry}`);
-      },
-      timeout: 40000
+      url: this.configService.get("ULCA_CONFIG_URL"),
+      userId,
+      sessionId,
+      callback: null,
+      timeout: 30000
     };
+
+    requestOptions.callback = function (retry) {
+      const elapsed = Date.now() - this.startTime;
+      console.log(`userId: ${this.userId} sessionId: ${this.sessionId} URL: ${this.url} (config API) Re-Trying: ${retry}, Previous failed call Time Taken: ${elapsed}ms`);
+    }.bind(requestOptions);
+
     try{
       this.monitoringService.incrementBhashiniCount()
       let startDate = new Date();
@@ -390,11 +397,19 @@ export class AiToolsService {
       redirect: 'follow',
       retry: 4, 
       pause:0,
-      callback: retry => {
-        console.log(`Re-Trying: ${retry}`);
-      },
-      timeout: 40000
+      startTime: Date.now(),
+      url,
+      task,
+      userId,
+      sessionId,
+      callback: null,
+      timeout: 30000
     };
+
+    requestOptions.callback = function (retry) {
+      const elapsed = Date.now() - this.startTime;
+      console.log(`userId: ${this.userId} sessionId: ${this.sessionId} URL: ${this.url} for task (${this.task}) Re-Trying: ${retry}, Previous failed call Time Taken: ${elapsed}ms`);
+    }.bind(requestOptions);
 
     try{
       this.monitoringService.incrementBhashiniCount()
