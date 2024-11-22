@@ -1,12 +1,29 @@
-import { Injectable } from '@nestjs/common';
+import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
 import { Counter } from 'prom-client';
 import { PrismaService } from '../../global-services/prisma.service';
+import { Store } from 'cache-manager';
+import Redis from 'redis';
 
+interface RedisCache extends Cache {
+  store: RedisStore;
+}
+
+interface RedisStore extends Store {
+  name: 'redis';
+  getClient: () => Redis.RedisClientType;
+  isCacheableValue: (value: any) => boolean;
+}
 @Injectable()
 export class MonitoringService {
-  constructor(private prismaService: PrismaService){}
+  constructor(
+    @Inject(CACHE_MANAGER)
+    private cacheManager: RedisCache,
+    private prismaService: PrismaService,
+  ) {
+    // this.cacheManager.store.getClient();
+  }
 
-  async initializeAsync(){
+  async initializeAsync() {
     const metricsToUpsert: any = [
       { name: 'bhashiniCount' },
       { name: 'bhashiniSuccessCount' },
@@ -42,17 +59,17 @@ export class MonitoringService {
       { name: "untrainedQueryCount" },
       { name: "resentOTPCount" },
       { name: "stage1Count" },
-      { name: "stage2Count" },  
+      { name: "stage2Count" },
       { name: "stage3Count" },
       { name: "stage4Count" },
       { name: "stage5Count" },
     ];
-    for (const metric of metricsToUpsert){
+    for (const metric of metricsToUpsert) {
       const existingMetric: any = await this.prismaService.metrics.findUnique({
         where: { name: metric.name },
       });
-      if(existingMetric){
-        switch(existingMetric.name){
+      if (existingMetric) {
+        switch (existingMetric.name) {
           case 'bhashiniCount':
             this.bhashiniCounter.inc(parseInt(existingMetric.value));
             break;
@@ -68,7 +85,7 @@ export class MonitoringService {
           case 'totalSuccessfullSessions':
             this.totalSuccessfullSessionsCounter.inc(parseInt(existingMetric.value));
             break;
-          case 'totalFailureSessions' :
+          case 'totalFailureSessions':
             this.totalFailureSessionsCounter.inc(parseInt(existingMetric.value));
             break;
           case 'totalIncompleteSessions':
@@ -143,7 +160,7 @@ export class MonitoringService {
           case "unableToGetUserDetailsCount":
             this.unableToGetUserDetailsCounter.inc(parseInt(existingMetric.value));
             break;
-          case  "noUserRecordsFoundCount":
+          case "noUserRecordsFoundCount":
             this.noUserRecordsFoundCounter.inc(parseInt(existingMetric.value));
             break;
           case "untrainedQueryCount":
@@ -236,7 +253,7 @@ export class MonitoringService {
     name: 'total_sessions_in_bangla_count',
     help: 'Counts the API requests of /prompt API',
   });
-  
+
   private totalSessionsInEnglishCounter: Counter<string> = new Counter({
     name: 'total_sessions_in_english_count',
     help: 'Counts the API requests of /prompt API',
@@ -381,7 +398,7 @@ export class MonitoringService {
     let count = await this.totalSessionsCounter.get();
     return count.values[0].value;
   }
-  
+
   public async getTotalSuccessfullSessionsCount() {
     let count = await this.totalSuccessfullSessionsCounter.get();
     return count.values[0].value;
@@ -441,7 +458,7 @@ export class MonitoringService {
     let count = await this.registrationIdCounter.get();
     return count.values[0].value;
   }
-  
+
   public async getMobileNumberCount() {
     let count = await this.mobileNumberCounter.get();
     return count.values[0].value;
@@ -615,7 +632,7 @@ export class MonitoringService {
   public incrementRegistrationIdCount() {
     this.registrationIdCounter.inc();
   }
-  
+
   public incrementMobileNumberCount() {
     this.mobileNumberCounter.inc();
   }
@@ -706,9 +723,9 @@ export class MonitoringService {
 
   public async onExit(): Promise<void> {
     const metricsToUpsert: any = [
-      { name: 'bhashiniCount', value: `${await this.getBhashiniCount()}`},
-      { name: 'bhashiniSuccessCount', value: `${await this.getBhashiniSuccessCount()}`},
-      { name: 'bhashiniFailureCount', value: `${await this.getBhashiniFailureCount()}`},
+      { name: 'bhashiniCount', value: `${await this.getBhashiniCount()}` },
+      { name: 'bhashiniSuccessCount', value: `${await this.getBhashiniSuccessCount()}` },
+      { name: 'bhashiniFailureCount', value: `${await this.getBhashiniFailureCount()}` },
       { name: 'totalSessions', value: `${await this.getTotalSessionsCount()}` },
       { name: 'totalSuccessfullSessions', value: `${await this.getTotalSuccessfullSessionsCount()}` },
       { name: 'totalFailureSessions', value: `${await this.getTotalFailureSessionsCount()}` },
@@ -746,12 +763,12 @@ export class MonitoringService {
       { name: "stage5Count", value: `${await this.getStage5Count()}` },
     ];
     const upsertedMetrics = [];
-    try{
+    try {
       for (const metric of metricsToUpsert) {
         const existingMetric: any = await this.prismaService.metrics.findUnique({
           where: { name: metric.name },
         });
-  
+
         if (existingMetric) {
           const updatedMetric = await this.prismaService.metrics.update({
             where: { id: existingMetric.id },
@@ -765,19 +782,19 @@ export class MonitoringService {
           upsertedMetrics.push(createdMetric);
         }
       }
-    } catch(err){
+    } catch (err) {
       console.log(err)
     }
   }
 
   public async setMetrics(metricsToUpsert): Promise<void> {
     const upsertedMetrics = [];
-    try{
+    try {
       for (const metric of metricsToUpsert) {
         const existingMetric: any = await this.prismaService.metrics.findUnique({
           where: { name: metric.name },
         });
-  
+
         if (existingMetric) {
           const updatedMetric = await this.prismaService.metrics.update({
             where: { id: existingMetric.id },
@@ -791,7 +808,7 @@ export class MonitoringService {
           upsertedMetrics.push(createdMetric);
         }
       }
-    } catch(err){
+    } catch (err) {
       console.log(err)
     }
   }

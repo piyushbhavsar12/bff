@@ -2,7 +2,7 @@ version: '3.6'
 services:
   timescaledb:
     container_name: timescaledb
-    image: samagragovernance/postgres:latest-pg15
+    image: samagragovernance/postgres:1.0.1-pg15
     restart: always
     ports:
       - "5432:5432"
@@ -33,3 +33,14 @@ services:
       HASURA_GRAPHQL_ADMIN_SECRET: ${HASURA_GRAPHQL_ADMIN_SECRET}
       HASURA_GRAPHQL_MIGRATIONS_DISABLE_TRANSACTION: "true"
       HASURA_GRAPHQL_CONSOLE_ASSETS_DIR: /srv/console-assets
+
+  redis:  # New Redis service
+    container_name: redis
+    image: redis:latest
+    restart: always
+    ports:
+      - "6379:6379"  # Expose Redis port
+    volumes:
+      - redis_data:/data  # Optional: Persist Redis data
+volumes:
+  redis_data:
