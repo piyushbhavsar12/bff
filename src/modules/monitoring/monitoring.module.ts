@@ -3,10 +3,11 @@ import { Module, OnModuleInit, Global, DynamicModule } from '@nestjs/common';
 import { MonitoringService } from './monitoring.service';
 import { PrismaService } from 'src/global-services/prisma.service';
 import { MonitoringController } from './monitoring.controller';
+import { CacheProvider } from '../cache/cache.provider';
 
 @Global()
 @Module({
-  providers: [MonitoringService,PrismaService],
+  providers: [MonitoringService, PrismaService, CacheProvider],
   exports: [MonitoringService],
   controllers: [MonitoringController],
 })

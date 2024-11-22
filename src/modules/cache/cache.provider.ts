@@ -31,4 +31,9 @@ export class CacheProvider {
   async del(key: string): Promise<void> {
     return this.cache.del(key);
   }
+
+  async increment(key: string): Promise<void> {
+    return this.cache.increment(key);
+  }
+
 }
