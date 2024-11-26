@@ -722,11 +722,20 @@ export class AppController {
           prompt.inputTextInEnglish,
           isOTP ? "otp" : "benId"
         );
+        if (
+          ((/^[6-9]\d{9}$/.test(number)) || 
+          (number.length == 14 && /^[6-9]\d{9}$/.test(number.substring(0, 10))) || 
+          (number.length == 12 && /^\d+$/.test(number))  ||
+          (number.length == 11)) || 
+          (isOTP && number.length==4)
+        ) {
+          prompt.inputTextInEnglish = number.toUpperCase();
+          if (prompt.inputTextInEnglish == "")
+            prompt.inputTextInEnglish = isOTP ? "1111" : "AB123123123";
+          isNumber = true;
+        }
         // let number = prompt.inputTextInEnglish.replace(/\s/g, '')
-        prompt.inputTextInEnglish = number.toUpperCase();
-        if (prompt.inputTextInEnglish == "")
-          prompt.inputTextInEnglish = isOTP ? "1111" : "AB123123123";
-        isNumber = true;
+        
         // if(/\d/.test(number)){
         //   isNumber = true
         //   prompt.inputTextInEnglish = number.toUpperCase()
