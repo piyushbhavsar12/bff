@@ -343,7 +343,7 @@ export class AiToolsService {
       userId,
       sessionId,
       callback: null,
-      timeout: 30000
+      timeout: this.configService.get("BHASHINI_API_TIMEOUT") || 30000
     };
 
     requestOptions.callback = function (retry) {
@@ -417,7 +417,7 @@ export class AiToolsService {
       userId,
       sessionId,
       callback: null,
-      timeout: 30000
+      timeout: this.configService.get("BHASHINI_API_TIMEOUT") || 30000
     };
 
     requestOptions.callback = function (retry) {
