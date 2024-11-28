@@ -289,8 +289,8 @@ export class AiToolsService {
       myHeaders.append("accept", "application/json");
       myHeaders.append("X-API-Key", this.configService.get("WADHWANI_API_KEY"));
       let startDate = new Date();
-      console.log(`${startDate}: userId: ${userId} sessionId: ${sessionId} Waiting for ${this.configService.get("WADHWANI_BASE_URL")}/get_bot_response?query=${text}&user_id=${userId}&session_id=${sessionId} to respond ...`)
-      let response: any = await fetch(`${this.configService.get("WADHWANI_BASE_URL")}/get_bot_response?query=${text}&user_id=${userId}&session_id=${sessionId}`, {
+      console.log(`${startDate}: userId: ${userId} sessionId: ${sessionId} Waiting for ${this.configService.get("WADHWANI_BASE_URL")}/get_bot_response?query=${text}&user_id=${userId}&session_id=${sessionId}&scheme_name=${schemeName} to respond ...`)
+      let response: any = await fetch(`${this.configService.get("WADHWANI_BASE_URL")}/get_bot_response?query=${text}&user_id=${userId}&session_id=${sessionId}&scheme_name=${schemeName}`, {
         headers: myHeaders,
         "method": "GET",
         "mode": "cors",
