@@ -1,14 +1,14 @@
-import { Injectable, CACHE_MANAGER, Inject } from '@nestjs/common';
-import { Cache } from 'cache-manager';
-import { ConfigService } from '@nestjs/config';
-import { Language } from '../../language';
-import { isMostlyEnglish } from 'src/common/utils';
-import { MonitoringService } from '../monitoring/monitoring.service';
-const fetch = require('../../common/fetch');
-const nodefetch = require('node-fetch');
-const { Headers } = require('node-fetch');
-const path = require('path');
-const filePath = path.resolve(__dirname, '../../common/en.json');
+import { Injectable, CACHE_MANAGER, Inject } from "@nestjs/common";
+import { Cache } from "cache-manager";
+import { ConfigService } from "@nestjs/config";
+import { Language } from "../../language";
+import { isMostlyEnglish } from "src/common/utils";
+import { MonitoringService } from "../monitoring/monitoring.service";
+const fetch = require("../../common/fetch");
+const nodefetch = require("node-fetch");
+const { Headers } = require("node-fetch");
+const path = require("path");
+const filePath = path.resolve(__dirname, "../../common/en.json");
 const engMessage = require(filePath);
 
 @Injectable()
@@ -16,7 +16,7 @@ export class AiToolsService {
   constructor(
     private configService: ConfigService,
     private readonly monitoringService: MonitoringService,
-    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
+    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
   ) {}
   async detectLanguage(text: string, userId: string, sessionId: string): Promise<any> {
     // console.log("DETECTING LANGUAGE....")
@@ -59,18 +59,18 @@ export class AiToolsService {
         }
       }
     } catch (error) {
-        this.monitoringService.incrementBhashiniFailureCount()
-        if(isMostlyEnglish(text?.replace("?","")?.trim())) {
-            return {
-                language: Language.en,
-                error: error.message
-            }
-        } else {
-            return {
-                language: 'unk',
-                error: error.message
-            }
-        }
+      this.monitoringService.incrementBhashiniFailureCount();
+      if (isMostlyEnglish(text?.replace("?", "")?.trim())) {
+        return {
+          language: Language.en,
+          error: error.message,
+        };
+      } else {
+        return {
+          language: "unk",
+          error: error.message,
+        };
+      }
     }
   }
 
@@ -85,8 +85,8 @@ export class AiToolsService {
       const urlRegex = /(https?:\/\/[^\s]+)|(www\.[^\s]+)/g;
       const urls = text.match(urlRegex) || [];
 
-      const placeHolder = "9814567092798090023722437987555212294" //placeholder which stays the same across languages after translation
-      const textWithoutUrls = text.replace(urlRegex, placeHolder)
+      const placeHolder = "9814567092798090023722437987555212294"; //placeholder which stays the same across languages after translation
+      const textWithoutUrls = text.replace(urlRegex, placeHolder);
       let config = {
         "language": {
             "sourceLanguage": source,
@@ -104,7 +104,7 @@ export class AiToolsService {
           bhashiniConfig?.pipelineInferenceAPIEndPoint?.callbackUrl,
           config,
           {
-            "input":[
+            input: [
               {
                 // "source": text?.replace("\n",".")
                 "source": textArray[i]
@@ -118,19 +118,21 @@ export class AiToolsService {
           console.log(response["error"])
           throw new Error(response["error"])
         }
-        textArray[i]=response?.pipelineResponse[0]?.output[0]?.target
+        textArray[i] = response?.pipelineResponse[0]?.output[0]?.target;
       }
-      const translatedText = textArray.join('\n').replace(new RegExp(placeHolder, 'g'), () => urls.shift() || '');
+      const translatedText = textArray
+        .join("\n")
+        .replace(new RegExp(placeHolder, "g"), () => urls.shift() || "");
       return {
         text: translatedText,
-        error: null
-      }
-    } catch(error){
-      console.log(error)
+        error: null,
+      };
+    } catch (error) {
+      console.log(error);
       return {
-        text:"",
-        error: error
-      }
+        text: "",
+        error: error,
+      };
     }
   }
 
@@ -147,16 +149,14 @@ export class AiToolsService {
         }
       },userId,sessionId)
       let requestConfig = {
-        "language": {
-            "sourceLanguage": language
-        }
+        language: {
+          sourceLanguage: language,
+        },
+      };
+      if (["kn", "ur", "ml", "gu", "pa"].indexOf(`${language}`) == -1) {
+        requestConfig["postProcessors"] = ["itn"];
       }
-      if(['kn', 'ur', 'ml', 'gu', 'pa'].indexOf(`${language}`)==-1){
-        requestConfig["postProcessors"] = [
-          "itn"
-        ]
-      }
-  
+
       let response: any = await this.computeBhashini(
         config?.pipelineInferenceAPIEndPoint?.inferenceApiKey?.value,
         "asr",
@@ -164,7 +164,7 @@ export class AiToolsService {
         config?.pipelineInferenceAPIEndPoint?.callbackUrl,
         requestConfig,
         {
-          "audio":[
+          audio: [
             {
               "audioContent": base64audio
             }
@@ -179,20 +179,21 @@ export class AiToolsService {
       }
       return {
         text: response?.pipelineResponse[0]?.output[0]?.source,
-        error: null
-      }
-    } catch(error){
-      console.log(error)
+        error: null,
+      };
+    } catch (error) {
+      console.log(error);
       return {
-        text:"",
-        error: error
-      }
+        text: "",
+        error: error,
+      };
     }
   }
 
   async textToSpeech(
     text: string,
     language: Language,
+    audioGender: string = 'male',
     userId: string,
     sessionId: string
   ) {
@@ -209,12 +210,13 @@ export class AiToolsService {
         config?.pipelineResponseConfig[0].config[0].serviceId,
         config?.pipelineInferenceAPIEndPoint?.callbackUrl,
         {
-          "language": {
-              "sourceLanguage": language
-          }
+          language: {
+            sourceLanguage: language,
+          },
+          gender: audioGender
         },
         {
-          "input":[
+          input: [
             {
               "source": text
             }
@@ -229,19 +231,19 @@ export class AiToolsService {
       }
       return {
         text: response?.pipelineResponse[0]?.audio[0]?.audioContent,
-        error: null
-      }
-    } catch(error){
-      console.log(error)
+        error: null,
+      };
+    } catch (error) {
+      console.log(error);
       return {
-        text:"",
-        error: error
-      }
+        text: "",
+        error: error,
+      };
     }
   }
 
   async textClassification(text: string) {
-    try{
+    try {
       var myHeaders = new Headers();
       myHeaders.append("accept", "application/json");
       myHeaders.append("X-API-Key", this.configService.get("WADHWANI_API_KEY"));
@@ -255,30 +257,40 @@ export class AiToolsService {
       //   "mode": "cors",
       //   "credentials": "omit"
       // });
-      let response: any = await fetch(`${this.configService.get("WADHWANI_BASE_URL")}/detect_query_intent?query=${text}`, {
-        headers: myHeaders,
-        "method": "GET",
-        "mode": "cors",
-        "credentials": "omit"
-      });
-      response = await response.text()
-      return response
-    } catch(error){
-      console.log(error)
+      let response: any = await fetch(
+        `${this.configService.get(
+          "WADHWANI_BASE_URL"
+        )}/detect_query_intent?query=${text}`,
+        {
+          headers: myHeaders,
+          method: "GET",
+          mode: "cors",
+          credentials: "omit",
+        }
+      );
+      response = await response.text();
+      return response;
+    } catch (error) {
+      console.log(error);
       return {
-        error
-      }
+        error,
+      };
     }
   }
 
-  async getResponseViaWadhwani(sessionId: string, userId: string, text: string) {
-    try{
+  async getResponseViaWadhwani(
+    sessionId: string,
+    userId: string,
+    text: string,
+    schemeName: string
+  ) {
+    try {
       var myHeaders = new Headers();
       myHeaders.append("accept", "application/json");
       myHeaders.append("X-API-Key", this.configService.get("WADHWANI_API_KEY"));
       let startDate = new Date();
-      console.log(`${startDate}: userId: ${userId} sessionId: ${sessionId} Waiting for ${this.configService.get("WADHWANI_BASE_URL")}/get_bot_response?query=${text}&user_id=${userId}&session_id=${sessionId} to respond ...`)
-      let response: any = await fetch(`${this.configService.get("WADHWANI_BASE_URL")}/get_bot_response?query=${text}&user_id=${userId}&session_id=${sessionId}`, {
+      console.log(`${startDate}: userId: ${userId} sessionId: ${sessionId} Waiting for ${this.configService.get("WADHWANI_BASE_URL")}/get_bot_response?query=${text}&user_id=${userId}&session_id=${sessionId}&scheme_name=${schemeName} to respond ...`)
+      let response: any = await fetch(`${this.configService.get("WADHWANI_BASE_URL")}/get_bot_response?query=${text}&user_id=${userId}&session_id=${sessionId}&scheme_name=${schemeName}`, {
         headers: myHeaders,
         "method": "GET",
         "mode": "cors",
@@ -291,8 +303,8 @@ export class AiToolsService {
     } catch(error){
       console.log(error)
       return {
-        error
-      }
+        error,
+      };
     }
   }
 
@@ -309,29 +321,29 @@ export class AiToolsService {
     myHeaders.append("Content-Type", "application/json");
 
     var raw = JSON.stringify({
-      "pipelineTasks": [
+      pipelineTasks: [
         {
-          "taskType": task,
-          "config": config
-        }
+          taskType: task,
+          config: config,
+        },
       ],
-      "pipelineRequestConfig": {
-        "pipelineId": "64392f96daac500b55c543cd"
-      }
+      pipelineRequestConfig: {
+        pipelineId: "64392f96daac500b55c543cd",
+      },
     });
 
     var requestOptions: any = {
-      method: 'POST',
+      method: "POST",
       headers: myHeaders,
       body: raw,
-      redirect: 'follow',
-      retry: 4, 
+      redirect: "follow",
+      retry: 4,
       pause: 0,
       url: this.configService.get("ULCA_CONFIG_URL"),
       userId,
       sessionId,
       callback: null,
-      timeout: 30000
+      timeout: this.configService.get("BHASHINI_API_TIMEOUT") || 30000
     };
 
     requestOptions.callback = function (retry) {
@@ -353,13 +365,13 @@ export class AiToolsService {
       console.log(`${endDate}: userId: ${userId} sessionId: ${sessionId} URL: ${this.configService.get("ULCA_CONFIG_URL")} (config API) Responded succesfully in ${endDate.getTime()-startDate.getTime()} ms.`)
       this.monitoringService.incrementBhashiniSuccessCount()
       await this.cacheManager.set(cacheKey, response, 86400);
-      return response
-    } catch(error) {
-      this.monitoringService.incrementBhashiniFailureCount()
+      return response;
+    } catch (error) {
+      this.monitoringService.incrementBhashiniFailureCount();
       console.log(error);
       return {
-        error
-      }
+        error,
+      };
     }
   }
 
@@ -375,23 +387,25 @@ export class AiToolsService {
     myHeaders.append("Accept", " */*");
     myHeaders.append("Authorization", authorization);
     myHeaders.append("Content-Type", "application/json");
-    config['serviceId']=serviceId
-    if(task == 'tts'){
-      config['gender']='male'
-      config['samplingRate']=8000
+    config["serviceId"] = serviceId;
+    if (task == "tts") {
+      if(!config["gender"]){
+        config["gender"] = "male";
+      }
+      config["samplingRate"] = 8000;
     }
     var raw = JSON.stringify({
-      "pipelineTasks": [
+      pipelineTasks: [
         {
-          "taskType": task,
-          "config": config
-        }
+          taskType: task,
+          config: config,
+        },
       ],
-      "inputData": input
+      inputData: input,
     });
 
     var requestOptions: any = {
-      method: 'POST',
+      method: "POST",
       headers: myHeaders,
       body: raw,
       redirect: 'follow',
@@ -403,7 +417,7 @@ export class AiToolsService {
       userId,
       sessionId,
       callback: null,
-      timeout: 30000
+      timeout: this.configService.get("BHASHINI_API_TIMEOUT") || 30000
     };
 
     requestOptions.callback = function (retry) {
@@ -427,13 +441,13 @@ export class AiToolsService {
       if(task != 'asr') {
         await this.cacheManager.set(cacheKey, response, 7200);
       }
-      return response
-    } catch(error) {
-      this.monitoringService.incrementBhashiniFailureCount()
+      return response;
+    } catch (error) {
+      this.monitoringService.incrementBhashiniFailureCount();
       console.log(error);
       return {
-        error
-      }
+        error,
+      };
     }
   }
 }

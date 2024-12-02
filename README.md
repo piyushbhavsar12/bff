@@ -46,3 +46,8 @@ BFF aims to simplify the development process by providing a robust and extensibl
 ### Deployment
 - [Deployment steps](https://github.com/AgrI-Mitra/docs/blob/main/deployment.md)
 
+
+along with all existing params only 1 additional param: scheme_name
+Possiible scheme names: ['PM Kisan', 'Kisan Credit Card', 'PM Fasal Bima Yojana'] ==> scheme names that are displayed on the top right corner of the chatbot.
+
+Once the Backend team starts sending scheme_name to WAI API, send only the original user query. Don't append it by the scheme name that we were doing till now.

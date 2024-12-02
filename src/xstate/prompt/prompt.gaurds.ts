@@ -1,27 +1,41 @@
 export const promptGuards = {
+  ifText: (_, event) => event.data.prompt.input.type == "Text",
 
-    ifText: (_,event) => event.data.prompt.input.type == "Text",
+  ifAudio: (_, event) => event.data.inputType == "Audio",
 
-    ifAudio: (_,event) => event.data.inputType == "Audio",
+  ifMultipleAadhaar: (_, event) =>
+    event.data == "This mobile number taged with multiple records.",
 
-    ifMultipleAadhaar: (_,event) => event.data == "This mobile number taged with multiple records.",
+  //   ifInValidScheme: (_, event) =>
+  //     !VALID_SCHEMES.includes(event.data.prompt.input.schemeName),
 
-    ifNoRecordsFound: (context,event)=> event.data == `No Record Found for this (${context.userAadhaarNumber}) Aadhar/Ben_id/Mobile.`,
+  ifNoRecordsFound: (context, event) => {
+    const pattern =
+      /No Record Found for this \((.*?)\) Aadhar\/Ben_id\/Mobile\./;
+    return (
+      pattern.test(event.data) ||
+      ((event.data as string).startsWith("No Record Found for this") &&
+        (event.data as string).endsWith("Aadhar/Ben_id/Mobile."))
+    );
+  },
+  // event.data ==
+  //   `No Record Found for this (${context.userAadhaarNumber}) Aadhar/Ben_id/Mobile.`,
 
-    ifOTPSend: (_,event)=> event.data == 'OTP send successfully!',
+  ifOTPSend: (_, event) => event.data == "OTP send successfully!",
 
-    ifTryAgain: (_,event)=> event.data == 'Try again',
+  ifTryAgain: (_, event) => event.data == "Try again",
 
-    ifNotValidAadhaar: (_,event) =>  event.data == "Please enter a valid Beneficiary ID/Aadhaar Number/Phone number",
+  ifNotValidAadhaar: (_, event) =>
+    event.data ==
+    "Please enter a valid Beneficiary ID/Aadhaar Number/Phone number",
 
-    ifInvalidOTP: (_,event) => event.data == "OTP not verified",
-    
-    resendOTP: (_,event) => event.data.query == "resend OTP",
+  ifInvalidOTP: (_, event) => event.data == "OTP not verified",
 
-    ifOTPHasBeenVerified: (context,_) => context.isOTPVerified,
+  resendOTP: (_, event) => event.data.query == "resend OTP",
 
-    ifInvalidClassifier: (_,event) => event.data.class == "invalid",
+  ifOTPHasBeenVerified: (context, _) => context.isOTPVerified,
 
-    ifConvoStarterOrEnder: (_,event) => event.data.class == "convo"
+  ifInvalidClassifier: (_, event) => event.data.class == "invalid",
 
-}
+  ifConvoStarterOrEnder: (_, event) => event.data.class == "convo",
+};
