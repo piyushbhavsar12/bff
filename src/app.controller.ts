@@ -7,6 +7,7 @@ import {
   Param,
   CACHE_MANAGER,
   Inject,
+  Logger
 } from "@nestjs/common";
 import { AppService, Prompt } from "./app.service";
 import { IsNotEmpty, IsUUID, IsOptional } from "class-validator";
@@ -24,7 +25,6 @@ import { PrismaService } from "./global-services/prisma.service";
 import { MonitoringService } from "./modules/monitoring/monitoring.service";
 import { PromptServices } from "./xstate/prompt/prompt.service";
 import { Cache } from "cache-manager";
-import { LokiLogger } from "./modules/loki-logger/loki-logger.service";
 import { HttpService } from '@nestjs/axios';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody, ApiHeader } from '@nestjs/swagger';
 const uuid = require("uuid");
@@ -74,7 +74,7 @@ export class AppController {
   private conversationService: ConversationService;
   private prismaService: PrismaService;
   private promptService: PromptServices;
-  private logger: LokiLogger
+  private logger: Logger;
 
   constructor(
     private readonly appService: AppService,
@@ -98,14 +98,9 @@ export class AppController {
       this.prismaService,
       this.configService,
       this.aiToolsService,
-      this.monitoringService,
-      this.httpService
+      this.monitoringService
     );
-    this.logger = new LokiLogger(
-      AppController.name,
-      httpService,
-      this.configService,
-    );
+    this.logger = new Logger(AppService.name);
   }
 
   @ApiOperation({ summary: 'Get hello message' })
@@ -147,22 +142,6 @@ export class AppController {
       };
     }
     let messageType = "intermediate_response";
-    //setup loggers
-    let verboseLogger = this.logger.logWithCustomFields(
-      {
-        userId: userId,
-        flowId: configid,
-      },
-      "verbose"
-    );
-    let errorLogger = this.logger.logWithCustomFields(
-      {
-        userId: userId,
-        flowId: configid,
-      },
-      "error"
-    );
-    // verboseLogger("User input", promptDto)
     //create or get user and conversation
     let user;
     try {
@@ -239,7 +218,6 @@ export class AppController {
         if (prompt.inputLanguage == "unk") {
           prompt.inputLanguage = prompt.input.inputLanguage as Language;
         }
-        // verboseLogger("Detected Language =", prompt.inputLanguage)
       }
     } else if (promptDto.media) {
       let audioStartTime = Date.now();
@@ -253,7 +231,7 @@ export class AppController {
           response = await this.aiToolsService.speechToText(promptDto.media.text,prompt.inputLanguage,userId,sessionId)
 
         if (response.error) {
-          errorLogger(response.error);
+          this.logger.error(response.error);
           this.monitoringService.incrementTotalFailureSessionsCount();
           this.monitoringService.incrementSomethingWentWrongTryAgainCount();
           return {
@@ -265,7 +243,7 @@ export class AppController {
         userInput = response["text"];
       } else {
         this.monitoringService.incrementUnsupportedMediaCount();
-        errorLogger("Unsupported media");
+        this.logger.error("Unsupported media");
         return {
           text: "",
           media: promptDto.media,
@@ -297,7 +275,6 @@ export class AppController {
     let botFlowService = interpret(
       botFlowMachine.withContext(conversation || defaultContext)
     ).start();
-    // verboseLogger("current state when API hit =", botFlowService.state.context.currentState)
     if (
       (botFlowService.state.context.currentState == "askingAadhaarNumber" ||
         botFlowService.state.context.currentState == "confirmInput2") &&
@@ -366,7 +343,7 @@ export class AppController {
             sessionId
           )
           if(!response['text']) {
-            errorLogger(
+            this.logger.error(
               "Sorry, We are unable to translate given input, please try again"
             );
             this.monitoringService.incrementTotalFailureSessionsCount();
@@ -379,7 +356,7 @@ export class AppController {
           }
           prompt.inputTextInEnglish = response["text"];
         } catch (error) {
-          errorLogger(
+          this.logger.error(
             "Sorry, We are unable to translate given input, please try again"
           );
           this.monitoringService.incrementTotalFailureSessionsCount();
@@ -443,16 +420,13 @@ export class AppController {
 
     await new Promise((resolve) => {
       botFlowService.subscribe((state) => {
-        // verboseLogger('Current state:', state.value);
         updatedContext = {
           ...state.context,
           //@ts-ignore
           currentState: state.value,
         };
         botFlowService.state.context = updatedContext;
-        // this.logger.log('Current context:', state.context);
         if (state.context.type == "pause") {
-          // verboseLogger("paused state", state.value)
           resolve(state);
         }
       });
@@ -463,13 +437,10 @@ export class AppController {
           state: "Done",
         };
         botFlowService.state.context = updatedContext;
-        // verboseLogger("state done")
         resolve(state);
       });
     });
 
-    // verboseLogger("final response",botFlowService.getSnapshot().context.response)
-    // verboseLogger("final error",botFlowService.getSnapshot().context.error)
     let result = {
       textInEnglish: botFlowService.getSnapshot().context.response,
       text: botFlowService.getSnapshot().context.response,
@@ -514,7 +485,7 @@ export class AppController {
             sessionId
           )
           if(!response['text']){
-            errorLogger(
+            this.logger.error(
               "Sorry, We are unable to translate given input, please try again"
             );
             this.monitoringService.incrementTotalFailureSessionsCount();
@@ -524,7 +495,7 @@ export class AppController {
           }
           result.text = response["text"];
         } catch (error) {
-          errorLogger(error);
+          this.logger.error(error);
           this.monitoringService.incrementTotalFailureSessionsCount();
           this.monitoringService.incrementUnableToTranslateCount();
           return {
@@ -535,7 +506,6 @@ export class AppController {
         }
       }
       if (prompt.inputLanguage != Language.en && placeholder) {
-        let translateStartTime = Date.now();
         try {
           let response = await this.aiToolsService.translate(
             Language.en,
@@ -545,7 +515,7 @@ export class AppController {
             sessionId
           )
           if(!response['text']){
-            errorLogger(
+            this.logger.error(
               "Sorry, We are unable to translate given input, please try again"
             );
             this.monitoringService.incrementTotalFailureSessionsCount();
@@ -555,7 +525,7 @@ export class AppController {
           }
           result["placeholder"] = response["text"];
         } catch (error) {
-          errorLogger(error);
+          this.logger.error(error);
           this.monitoringService.incrementTotalFailureSessionsCount();
           this.monitoringService.incrementUnableToTranslateCount();
           return {
@@ -611,11 +581,9 @@ export class AppController {
             } else {
               textToaudio = resArray.pop();
             }
-            // verboseLogger("Array to convert",resArray)
             result.text = `${formatStringsToTable(resArray)}\n${textToaudio}`;
           }
         }
-        // verboseLogger("textToaudio =",textToaudio)
         let audioStartTime = Date.now();
         textToaudio = removeLinks(textToaudio)
         result['audio'] = await this.aiToolsService.textToSpeech(textToaudio,isNumber ? Language.en : prompt.inputLanguage,promptDto.audioGender,userId,sessionId)
@@ -623,7 +591,6 @@ export class AppController {
         result["audio"] = { text: "", error: error.message };
       }
     }
-    // this.logger.log("Saving conversation..")
     conversation = await this.conversationService.saveConversation(
       sessionId,
       userId,
@@ -646,7 +613,9 @@ export class AppController {
     result["messageId"] = msg.id;
     result["messageType"] = messageType;
     result["conversationId"] = conversation.id;
-    verboseLogger(
+    this.logger.log(
+      "userId =", userId,
+      "sessionId =", sessionId,
       "current state while returning response =",
       botFlowService.state.context.currentState
     );

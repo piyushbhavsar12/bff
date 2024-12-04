@@ -1,8 +1,7 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, Logger } from "@nestjs/common";
 import { PromptDto } from "./app.controller";
 import { Language } from "./language";
 import { PrismaService } from "./global-services/prisma.service";
-import { LokiLogger } from "./modules/loki-logger/loki-logger.service";
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 // Overlap between LangchainAI and Prompt-Engine
@@ -23,18 +22,14 @@ export interface Prompt {
 }
 @Injectable()
 export class AppService {
-  private logger: LokiLogger;
+  private logger: Logger;
 
   constructor(
     private prismaService: PrismaService,
     private httpService: HttpService,
     private configService: ConfigService
   ){
-    this.logger = new LokiLogger(
-      AppService.name,
-      httpService,
-      configService,
-    );
+    this.logger = new Logger(AppService.name);
   }
   getHello(): string {
     return "Hello World!";

@@ -1,27 +1,21 @@
-import { Body, Controller, Get, Param, Post, Headers } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Headers, Logger } from '@nestjs/common';
 import { UserService } from './user.service';
 import { PrismaService } from 'src/global-services/prisma.service';
 import { Message } from '@prisma/client';
 import { ConfigService } from '@nestjs/config';
-import { LokiLogger } from '../loki-logger/loki-logger.service';
-import { HttpService } from '@nestjs/axios';
-import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody, ApiHeader } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 const { v5: uuidv5 } = require('uuid');
 
 @ApiTags('User')
 @Controller('user')
 export class UserController {
-  private logger: LokiLogger;
+  private logger: Logger;
   constructor(
     private readonly userService: UserService,
     private readonly prismaService: PrismaService,
     private readonly configService: ConfigService
   ) {
-    this.logger = new LokiLogger(
-      'main',
-      new HttpService(),
-      this.configService,
-    );
+    this.logger = new Logger('main');
   }
 
   @ApiOperation({ summary: 'Generate user ID' })

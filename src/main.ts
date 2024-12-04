@@ -11,9 +11,9 @@ import multipart from "@fastify/multipart";
 import compression from "@fastify/compress";
 import { join } from "path";
 import { MonitoringService } from "./modules/monitoring/monitoring.service";
-import { LokiLogger } from "./modules/loki-logger/loki-logger.service";
-import { HttpService } from "@nestjs/axios";
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { Logger } from 'nestjs-pino';
+import { Logger as NestLogger } from '@nestjs/common';
 
 async function bootstrap() {
   process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '0'
@@ -30,11 +30,6 @@ async function bootstrap() {
 
   /** Global prefix: Will result in appending of keyword 'admin' at the start of all the request */
   const configService = app.get<ConfigService>(ConfigService);
-  const logger = new LokiLogger(
-    'main',
-    new HttpService(),
-    configService,
-  );
 
   // Setup Swagger
   const config = new DocumentBuilder()
@@ -46,6 +41,8 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
 
+  app.useLogger(app.get(Logger));
+  const logger = new NestLogger('main');
   app.register(helmet, {
     contentSecurityPolicy: {
       directives: {

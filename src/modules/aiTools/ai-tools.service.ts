@@ -1,10 +1,9 @@
-import { Injectable, CACHE_MANAGER, Inject } from "@nestjs/common";
+import { Injectable, CACHE_MANAGER, Inject, Logger } from "@nestjs/common";
 import { Cache } from "cache-manager";
 import { ConfigService } from "@nestjs/config";
 import { Language } from "../../language";
 import { isMostlyEnglish } from "src/common/utils";
 import { MonitoringService } from "../monitoring/monitoring.service";
-import { LokiLogger } from "../loki-logger/loki-logger.service";
 import { HttpService } from '@nestjs/axios';
 const fetch = require("../../common/fetch");
 const nodefetch = require("node-fetch");
@@ -15,7 +14,7 @@ const engMessage = require(filePath);
 
 @Injectable()
 export class AiToolsService {
-  private logger: LokiLogger;
+  private logger: Logger;
 
   constructor(
     private configService: ConfigService,
@@ -23,11 +22,7 @@ export class AiToolsService {
     private httpService: HttpService,
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
   ) {
-    this.logger = new LokiLogger(
-      AiToolsService.name,
-      httpService,
-      configService
-    );
+    this.logger = new Logger(AiToolsService.name);
   }
 
   async detectLanguage(text: string, userId: string, sessionId: string): Promise<any> {

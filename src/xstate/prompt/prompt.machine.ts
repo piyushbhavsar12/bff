@@ -1,16 +1,12 @@
 // @ts-nocheck
-import { HttpService } from "@nestjs/axios";
-import { ConfigService } from "@nestjs/config";
-import { LokiLogger } from "src/modules/loki-logger/loki-logger.service";
+import { Logger } from "@nestjs/common";
 import { assign } from "xstate";
 const path = require("path");
 const filePath = path.resolve(__dirname, "../../common/en.json");
 const engMessage = require(filePath);
 
-const logger = new LokiLogger(
-  'prompt',
-  new HttpService(),
-  new ConfigService()
+const logger = new Logger(
+  'prompt'
 );
 
 export const botFlowMachine1: any = {

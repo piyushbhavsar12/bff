@@ -33,6 +33,11 @@ export class CacheProvider {
   }
 
   async increment(key: string): Promise<void> {
-    return this.cache.increment(key);
+    let value: any = await this.get(key);
+    if(value) value= parseInt(value)
+    if(value){
+      return this.set(key, value + 1);
+    }
+    return this.set(key, 1);
   }
 }

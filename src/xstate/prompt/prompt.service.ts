@@ -5,7 +5,7 @@ import { UserService } from "../../modules/user/user.service";
 import axios from "axios";
 import { decryptRequest, encryptRequest, titleCase } from "../../common/utils";
 import { PrismaService } from "src/global-services/prisma.service";
-import { Injectable } from "@nestjs/common";
+import { Injectable, Logger } from "@nestjs/common";
 import {
   botFlowMachine1,
   botFlowMachine2,
@@ -15,8 +15,6 @@ import { createMachine } from "xstate";
 import { promptActions } from "./prompt.actions";
 import { promptGuards } from "./prompt.gaurds";
 import { MonitoringService } from "src/modules/monitoring/monitoring.service";
-import { LokiLogger } from "src/modules/loki-logger/loki-logger.service";
-import { HttpService } from "@nestjs/axios";
 const path = require("path");
 const filePath = path.resolve(__dirname, "../../common/kisanPortalErrors.json");
 const PMKissanProtalErrors = require(filePath);
@@ -25,48 +23,47 @@ import * as moment from "moment";
 @Injectable()
 export class PromptServices {
   private userService: UserService;
-  private logger: LokiLogger;
+  private logger: Logger;
 
   constructor(
     private prismaService: PrismaService,
     private configService: ConfigService,
     private aiToolsService: AiToolsService,
     private monitoringService: MonitoringService,
-    private httpService: HttpService
   ) {
     this.userService = new UserService(
       this.prismaService,
       this.configService,
       this.monitoringService
     );
-    this.logger = new LokiLogger('prompt', this.httpService, this.configService);
+    this.logger = new Logger('prompt');
   }
 
   async getInput(context) {
     return context;
   }
 
-    async questionClassifier (context) {
-        this.logger.log("IN questionclassifier");
-        try{
-            let response: any = await this.aiToolsService.getResponseViaWadhwani(context.sessionId, context.userId, context.query, context.schemeName)
-            if (response.error) throw new Error(`${response.error}, please try again.`)
-            let intent;
-            if (response.query_intent == "Invalid") intent = "convo"
-            if (response.query_intent == "convo_starter") intent =  "convo"
-            if (response.query_intent == "convo_ender") intent =  "convo"
-            if (response.query_intent == "Installment Not Received") intent = "payment"
-            else {
-                intent = "invalid"
-            }
-            return {
-                class: intent,
-                response: response.response
-            }
-        } catch (error){
-            return Promise.reject(error)
-        }
-    }
+  async questionClassifier (context) {
+      this.logger.log("IN questionclassifier");
+      try{
+          let response: any = await this.aiToolsService.getResponseViaWadhwani(context.sessionId, context.userId, context.query, context.schemeName)
+          if (response.error) throw new Error(`${response.error}, please try again.`)
+          let intent;
+          if (response.query_intent == "Invalid") intent = "convo"
+          if (response.query_intent == "convo_starter") intent =  "convo"
+          if (response.query_intent == "convo_ender") intent =  "convo"
+          if (response.query_intent == "Installment Not Received") intent = "payment"
+          else {
+              intent = "invalid"
+          }
+          return {
+              class: intent,
+              response: response.response
+          }
+      } catch (error){
+          return Promise.reject(error)
+      }
+  }
 
   async logError(_, event) {
     this.logger.log("logError");

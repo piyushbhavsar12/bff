@@ -1,26 +1,20 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, Logger } from "@nestjs/common";
 import { PrismaService } from "../../global-services/prisma.service";
 import { ConfigService } from "@nestjs/config";
-import { LokiLogger } from '../loki-logger/loki-logger.service';
 import axios from "axios";
 import { decryptRequest, encryptRequest } from "../../common/utils";
 import { Message } from "@prisma/client";
 import { MonitoringService } from "../monitoring/monitoring.service";
-import { HttpService } from "@nestjs/axios";
 
 @Injectable()
 export class UserService {
-  private logger: LokiLogger;
+  private logger: Logger;
   constructor(
     private prisma: PrismaService,
     private configService: ConfigService,
     private monitoringService: MonitoringService
   ) {
-    this.logger = new LokiLogger(
-      'main',
-      new HttpService(),
-      this.configService,
-    );
+    this.logger = new Logger('main');
   }
 
   async sendOTP(mobileNumber: string, type: string = "Mobile"): Promise<any> {

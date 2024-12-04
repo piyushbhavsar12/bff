@@ -1,13 +1,11 @@
 const fetch = require("./fetch");
 const { Headers } = fetch;
-const { LokiLogger } = require('../modules/loki-logger/loki-logger.service');
+const { Logger } = require('@nestjs/common');
 const { HttpService } = require('@nestjs/axios');
 const { ConfigService } = require('@nestjs/config');
 
-const logger = new LokiLogger(
-  'utils',
-  new HttpService(),
-  new ConfigService()
+const logger = new Logger(
+  'utils'
 );
 
 export function isMostlyEnglish(text: string): boolean {

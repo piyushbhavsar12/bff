@@ -14,11 +14,36 @@ import { MonitoringModule } from "./modules/monitoring/monitoring.module";
 import { PromptModule } from "./xstate/prompt/prompt.module";
 import { MonitoringController } from "./modules/monitoring/monitoring.controller";
 import { CacheProvider } from "./modules/cache/cache.provider";
-import { LokiLoggerModule } from "./modules/loki-logger/loki-logger.module";
 import { HttpModule } from "@nestjs/axios";
+import { LoggerModule } from 'nestjs-pino';
 
 @Module({
   imports: [
+    LoggerModule.forRoot({
+      pinoHttp: {
+        name: 'Telemetry',
+        transport: {
+          targets: [
+            {
+              target: 'pino-pretty'
+            },
+            {
+              level: process.env.NODE_ENV !== 'production' ? 'debug' : 'warn',
+              target: 'pino-loki',
+              options: {
+                batching: true,
+                interval: 5,
+                host: process.env.LOKI_INTERNAL_BASE_URL,
+                labels: {
+                  app: 'Telemetry',
+                  namespace: process.env.NODE_ENV || 'development',
+                },
+              },
+            }
+          ]
+        }
+      },
+    }),
     HttpModule,
     ConfigModule.forRoot({
       isGlobal: true,
@@ -36,8 +61,7 @@ import { HttpModule } from "@nestjs/axios";
       ttl: 60, // Time in seconds for the window (e.g., 60 seconds)
       limit: 10, // Maximum requests per window
     }),
-    CacheModule.register(),
-    LokiLoggerModule
+    CacheModule.register()
   ],
   controllers: [AppController],
   providers: [
