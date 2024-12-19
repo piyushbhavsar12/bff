@@ -1,12 +1,5 @@
-const fetch = require("./fetch");
+const fetch = require("node-fetch");
 const { Headers } = fetch;
-const { Logger } = require('@nestjs/common');
-const { HttpService } = require('@nestjs/axios');
-const { ConfigService } = require('@nestjs/config');
-
-const logger = new Logger(
-  'utils'
-);
 
 export function isMostlyEnglish(text: string): boolean {
   const englishCharacterCount = (
@@ -155,7 +148,7 @@ export const encryptRequest = async (text: string) => {
   try {
     var myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/json");
-    logger.log("text: ", text);
+    console.log("text: ", text);
     var raw = JSON.stringify({
       EncryptedRequest: text,
     });
