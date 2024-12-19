@@ -9,8 +9,13 @@ export class CacheProvider {
   private redisClient: RedisClientType;
 
   constructor() {
-    this.redisClient = createClient({ url: 'redis://localhost:6379' });
+    const redisHost = process.env.REDIS_HOST || '127.0.0.1';
+    const redisPort = process.env.REDIS_PORT || 6379;
+
+    this.redisClient = createClient({ url: `redis://${redisHost}:${redisPort}` });
     this.cache = cacheManager.caching({
+      host: redisHost, // Ensure this points to 'redis'
+      port: redisPort,
       store: redisStore,
       client: this.redisClient,
       ttl: 60 * 5, // Time to live in seconds
