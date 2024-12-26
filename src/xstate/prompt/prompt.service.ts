@@ -212,8 +212,7 @@ export class PromptServices {
       //   Values: userIdentifier,
       //   Token: token
       // });
-      // let requestData = `{\"Types\":\"${type}\",\"Values\":\"${userIdentifier}\",\"Token\":\"${this.configService.get("PM_KISSAN_TOKEN")}\"}`;
-      let requestData = `{\"Types\":\"${type}\",\"Values\":\"${userIdentifier}\",\"Token\":\"FHGBHFYBT268Gpf37hmJ6RY\"}`;
+      let requestData = `{\"Types\":\"${type}\",\"Values\":\"${userIdentifier}\",\"Token\":\"${this.configService.get("PM_KISSAN_TOKEN")}\"}`;
 
       let encrypted_text = await encrypt(requestData, token); //without @
       // let data = JSON.stringify({

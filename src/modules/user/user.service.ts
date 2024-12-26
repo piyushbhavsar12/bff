@@ -26,19 +26,14 @@ export class UserService {
       //   )}\"}`
       // );
       let key = getUniqueKey();
-      // let requestData = `{\"Types\":\"${type}\",\"Values\":\"${mobileNumber}\",\"Token\":\"${this.configService.get("PM_KISSAN_TOKEN")}\"}`;
-      let requestData = `{\"Types\":\"${type}\",\"Values\":\"${mobileNumber}\",\"Token\":\"FHGBHFYBT268Gpf37hmJ6RY\"}`;
+      let requestData = `{\"Types\":\"${type}\",\"Values\":\"${mobileNumber}\",\"Token\":\"${this.configService.get("PM_KISSAN_TOKEN")}\"}`;
       console.log("Request data: ", requestData);
       let encrypted_text = await encrypt(requestData, key); //without @
 
       console.log("encrypted text without @: ", encrypted_text);
-
-      //FHGBHFYBT268Gpf37hmJ6RY
-
       // let data = JSON.stringify({
       //   EncryptedRequest: `${encryptedData.d.encryptedvalu}@${encryptedData.d.token}`,
       // });
-
       let data = {
        "EncryptedRequest":`${encrypted_text}@${key}`
       };
@@ -104,13 +99,13 @@ export class UserService {
       //   )}\"}`
       // );
       // const requestData = `{\"Types\":\"${type}\",\"Values\":\"${mobileNumber}\",\"Token\":\"${this.configService.get("PM_KISSAN_TOKEN")}\"}`;
-      let requestData = `{\"Types\":\"${type}\",\"Values\":\"${mobileNumber}\",\"OTP\":\"${otp}\",\"Token\":\"FHGBHFYBT268Gpf37hmJ6RY\"}`;
+      let requestData = `{\"Types\":\"${type}\",\"Values\":\"${mobileNumber}\",\"OTP\":\"${otp}\",\"${this.configService.get("PM_KISSAN_TOKEN")}\"}`;
       console.log("Request data: ", requestData);
       let key = getUniqueKey();
       // const requestData = JSON.stringify({
       //   Types: type,
       //   Values: mobileNumber,
-      //   Token: "FHGBHFYBT268Gpf37hmJ6RY"
+      //   Token: ""
       // });
       let encrypted_text = await encrypt(requestData, key); //without @
       
@@ -185,14 +180,13 @@ export class UserService {
       //     "PM_KISSAN_TOKEN"
       //   )}\"}`
       // );
-      // const requestData = `{\"Types\":\"${type}\",\"Values\":\"${mobileNumber}\",\"Token\":\"${this.configService.get("PM_KISSAN_TOKEN")}\"}`;
-      const requestData = `{\"Types\":\"${type}\",\"Values\":\"${mobileNumber}\",\"Token\":\"FHGBHFYBT268Gpf37hmJ6RY\"}`;
+      const requestData = `{\"Types\":\"${type}\",\"Values\":\"${mobileNumber}\",\"Token\":\"${this.configService.get("PM_KISSAN_TOKEN")}\"}`;
       console.log("Request data: ", requestData);
       let key = getUniqueKey();
       // const requestData = JSON.stringify({
       //   Types: type,
       //   Values: mobileNumber,
-      //   Token: "FHGBHFYBT268Gpf37hmJ6RY"
+      //   Token: ""
       // });
       let encrypted_text = await encrypt(requestData, key); //without @
       console.log("encrypted text without @: ", encrypted_text);
