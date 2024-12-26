@@ -1,5 +1,6 @@
 import { ConstraintMetadata } from "class-validator/types/metadata/ConstraintMetadata";
 import { randomBytes, createCipheriv, createDecipheriv } from 'crypto';
+const crypto = require('crypto');
 
 const fetch = require("node-fetch");
 const { Headers } = fetch;
@@ -194,7 +195,7 @@ export function encrypt(textToEncrypt: string, key: string): string {
 }
 
 
-const crypto = require('crypto');
+
 
 //Decryption Method
 function decrypt(textToDecrypt: string, key: string): string {
