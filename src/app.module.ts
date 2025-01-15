@@ -16,6 +16,7 @@ import { MonitoringController } from "./modules/monitoring/monitoring.controller
 import { CacheProvider } from "./modules/cache/cache.provider";
 import { HttpModule } from "@nestjs/axios";
 import { LoggerModule } from 'nestjs-pino';
+import { HealthModule } from "./modules/health/health.module";
 
 @Module({
   imports: [
@@ -58,10 +59,11 @@ import { LoggerModule } from 'nestjs-pino';
     }),
     PromptModule,
     ThrottlerModule.forRoot({
-      ttl: 60, // Time in seconds for the window (e.g., 60 seconds)
-      limit: 10, // Maximum requests per window
+      ttl: 60,
+      limit: 10,
     }),
-    CacheModule.register()
+    CacheModule.register(),
+    HealthModule, // Add the HealthModule here
   ],
   controllers: [AppController],
   providers: [
