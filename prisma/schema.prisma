@@ -12,6 +12,7 @@ datasource db {
   extensions = [timescaledb, vector]
 }
 
+
 model conversation {
   id                    String    @db.Uuid
   createdAt             DateTime  @default(now()) @db.Timestamptz(3)
@@ -60,4 +61,28 @@ model feedback {
   information             Int             @default(0) @db.SmallInt
   chatbotFunctionality    Int             @default(0) @db.SmallInt
   feedback                String?
+}
+
+model Scheme {
+  id          Int           @id @default(autoincrement())
+  name        String        @unique
+  description String?
+  questions   MainQuestion[]
+}
+
+model MainQuestion {
+  id          Int         @id @default(autoincrement())
+  intent      String
+  question    String
+  response    String
+  schemeId    Int?        // Make schemeId optional
+  scheme      Scheme?     @relation(fields: [schemeId], references: [id])
+  variations  Variations[]
+}
+
+model Variations {
+  id             Int          @id @default(autoincrement())
+  variation      String
+  mainQuestionId Int
+  mainQuestion   MainQuestion @relation(fields: [mainQuestionId], references: [id])
 }

@@ -17,6 +17,9 @@ import { CacheProvider } from "./modules/cache/cache.provider";
 import { HttpModule } from "@nestjs/axios";
 import { LoggerModule } from 'nestjs-pino';
 import { HealthModule } from "./modules/health/health.module";
+import { MetricsModule } from './metrics/metrics.module';
+import { QuestionsController } from "./question/question.controller";
+import { QuestionsService } from "./question/question.service";
 
 @Module({
   imports: [
@@ -63,14 +66,16 @@ import { HealthModule } from "./modules/health/health.module";
       limit: 10,
     }),
     CacheModule.register(),
-    HealthModule, // Add the HealthModule here
+    HealthModule,
+    MetricsModule, // Add the HealthModule here
   ],
-  controllers: [AppController],
+  controllers: [AppController, QuestionsController],
   providers: [
     AppService,
     PrismaService,
     ConfigService,
     ConversationService,
+    QuestionsService,
     MonitoringController,
     {
       provide: APP_PIPE,

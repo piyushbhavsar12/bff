@@ -26,5 +26,6 @@ import { ScheduleModule } from '@nestjs/schedule';
     PrismaService,
     CacheProvider
   ],
+  exports: [HealthService],
 })
 export class HealthModule {}
