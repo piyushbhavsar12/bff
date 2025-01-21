@@ -198,7 +198,7 @@ export function encrypt(textToEncrypt: string, key: string): string {
 
 
 //Decryption Method
-function decrypt(textToDecrypt: string, key: string): string {
+export function decrypt(textToDecrypt: string, key: string): string {
   try {
     const keyBytes = Buffer.alloc(16); // Create a buffer of 16 bytes for the key
     const pwdBytes = Buffer.from(key, 'utf-8'); // Convert the key to bytes

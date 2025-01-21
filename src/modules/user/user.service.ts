@@ -57,7 +57,8 @@ export class UserService {
           response.d.output,
           key
         );
-        const parsedData = JSON.parse(decryptedData); // Convert JSON string to an object
+        const parsedData = JSON.parse(decryptedData); 
+        console.log("Response from decryptedData(sendOTP)",parsedData);// Convert JSON string to an object
         // const values = parsedData.Values; // Access the Values property
         // console.log("Values:", values);
         response.d.output = parsedData;
