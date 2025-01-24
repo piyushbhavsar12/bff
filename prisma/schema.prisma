@@ -86,3 +86,12 @@ model Variations {
   mainQuestionId Int
   mainQuestion   MainQuestion @relation(fields: [mainQuestionId], references: [id])
 }
+
+model ApiKey {
+  id          Int      @id @default(autoincrement())
+  apiKey      String   @unique
+  owner       String
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
