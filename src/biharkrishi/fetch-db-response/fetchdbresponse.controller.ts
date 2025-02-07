@@ -1,5 +1,5 @@
 import { Controller, BadRequestException, UseGuards, Body, Post } from '@nestjs/common';
-import { QuestionsService } from './question.service';
+import { QuestionsService } from './fetchdbresponse.service';
 import { ApiKeyGuard } from 'src/auth/api-key.guard';
 
 @Controller('questions')
