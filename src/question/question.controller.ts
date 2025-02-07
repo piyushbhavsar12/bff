@@ -1,14 +1,17 @@
-import { Controller, Get, Query, BadRequestException } from '@nestjs/common';
+import { Controller, BadRequestException, UseGuards, Body, Post } from '@nestjs/common';
 import { QuestionsService } from './question.service';
+import { ApiKeyGuard } from 'src/auth/api-key.guard';
 
 @Controller('questions')
 export class QuestionsController {
   constructor(private readonly questionsService: QuestionsService) {}
 
-  @Get('fetchdbresponse')
-  async fetchDbResponse(@Query('question') question: string) {
+  @UseGuards(ApiKeyGuard)
+  @Post('fetchdbresponse')
+  async fetchDbResponse(@Body() body: { question: string }) {
+    const { question } = body;
     if (!question) {
-      throw new BadRequestException('Question parameter is required.');
+      throw new BadRequestException('The question field in the body is required.');
     }
 
     return await this.questionsService.fetchResponse(question);
