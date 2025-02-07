@@ -18,9 +18,9 @@ import { HttpModule } from "@nestjs/axios";
 import { LoggerModule } from 'nestjs-pino';
 import { HealthModule } from "./modules/health/health.module";
 import { MetricsModule } from './metrics/metrics.module';
-import { QuestionsController } from "./question/question.controller";
-import { QuestionsService } from "./question/question.service";
-import { UploadModule } from './modules/upload/upload.module';
+import { QuestionsController } from "./biharkrishi/fetch-db-response/fetchdbresponse.controller";
+import { QuestionsService } from "./biharkrishi/fetch-db-response/fetchdbresponse.service";
+import { UploadModule } from './biharkrishi/upload/upload.module';
 
 
 @Module({
