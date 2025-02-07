@@ -20,6 +20,8 @@ import { HealthModule } from "./modules/health/health.module";
 import { MetricsModule } from './metrics/metrics.module';
 import { QuestionsController } from "./question/question.controller";
 import { QuestionsService } from "./question/question.service";
+import { UploadModule } from './modules/upload/upload.module';
+
 
 @Module({
   imports: [
@@ -67,7 +69,8 @@ import { QuestionsService } from "./question/question.service";
     }),
     CacheModule.register(),
     HealthModule,
-    MetricsModule, // Add the HealthModule here
+    MetricsModule,
+    UploadModule,
   ],
   controllers: [AppController, QuestionsController],
   providers: [
