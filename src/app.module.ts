@@ -28,7 +28,35 @@ import { UploadModule } from './biharkrishi/upload/upload.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot(),
+    LoggerModule.forRoot({
+      pinoHttp: {
+        name: 'Telemetry',
+        transport: {
+          targets: [
+            {
+              target: 'pino-pretty'
+            },
+            {
+              level: process.env.NODE_ENV !== 'production' ? 'debug' : 'warn',
+              target: 'pino-loki',
+              options: {
+                batching: true,
+                interval: 5,
+                host: process.env.LOKI_INTERNAL_BASE_URL,
+                labels: {
+                  app: 'Telemetry',
+                  namespace: process.env.NODE_ENV || 'development',
+                },
+              },
+            }
+          ]
+        }
+      },
+    }),
+    HttpModule,
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
     UserModule,
     ConversationModule,
     MonitoringModule,
@@ -66,6 +94,8 @@ import { UploadModule } from './biharkrishi/upload/upload.module';
       provide: APP_GUARD,
       useClass: RateLimiterGuard,
     },
+    CacheProvider
   ],
+  exports: [CacheProvider],
 })
 export class AppModule {}
