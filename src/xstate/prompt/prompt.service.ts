@@ -3,7 +3,7 @@ import { AiToolsService } from "../../modules/aiTools/ai-tools.service";
 import { AADHAAR_GREETING_MESSAGE } from "../../common/constants";
 import { UserService } from "../../modules/user/user.service";
 import axios from "axios";
-import { decryptRequest, encryptRequest, titleCase } from "../../common/utils";
+import { decryptRequest, encryptRequest, getUniqueKey, titleCase, encrypt } from "../../common/utils";
 import { PrismaService } from "src/global-services/prisma.service";
 import { Injectable } from "@nestjs/common";
 import {
@@ -19,6 +19,7 @@ const path = require("path");
 const filePath = path.resolve(__dirname, "../../common/kisanPortalErrors.json");
 const PMKissanProtalErrors = require(filePath);
 import * as moment from "moment";
+
 
 @Injectable()
 export class PromptServices {
@@ -186,7 +187,7 @@ export class PromptServices {
     if (res.d.output.Message == "Unable to get user details") {
       return Promise.reject(new Error(res.d.output.Message));
     }
-    let userDetails = AADHAAR_GREETING_MESSAGE(
+        let userDetails = AADHAAR_GREETING_MESSAGE(
       titleCase(res.d.output["BeneficiaryName"]),
       titleCase(res.d.output["FatherName"]),
       res.d.output["DOB"],
@@ -205,15 +206,27 @@ export class PromptServices {
     console.log("using...", userIdentifier, type);
     let userErrors = [];
     try {
-      let encryptedData = await encryptRequest(
-        `{\"Types\":\"${type}",\"Values\":\"${userIdentifier}\",\"Token\":\"${this.configService.get(
-          "PM_KISSAN_TOKEN"
-        )}\"}`
-      );
-      let data = JSON.stringify({
-        EncryptedRequest: `${encryptedData.d.encryptedvalu}@${encryptedData.d.token}`,
-      });
-      console.log("body", data);
+      // let encryptedData = await encryptRequest(
+      //   `{\"Types\":\"${type}",\"Values\":\"${userIdentifier}\",\"Token\":\"${this.configService.get(
+      //     "PM_KISSAN_TOKEN"
+      //   )}\"}`
+      // );
+      var token = getUniqueKey();
+      // const requestData = JSON.stringify({
+      //   Types: type,
+      //   Values: userIdentifier,
+      //   Token: token
+      // });
+      let requestData = `{\"Types\":\"${type}\",\"Values\":\"${userIdentifier}\",\"Token\":\"${this.configService.get("PM_KISSAN_TOKEN")}\"}`;
+
+      let encrypted_text = await encrypt(requestData, token); //without @
+      // let data = JSON.stringify({
+      //   EncryptedRequest: `${encryptedData.d.encryptedvalu}@${encryptedData.d.token}`,
+      // });
+      // console.log("body", data);
+      let data = {
+        "EncryptedRequest":`${encrypted_text}@${token}`
+       };
 
       let config = {
         method: "post",
@@ -232,17 +245,20 @@ export class PromptServices {
       console.log("related issues", errors);
       let decryptedData: any = await decryptRequest(
         errors.d.output,
-        encryptedData.d.token
+        token
       );
-      errors = JSON.parse(decryptedData.d.decryptedvalue);
+      errors = JSON.parse(decryptedData);
       if (errors.Rsponce == "True") {
+        const queryType = typeof context.queryType === 'object' 
+          ? context.queryType.class 
+          : context.queryType;
         Object.entries(errors).forEach(([key, value]) => {
           if (key != "Rsponce" && key != "Message") {
             if (
               value &&
               PMKissanProtalErrors[`${value}`] &&
               PMKissanProtalErrors[`${value}`]["types"].indexOf(
-                context.queryType
+                queryType
               ) != -1
             ) {
               console.log(`ERRORVALUE: ${key} ${value}`);
