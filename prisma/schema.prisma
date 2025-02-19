@@ -1,17 +1,14 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider        = "prisma-client-js"
   previewFeatures = ["postgresqlExtensions", "views"]
 }
-
 datasource db {
   provider   = "postgresql"
   url        = env("DATABASE_URL")
   extensions = [timescaledb, vector]
 }
-
 model conversation {
   id                    String    @db.Uuid
   createdAt             DateTime  @default(now()) @db.Timestamptz(3)
@@ -23,7 +20,6 @@ model conversation {
   feedback              feedback?
   @@unique([id])
 }
-
 model User {
   id           String   @id @db.Uuid
   createdAt    DateTime @default(now())
@@ -31,7 +27,6 @@ model User {
   isVerified   Boolean  @default(false)
   messages     Message[]
 }
-
 model Message {
   id              String   @id @default(uuid())
   createdAt       DateTime @default(now())
@@ -44,48 +39,12 @@ model Message {
   reaction        Int       @default(0) @db.SmallInt 
   messageType     String?
 }
-
 model Metrics {
   id              Int @id @default(autoincrement())
   createdAt       DateTime @default(now())
   name            String @unique
   value           String
 }
-
-model telemetry_logs {
-  eid                             String   @db.Uuid @default(uuid())
-  createdAt                       DateTime @default(now())
-  eventType                       String
-  eventName                       String
-  producer                        Json
-  platform                        String
-  // producerChannel                 String
-  // producerDeviceID                String?
-  // producerProducerID              String   @db.Uuid
-  // producerPlatform                String
-  context                         Json
-  sessionId                       String   @db.Uuid
-  // contextUserID                   String   @db.Uuid
-  // contextConversationID           String?   @db.Uuid
-  // contextPageID                   String?
-  // contextRollup                   Json?
-  eventData                       Json
-  // eventDataTimestamp              DateTime @default(now())
-  // eventDataDuration               String?
-  // eventDataAudioURL               String?
-  // eventDataQuestionGenerated      String?
-  // eventDataQuestionSubmitted      String?
-  // eventDataComparisonScore        Int?
-  // eventDataAnswer                 String?
-  // eventDataFeedbackScore          Int      @default(0) @db.SmallInt
-  // eventDataLogData                Json?
-  // eventDataErrorData              Json?
-  errorType                       String?
-  tags                            Json?
-
-  @@unique([eid,createdAt])
-}
-
 model feedback {
   id                      Int             @id @default(autoincrement())
   conversation            conversation?   @relation(fields: [conversationId], references: [id])

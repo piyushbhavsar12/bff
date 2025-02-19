@@ -16,6 +16,12 @@ import { PromptModule } from "./xstate/prompt/prompt.module";
 import { TelemetryModule } from "./modules/telemetry/telemetry.module";
 import { TelemetryService } from "./modules/telemetry/telemetry.service";
 import { MonitoringController } from "./modules/monitoring/monitoring.controller";
+import { CacheProvider } from "./modules/cache/cache.provider";
+import { HttpModule } from "@nestjs/axios";
+import { LoggerModule } from 'nestjs-pino';
+import { HealthModule } from "./modules/health/health.module";
+import { MetricsModule } from './metrics/metrics.module';
+
 
 @Module({
   imports: [
@@ -31,10 +37,12 @@ import { MonitoringController } from "./modules/monitoring/monitoring.controller
     PromptModule,
     TelemetryModule,
     ThrottlerModule.forRoot({
-      ttl: 60, // Time in seconds for the window (e.g., 60 seconds)
-      limit: 10, // Maximum requests per window
+      ttl: 60,
+      limit: 10,
     }),
-    CacheModule.register()
+    CacheModule.register(),
+    HealthModule,
+    MetricsModule,
   ],
   controllers: [AppController],
   providers: [
