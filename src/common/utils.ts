@@ -4,13 +4,6 @@ const crypto = require('crypto');
 
 const fetch = require("node-fetch");
 const { Headers } = fetch;
-const { Logger } = require('@nestjs/common');
-const { HttpService } = require('@nestjs/axios');
-const { ConfigService } = require('@nestjs/config');
-
-const logger = new Logger(
-  'utils'
-);
 
 export function isMostlyEnglish(text: string): boolean {
   const englishCharacterCount = (
